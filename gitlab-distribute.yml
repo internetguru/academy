@@ -1,0 +1,42 @@
+distribute:
+  image: debian:stretch
+  stage: distribute
+  before_script:
+    # fix TERM
+    - export TERM=xterm
+    # install requirements
+    - apt update && apt install -y curl jq git
+    # checkout to current branch
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    # set git user
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "Runner = $CI_RUNNER_DESCRIPTION"
+    # prepare acccess token for the distribution script
+    - |
+        if [[ -z "$ACCESS_TOKEN" ]]; then
+          echo "Undefined variable ACCESS_TOKEN"
+          echo "Refer to README and make sure the current branch is protected."
+          exit 1
+        fi
+    - echo "$ACCESS_TOKEN" > "$HOME/.gitlab_access_token"
+    - tmpcad="$(mktemp -d)"
+    # install cad
+    - git clone https://github.com/InternetGuru/cad $tmpcad
+    - |
+        if ! git -C $tmpcad checkout -q "$CAD_REVISION"; then
+          revision="$(git -C $tmpcad tag | grep ^v$CAD_REVISION\. | sort --version-sort | tail -1)"
+          git -C $tmpcad checkout "$revision"
+        fi
+    # set permissions
+    - chmod +x $tmpcad/distribute.sh
+  script:
+    # e.g. /umiami/george/csc220
+    - namespace="$(dirname "$PWD" | cut -d/ -f3-)"
+    - project_name="$(basename "$PWD")"
+    # e.g. fall20
+    - branch="$(git rev-parse --abbrev-ref HEAD)"
+    # set project remote for distribute.sh
+    - git remote set-url origin "$namespace/$project_name.git"
+    # distribute current project among all users
+    - $tmpcad/distribute.sh --process-issues --update-links "$namespace/$branch/$project_name" <<< "$CAD_USERS"
+  when: manual

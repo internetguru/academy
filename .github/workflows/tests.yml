@@ -1,0 +1,30 @@
+name: tests
+on: [push, pull_request]
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+  test:
+    name: BUTT tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install BUTT
+      run: |
+        curl -sL https://github.com/InternetGuru/butt/releases/download/v0.3.0/butt.sh > butt
+        chmod +x butt
+    - name: Create token file
+      run: echo "$ACCESS_TOKEN" > "$HOME/.gitlab_access_token"
+    - name: Add current dir into PATH
+      run: pwd >> $GITHUB_PATH
+    - name: Run distribute tests
+      shell: 'script -q -e -c "bash {0}"'
+      run: butt -v test/distribute.butt
+      env:
+        TERM: dumb
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}

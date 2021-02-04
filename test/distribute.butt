@@ -1,0 +1,75 @@
+#!/bin/bash
+
+i=0
+status=
+cad=${CAD_BIN:-ca distribute}
+tmp_project=$(mktemp -d)
+
+#######################################
+## Param validation
+#######################################
+correct_ns="umiami/tests"
+#######################################
+: $((i++))
+start "help"
+  debug "$cad --help"
+  assert_equal "$status" 0
+  assert_startwith "${outlines[0]}" "DESCRIPTION"
+  assert_startwith "${outlines[1]}" "      This script reads USERNAMES from stdin using IFS."
+end
+#######################################
+: $((i++))
+start "missing remote namespace"
+  debug "echo 'user1' | $cad"
+  assert_equal "$status" 2
+  assert_startwith "${errlines[0]}" "Validating arguments ... Missing argument REMOTE_NAMESPACE in validate_arguments()"
+end
+#######################################
+# : $((i++))
+# skip "missing users: not working on gh actions"
+  # debug "$cad '$correct_ns'"
+  # assert_equal "$status" 2
+  # assert_startwith "${errlines[0]}" "EXCEPTION: Missing stdin"
+# end
+#######################################
+: $((i++))
+start "invalid users"
+  debug "echo '-a' | $cad -n '$correct_ns' '$tmp_project'"
+  assert_equal "$status" 3
+  assert_startwith "${errlines[2]}" "Processing repository for -a ... [ INVALID ]"
+  debug "echo 'aaaaaa
+  .b' | $cad -n '$correct_ns' '$tmp_project'"
+  assert_equal "$status" 3
+  assert_startwith "${errlines[3]}" "Processing repository for .b ... [ INVALID ]"
+end
+#######################################
+: $((i++))
+start "invalid remote namespace format"
+  debug "echo 'user1' | $cad '1' '$tmp_project'"
+  assert_equal "$status" 2
+  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid argument REMOTE_NAMESPACE in validate_arguments()"
+end
+#######################################
+: $((i++))
+start "missing root namespace"
+  debug "echo 'user1' | $cad 'xyz123xyz' '$tmp_project'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[2]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
+end
+#######################################
+: $((i++))
+start "invalid project path"
+  debug "echo 'user1' | $cad '$correct_ns' -d '/foo'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[0]}" "Validating arguments ... Project folder not found in validate_arguments()"
+end
+#######################################
+## Requirements
+#######################################
+: $((i++))
+skip "missing jq"
+: $((i++))
+skip "missing git"
+#######################################
+
+rmdir "$tmp_project"

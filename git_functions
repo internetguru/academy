@@ -1,0 +1,78 @@
+#!/bin/bash
+
+git_repo_exists() {
+  [[ -d "${1:-.}/.git" ]]
+}
+git_local_branch_exists() {
+  git -C "${2:-.}" rev-parse --verify "${1}" >/dev/null 2>&1
+}
+git_current_branch() {
+  declare out
+  out="$(git -C "${1:-.}" rev-parse --abbrev-ref HEAD)" \
+    || exception "${out}"
+  printf -- '%s\n' "${out}"
+}
+git_same_commit() {
+  [[ "$( git -C "${3:-.}" rev-parse "${1}" )" == "$( git -C "${3:-.}" rev-parse "${2}" )" ]]
+}
+git_init() {
+  declare out
+  out="$(git -C "${1:-.}" init 2>&1)" \
+    || exception "${out}"
+}
+git_add_all() {
+  declare out
+  out="$(git -C "${1:-.}" add -A 2>&1)" \
+    || exception "${out}"
+}
+git_checkout() {
+  declare -r dir="${1}"
+  shift
+  declare out
+  out="$(git -C "$dir" checkout "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_status_empty() {
+  [[ -z "$(git -C "${1:-.}" status --porcelain)" ]]
+}
+git_remote_exists() {
+  [[ -n "$(git -C "${2:-.}" config remote."${1:-origin}".url 2>/dev/null)" ]]
+}
+git_pull() {
+  declare -r dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${dir}" pull "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_clone() {
+  declare out
+  out="$(git clone -q "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_merge() {
+  declare -r dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${dir}" merge "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_push() {
+  declare -r dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${dir}" push "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_commit() {
+  declare -r dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${dir}" commit "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_fetch_all() {
+  declare out
+  out="$(git -C "${1:-.}" fetch --all 2>&1)" \
+    || exception "${out}"
+}

@@ -1,0 +1,34 @@
+measure:
+  image: debian:stretch
+  stage: measure
+  before_script:
+    # fix TERM
+    - export TERM=dumb
+    # install requirements
+    - apt update && apt install -y curl jq git
+    # checkout to current branch
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    # set git user
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "Runner = $CI_RUNNER_DESCRIPTION"
+    # prepare acccess token for update script
+    - |
+        if [[ -z "$ACCESS_TOKEN" ]]; then
+          echo "Undefined variable ACCESS_TOKEN"
+          echo "Refer to README and make sure the current branch is protected."
+          exit 1
+        fi
+    # install cam
+    - git clone https://github.com/InternetGuru/cam
+    - |
+        if ! git -C cam checkout -q "$CAM_REVISION"; then
+          revision="$(git -C cam tag | grep ^v$CAM_REVISION\. | sort --version-sort | tail -1)"
+          git -C cam checkout "$revision"
+        fi
+    - chmod +x cam/java-measure.sh
+    - curl -o moss "$CAM_MOSSURL"
+    - chmod +x moss
+  script:
+    # run plagiarism check
+    - ./cam/java-measure.sh "$ACCESS_TOKEN"
+  when: manual

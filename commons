@@ -1,0 +1,53 @@
+#!/bin/bash
+
+clear_stdin() {
+  while read -r -t 0; do read -r; done
+}
+msg_start() {
+  [[ "${MSG_OPENED}" == 'true' ]] \
+    && exception 'Message already started'
+  MSG_OPENED='true'
+  printf -- '%s ... ' "$@" >&2
+}
+msg_end() {
+  [[ "${MSG_OPENED}" == 'false' ]] \
+    && exception 'Message not started'
+  MSG_OPENED='false'
+  printf -- '[ %s ]\n' "${1:-DONE}" >&2
+}
+confirm() {
+  printf -- '%s [YES/No] ' "${1:-'Are you sure?'}" >&2
+  clear_stdin
+  read -r
+  [[ "${REPLY}" =~ ^[Yy]([Ee][Ss])?$ || -z "${REPLY}" ]] \
+    && return 0
+  [[ "${REPLY}" =~ ^[Nn][Oo]?$ ]] \
+    && return 1
+  confirm 'Type'
+}
+prompt() {
+  printf -- '%s: ' "${1:-Enter value}" >&2
+  clear_stdin
+  # silent user input (e.g. for password)
+  if [[ "${2}" == 'silent' ]]; then
+    read -rs
+  else
+    read -r
+  fi
+  [[ -n "${REPLY}" ]] \
+    && return 0
+  prompt "${1}"
+}
+exception() {
+  printf -- '%s in %s() [ #%d ]\n' "${1:-${SCRIPT_NAME} unknown exception}" "${FUNCNAME[1]}" "${2:-1}" >&2
+  exit "${2:-1}"
+}
+print_usage() {
+  fmt -w "$(tput cols)" <<< "${USAGE}"
+}
+check_command() {
+  for cmd in "${@}"; do
+    command -v "${cmd}" >/dev/null 2>&1 \
+      || exception "Command ${cmd} not found"
+  done
+}
