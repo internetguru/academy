@@ -4,16 +4,16 @@ set -o pipefail
 #set -x
 
 # shellcheck disable=SC1091
-source "./commons"
+. "commons"
 # shellcheck disable=SC1091
-source "./git_functions"
+. "git_functions"
 
 declare -r CA_CMD="${1}"
 case "${CA_CMD}" in
   distribute|evaluate|measure)
     shift
     # shellcheck disable=SC1090
-    source "./${CA_CMD}"
+    . "${CA_CMD}"
     ;;
   *)
     exception "Invalid command '${CA_CMD}'"
