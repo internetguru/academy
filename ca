@@ -16,6 +16,6 @@ case "${CA_CMD}" in
     source "${CA_CMD}"
     ;;
   *)
-    exception "Unknown command ${CA_CMD}"
+    exception "Invalid command '${CA_CMD}'"
     ;;
 esac

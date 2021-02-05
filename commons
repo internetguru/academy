@@ -1,5 +1,7 @@
 #!/bin/bash
 
+declare MSG_OPENED='false'
+
 clear_stdin() {
   while read -r -t 0; do read -r; done
 }
