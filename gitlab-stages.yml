@@ -16,7 +16,7 @@ before_script:
         echo "Refer to README and make sure the current branch is protected."
         exit 1
       fi
-  - CA_DIR="$(mktemp -d)"
+  - export CA_DIR="$(mktemp -d)"
   # install cad
   - git clone https://github.com/InternetGuru/ca $CA_DIR
   - |
