@@ -33,12 +33,12 @@ evaluate:
   cache:
     paths:
       - target/
+  script:
+    - $CA evaluate
   artifacts:
     paths:
       - .results/
     expire_in: 1 year
-  script:
-    - $CA evaluate
 
 distribute:
   image: debian:stretch
