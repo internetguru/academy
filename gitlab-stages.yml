@@ -36,6 +36,9 @@ evaluate:
       - target/
   script:
     - $CA evaluate
+  only:
+    variables:
+      - $CA_EVALUATE
   artifacts:
     paths:
       - .results/
@@ -54,6 +57,9 @@ distribute:
     - git remote set-url origin "$namespace/$project_name.git"
     # distribute current project among all users
     - $CA distribute --process-issues --update-links "$namespace/$branch/$project_name" <<< "$CA_USERS"
+  only:
+    variables:
+      - $CA_DISTRIBUTE
   when: manual
 
 measure:
@@ -64,4 +70,7 @@ measure:
     - curl -o moss "$CA_MOSSURL"
     - chmod +x moss
     - $CA measure
+  only:
+    variables:
+      - $CA_MEASURE
   when: manual
