@@ -3,20 +3,19 @@
 set -o pipefail
 #set -x
 
-# shellcheck disable=SC2155
-declare -r PWD=$(pwd)
+declare -r CA_DIR="${CA_DIR:-.}"
 
 # shellcheck disable=SC1090
-. "$PWD/commons"
+. "$CA_DIR/commons"
 # shellcheck disable=SC1090
-. "$PWD/git_functions"
+. "$CA_DIR/git_functions"
 
 declare -r CA_CMD="${1}"
 case "${CA_CMD}" in
   distribute|evaluate|measure)
     shift
     # shellcheck disable=SC1090
-    . "$PWD/${CA_CMD}"
+    . "$CA_DIR/${CA_CMD}"
     ;;
   *)
     exception "Invalid command '${CA_CMD}'"

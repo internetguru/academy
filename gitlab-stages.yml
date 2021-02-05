@@ -16,18 +16,18 @@ before_script:
         echo "Refer to README and make sure the current branch is protected."
         exit 1
       fi
-  - tmpca="$(mktemp -d)"
+  - CA_DIR="$(mktemp -d)"
   # install cad
-  - git clone https://github.com/InternetGuru/ca $tmpca
+  - git clone https://github.com/InternetGuru/ca $CA_DIR
   - |
-      if ! git -C $tmpca checkout -q "$CA_REVISION"; then
-        revision="$(git -C $tmpca tag | grep ^v$CA_REVISION\. | sort --version-sort | tail -1)"
-        git -C $tmpca checkout "$revision"
+      if ! git -C $CA_DIR checkout -q "$CA_REVISION"; then
+        revision="$(git -C $CA_DIR tag | grep ^v$CA_REVISION\. | sort --version-sort | tail -1)"
+        git -C $CA_DIR checkout "$revision"
       fi
   # set permissions
-  - CA=$tmpca/ca
-  - ls -la $tmpca
-  - chmod +x $tmpca/*
+  - CA=$CA_DIR/ca
+  - ls -la $CA_DIR
+  - chmod +x $CA_DIR/*
 
 evaluate:
   image: maven:latest
