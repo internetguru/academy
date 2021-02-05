@@ -1,4 +1,9 @@
 
+stages:
+  - evaluate
+  - distribute
+  - measure
+
 before_script:
   # fix TERM
   - export TERM=xterm
