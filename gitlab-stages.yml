@@ -1,9 +1,4 @@
 
-stages:
-  - evaluate
-  - distribute
-  - measure
-
 before_script:
   # fix TERM
   - export TERM=xterm
@@ -35,7 +30,6 @@ before_script:
 
 evaluate:
   image: maven:latest
-  stage: evaluate
   cache:
     paths:
       - target/
@@ -48,7 +42,6 @@ evaluate:
 
 distribute:
   image: debian:stretch
-  stage: distribute
   script:
     # e.g. /umiami/george/csc220
     - namespace="$(dirname "$PWD" | cut -d/ -f3-)"
@@ -63,7 +56,6 @@ distribute:
 
 measure:
   image: debian:stretch
-  stage: measure
   script:
     # run plagiarism check
     - curl -o moss "$CA_MOSSURL"
