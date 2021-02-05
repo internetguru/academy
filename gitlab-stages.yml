@@ -26,7 +26,7 @@ before_script:
       fi
   # set permissions
   - CA=$tmpca/ca
-  - chmod +x "$tmpca/*"
+  - chmod +x "$tmpca/"*
 
 evaluate:
   image: maven:latest
