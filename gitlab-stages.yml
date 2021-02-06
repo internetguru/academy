@@ -19,7 +19,7 @@ before_script:
   - export CA_DIR="$(mktemp -d)"
   # install cad
   - revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
-  - git clone https://github.com/InternetGuru/ca/tree/$revision $CA_DIR
+  - git clone --single-branch --branch $revision https://github.com/InternetGuru/ca $CA_DIR
   # set permissions
   - CA=$CA_DIR/ca
   - ls -la $CA_DIR
