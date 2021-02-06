@@ -52,6 +52,8 @@ distribute:
     - branch="$(git rev-parse --abbrev-ref HEAD)"
     # set project remote for distribute.sh
     - git remote set-url origin "$namespace/$project_name.git"
+    # set token file (will be deprecated)
+    - echo "$ACCESS_TOKEN" > $HOME/.gitlab_access_token
     # distribute current project among all users
     - $CA distribute --process-issues --update-links "$namespace/$branch/$project_name" <<< "$CA_USERS"
   only:
