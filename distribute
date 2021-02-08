@@ -250,10 +250,10 @@ process_users() {
       && update_user_repo "${username}"
     msg_end
   done
-  (( valid == 0 && invalid == 0 )) \
-    && exception 'Empty or invalid stdin' 2
-  (( invalid > 0 )) \
-    && exception "Invalid username occurred ${invalid} time(s)" 3
+  (( valid != 0 || invalid != 0 )) \
+    || exception 'Empty or invalid stdin' 2
+  (( invalid == 0 )) \
+    || exception "Invalid username occurred ${invalid} time(s)" 3
 }
 
 # global constants
