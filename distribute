@@ -5,8 +5,6 @@ gitlab_api() {
   declare req='GET'
   [[ -n "${2}" ]] \
     && req='POST'
-  [[ "${2}" == "-" ]] \
-    && req='DELETE'
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
     --header "Authorization: Bearer ${TOKEN}" \
@@ -269,8 +267,8 @@ declare -r SOURCE_BRANCH='source'
 declare -r ALWAYS='always'
 declare -r NEVER='never'
 declare -r AUTO='auto'
-declare -r DEV_ACCESS_LEVEL='30'
-declare -r MAINTAINER_ACCESS_LEVEL='40'
+declare -ri DEV_ACCESS_LEVEL=30
+declare -ri MAINTAINER_ACCESS_LEVEL=40
 
 # default variables
 declare DIRECTORY='.'
