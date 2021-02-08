@@ -5,6 +5,8 @@ gitlab_api() {
   declare req='GET'
   [[ -n "${2}" ]] \
     && req='POST'
+  [[ "${2}" == "-" ]] \
+    && req='DELETE'
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
     --header "Authorization: Bearer ${TOKEN}" \
@@ -69,10 +71,15 @@ add_developer() {
     && return
   # shellcheck disable=SC2155
   declare -ir role="$(get_role "${1}" "${2}" 2>/dev/null)"
-  (( role >= 30 )) \
+  (( role >= DEV_ACCESS_LEVEL )) \
     && return
   gitlab_api "api/v4/projects/${1}/members" \
-    "{\"access_level\":\"30\", \"user_id\":\"${2}\"}" >/dev/null
+    "{\"access_level\":\"${DEV_ACCESS_LEVEL}\", \"user_id\":\"${2}\"}" >/dev/null
+}
+set_protected_branches() {
+  declare -r project_id="${1}"
+  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=master&push_access_level=${DEV_ACCESS_LEVEL}&merge_access_level=${DEV_ACCESS_LEVEL}" '{}' >/dev/null
+  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${SOURCE_BRANCH}&push_access_level=${MAINTAINER_ACCESS_LEVEL}&merge_access_level=${MAINTAINER_ACCESS_LEVEL}" '{}' >/dev/null
 }
 create_group() {
   gitlab_api 'api/v4/groups' \
@@ -109,7 +116,8 @@ init_user_repo() {
       || GROUP_ID="$(create_ns "${REMOTE_NS}")" \
       || exit 1
     project_id="$(create_project "${GROUP_ID}" "${1}" "${user_id}")" \
-      && add_developer "${project_id}" "${user_id}"
+      && add_developer "${project_id}" "${user_id}" \
+      && set_protected_branches "${project_id}"
     [[ "${COPY_ISSUES}" == 'true' ]] \
       && copy_issues "${project_id}" "${user_id}"
     rm -rf "${project_folder}"
@@ -261,6 +269,8 @@ declare -r SOURCE_BRANCH='source'
 declare -r ALWAYS='always'
 declare -r NEVER='never'
 declare -r AUTO='auto'
+declare -r DEV_ACCESS_LEVEL='30'
+declare -r MAINTAINER_ACCESS_LEVEL='40'
 
 # default variables
 declare DIRECTORY='.'
