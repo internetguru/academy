@@ -50,7 +50,7 @@ request_exists() {
 }
 create_request() {
   gitlab_api "api/v4/projects/${1}/merge_requests" \
-    "{\"id\":\"${1}\", \"source_branch\":\"${SOURCE_BRANCH}\", \"target_branch\":\"master\", \
+    "{\"id\":\"${1}\", \"source_branch\":\"${SOURCE_BRANCH}\", \"target_branch\":\"${2}\", \
     \"remove_source_branch\":\"false\", \"title\":\"Update from ${SOURCE_BRANCH} branch\"}" >/dev/null
 }
 create_project() {
@@ -173,7 +173,7 @@ update_user_repo() {
   project_id="$(get_project_id "${user_ns}")" \
     || exit 1
   request_exists "${project_id}" \
-    || create_request "${project_id}"
+    || create_request "${project_id}" "${user_branch}"
 }
 get_remote_namespace() {
   git -C "${1}" config --get remote.origin.url | sed "s/^.*${GITLAB_URL}[:/]//;s/.git$//"
