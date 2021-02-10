@@ -120,7 +120,7 @@ sync_cache() {
 }
 update_cache() {
   [[ ! -d "${2}" ]] \
-    && init_cache "$(get_remote_url "${1}")" "${2}" \
+    && init_cache "${1}" "${2}" \
     && return
   # verify local remote
   declare actual_remote_ns
