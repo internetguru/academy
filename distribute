@@ -108,8 +108,8 @@ get_user_id() {
     | jq -r '.[] | .id' | sed 's/null//'
 }
 create_ns() {
-  # shellcheck disable=SC2155
   declare -r ns="${1}"
+  # shellcheck disable=SC2155
   declare -r parent_ns="$(dirname "${1}")"
   [[ "${parent_ns}" == '.' ]] \
     && exception "Root group ${ns} does not exist"
@@ -133,6 +133,7 @@ get_cache_folder() {
 }
 init_cache() {
   declare -r user="${1}"
+  # shellcheck disable=SC2155
   declare -r cache_folder="$(get_cache_folder "${user}")"
   rm -rf "${cache_folder}"
   git_clone "$(get_remote_url "${user}")" "${cache_folder}"
