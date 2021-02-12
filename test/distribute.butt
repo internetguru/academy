@@ -22,7 +22,7 @@ end
 start "missing remote namespace"
   debug "echo 'user1' | $cad"
   assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Missing argument REMOTE_NAMESPACE in validate_arguments()"
+  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid argument REMOTE_NAMESPACE in validate_arguments"
 end
 #######################################
 # : $((i++))
