@@ -307,7 +307,7 @@ process_users() {
     [[ "${DRY_RUN}" == 'true' ]] \
       && msg_end SKIPPED \
       && continue
-    user_project_name="${username}"
+    user_project_name="${USER_PROJECT_PREFIX}-${username}"
     project_exists "${REMOTE_NS}/${user_project_name}" \
       && update_user_repo "${user_project_name}" \
       && msg_end UPDATED \
@@ -406,7 +406,10 @@ while (( $# > 0 )); do
 done
 
 # validate and authorize
-declare -r REMOTE_NS="${1}"
+# shellcheck disable=SC2155
+declare -r REMOTE_NS="$(dirname "${1}")"
+# shellcheck disable=SC2155
+declare -r USER_PROJECT_PREFIX="$(basename "${1}")"
 # shellcheck disable=SC2155
 declare -r PROJECT_FOLDER="$(readlink -f "${DIRECTORY}")"
 
