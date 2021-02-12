@@ -14,7 +14,7 @@ correct_ns="umiami/tests"
 start "help"
   debug "$cad --help"
   assert_equal "$status" 0
-  assert_startwith "${outlines[0]}" "DESCRIPTION"
+  assert_startwith "${errlines[0]}" "DESCRIPTION"
   assert_startwith "${outlines[1]}" "      This script reads USERNAMES from stdin using IFS."
 end
 #######################################
