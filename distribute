@@ -3,12 +3,13 @@
 ## functions
 gitlab_api() {
   declare -r url="${1}"
-  declare -r data="${2}"
+  declare data="${2}"
   declare req='GET'
   [[ -n "${data}" ]] \
     && req='POST'
   [[ "${data}" == '-' ]] \
-    && req='DELETE'
+    && req='DELETE' \
+    && data="{}"
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
     --header "Authorization: Bearer ${TOKEN}" \
@@ -95,7 +96,7 @@ add_developer() {
 remove_protected_branch() {
   declare -r project_id="${1}"
   declare -r branch="${2}"
-  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${branch}" '-' >/dev/null
+  gitlab_api "api/v4/projects/${project_id}/protected_branches/${branch}" '-' >/dev/null
 }
 set_protected_branch() {
   declare -r project_id="${1}"
@@ -200,8 +201,6 @@ init_user_repo() {
   git_commit "${cache_folder}" '--allow-empty' '-m "Initial commit"'
   git_push "${cache_folder}" '--all'
   declare user_branch
-  update_cache "${user}" "${cache_folder}"
-  declare -r user_branch
   user_branch="$(get_default_branch "${REMOTE_NS}/${user}")" \
     || exit 1
   remove_protected_branch "${project_id}" "${user_branch}"
