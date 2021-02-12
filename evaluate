@@ -1,89 +1,100 @@
 #!/bin/bash
 
-SRC="src/main"
+main() {
 
-mkdir -p .results
-curl -o ".results/compile.svg" "https://img.shields.io/badge/Compile-failed-critical"
-curl -o ".results/checkstyle.svg" "https://img.shields.io/badge/Code%20Style-n/a-gray"
-curl -o ".results/test.svg" "https://img.shields.io/badge/Tests%20Passed-0/0-gray"
+  mkdir -p .results
+  curl -o '.results/compile.svg' 'https://img.shields.io/badge/Compile-failed-critical'
+  curl -o '.results/checkstyle.svg' 'https://img.shields.io/badge/Code%20Style-n/a-gray'
+  curl -o '.results/test.svg' 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
 
-mvn compile > .results/compile.log 2>&1 \
-  || exit 0
-curl -o ".results/compile.svg" "https://img.shields.io/badge/Compile-passed-success"
+  mvn compile > .results/compile.log 2>&1 \
+    || exit 0
+  curl -o '.results/compile.svg' 'https://img.shields.io/badge/Compile-passed-success'
 
-tmppom="$(mktemp -d)/checkstyle-pom.xml"
+  # shellcheck disable=SC2155
+  declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
+  declare -r src='src/main'
 
-cat << EOD > "$tmppom"
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>InternetGuru</groupId>
-  <artifactId>java-checkstyle</artifactId>
-  <version>1</version>
-  <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <build>
-    <sourceDirectory>$(pwd)/$SRC</sourceDirectory>
-    <testSourceDirectory>$(pwd)/src/test</testSourceDirectory>
-    <pluginManagement>
-      <plugins>
-         <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-checkstyle-plugin</artifactId>
-           <version>3.1.1</version>
-           <configuration>
-             <configLocation>google_checks.xml</configLocation>
-             <encoding>UTF-8</encoding>
-             <consoleOutput>true</consoleOutput>
-             <failsOnError>true</failsOnError>
-             <linkXRef>false</linkXRef>
-           </configuration>
-           <executions>
-             <execution>
-               <id>validate</id>
-               <phase>validate</phase>
-               <goals>
-                 <goal>check</goal>
-               </goals>
-             </execution>
-           </executions>
-         </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-</project>
+  cat << EOD > "${tmppom}"
+  <project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>InternetGuru</groupId>
+    <artifactId>java-checkstyle</artifactId>
+    <version>1</version>
+    <properties>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <build>
+      <sourceDirectory>$(pwd)/${src}</sourceDirectory>
+      <testSourceDirectory>$(pwd)/src/test</testSourceDirectory>
+      <pluginManagement>
+        <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-checkstyle-plugin</artifactId>
+             <version>3.1.1</version>
+             <configuration>
+               <configLocation>google_checks.xml</configLocation>
+               <encoding>UTF-8</encoding>
+               <consoleOutput>true</consoleOutput>
+               <failsOnError>true</failsOnError>
+               <linkXRef>false</linkXRef>
+             </configuration>
+             <executions>
+               <execution>
+                 <id>validate</id>
+                 <phase>validate</phase>
+                 <goals>
+                   <goal>check</goal>
+                 </goals>
+               </execution>
+             </executions>
+           </plugin>
+        </plugins>
+      </pluginManagement>
+    </build>
+  </project>
 EOD
 
-# run checkstyle and save warnings and errors into log
+  # run checkstyle and save warnings and errors into log
+  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > .results/checkstyle.log
+  [[ ${PIPESTATUS[0]} != 0 ]] \
+    && exit 1
 
-mvn -f "$tmppom" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > .results/checkstyle.log
-[[ ${PIPESTATUS[0]} != 0 ]] \
-  && exit 1
-errs=$(cut -d" " -f2 < .results/checkstyle.log | sort -ut: -k1,2 | wc -l)
-lines=$(find $SRC -name "*.java" -exec cat {} + | wc -l)
-perc=100
-(( errs > 0 )) \
-  && (( perc = 99 - errs * 100 / lines ))
+  # shellcheck disable=SC2155
+  declare -ri errs=$(cut -d" " -f2 < '.results/checkstyle.log' | sort -ut: -k1,2 | wc -l)
+  # shellcheck disable=SC2155
+  declare -ri lines=$(find ${src} -name '*.java' -exec cat {} + | wc -l)
+  declare -i perc=100
+  (( errs > 0 )) \
+    && (( perc = 99 - errs * 100 / lines ))
 
-# output results to .results/checkstyle.json
-color="brightgreen"
-(( perc < 85 )) \
-  && color="green"
-(( perc < 70 )) \
-  && color="yellow"
-(( perc < 55 )) \
-  && color="orange"
-(( perc < 45 )) \
-  && color="red"
+  # output results to .results/checkstyle.json
+  declare color='brightgreen'
+  (( perc < 85 )) \
+    && color='green'
+  (( perc < 70 )) \
+    && color='yellow'
+  (( perc < 55 )) \
+    && color='orange'
+  (( perc < 45 )) \
+    && color='red'
 
-curl -o ".results/checkstyle.svg" "https://img.shields.io/badge/Code%20Style-$perc%20%25-$color"
+  curl -o '.results/checkstyle.svg' "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
 
-test_color=success
-mvn test > .results/test.log 2>&1 || test_color=critical
-summary="$(grep 'Tests run:' .results/test.log | head -n1)"
-runs="$(tr -d "," <<< "$summary" | cut -d" " -f4)"
-failures="$(tr -d "," <<< "$summary" | cut -d" " -f6)"
-passed="$((runs - failures))"
-curl -o ".results/test.svg" "https://img.shields.io/badge/Tests%20Passed-$passed/$runs-$test_color"
+  declare test_color='success'
+  mvn test > .results/test.log 2>&1 \
+    || test_color='critical'
+  # shellcheck disable=SC2155
+  declare -r summary=$(grep 'Tests run:' .results/test.log | head -n1)
+  # shellcheck disable=SC2155
+  declare -ri runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
+  # shellcheck disable=SC2155
+  declare -ri failures=$(tr -d ',' <<< "${summary}" | cut -d' ' -f6)
+  declare -ri passed=$((runs - failures))
+  curl -o '.results/test.svg' "https://img.shields.io/badge/Tests%20Passed-${passed}/${runs}-${test_color}"
+}
+
+main
