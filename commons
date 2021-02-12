@@ -50,7 +50,8 @@ exception() {
   exit "${code}"
 }
 print_usage() {
-  fmt -w "$(tput cols)" <<< "${USAGE}"
+  declare -r usage="${1}"
+  fmt -w "$(tput cols)" <<< "${usage}"
 }
 check_command() {
   for cmd in "${@}"; do

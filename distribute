@@ -318,7 +318,6 @@ declare ISSUES=''
 declare -i ISSUES_COUNT=-1
 
 # USAGE
-# shellcheck disable=SC2034
 declare -r USAGE="DESCRIPTION
       This script reads USERNAMES from stdin using IFS. For each USERNAME it distributes files from PROJECT_FOLDER into REMOTE_NAMESPACE-USERNAME. Root namespace in REMOTE_NAMESPACE must exist, meaning e.g. 'umiami' in 'umiami/csc220/fall20'.
 
@@ -365,7 +364,7 @@ while (( $# > 0 )); do
   case "${1}" in
     -a|--assign) shift; ASSIGN="${1}"; shift ;;
     -d|--directory) shift; DIRECTORY="${1}"; shift ;;
-    -h|--help) print_usage && exit 0 ;;
+    -h|--help) print_usage "${USAGE}" && exit 0 ;;
     -i|--process-issues) COPY_ISSUES='true'; shift ;;
     -l|--update-links) UPDATE_LINKS='true'; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
