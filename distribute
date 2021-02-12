@@ -7,6 +7,8 @@ gitlab_api() {
   declare req='GET'
   [[ -n "${data}" ]] \
     && req='POST'
+  [[ "${data}" == '-' ]] \
+    && req='DELETE'
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
     --header "Authorization: Bearer ${TOKEN}" \
@@ -90,10 +92,16 @@ add_developer() {
   gitlab_api "api/v4/projects/${project_id}/members" \
     "{\"access_level\":\"${DEV_ACCESS_LEVEL}\", \"user_id\":\"${user_id}\"}" >/dev/null
 }
-init_branches() {
+remove_protected_branch() {
   declare -r project_id="${1}"
-  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=master&push_access_level=${DEV_ACCESS_LEVEL}&merge_access_level=${DEV_ACCESS_LEVEL}" '{}' >/dev/null
-  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${SOURCE_BRANCH}&push_access_level=${MAINTAINER_ACCESS_LEVEL}&merge_access_level=${MAINTAINER_ACCESS_LEVEL}" '{}' >/dev/null
+  declare -r branch="${2}"
+  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${branch}" '-' >/dev/null
+}
+set_protected_branch() {
+  declare -r project_id="${1}"
+  declare -r branch="${2}"
+  declare -r access_level="${3}"
+  gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${branch}&push_access_level=${access_level}&merge_access_level=${access_level}" '{}' >/dev/null
 }
 create_group() {
   declare -r group_name="${1}"
@@ -183,14 +191,23 @@ init_user_repo() {
     || exit 1
   project_id="$(create_project "${GROUP_ID}" "${user}" "${user_id}")" \
     || exit 1
-  init_branches "${project_id}"
   add_developer "${project_id}" "${user_id}"
   [[ "${COPY_ISSUES}" == 'true' ]] \
     && copy_issues "${project_id}" "${user_id}"
   # shellcheck disable=SC2155
   declare -r cache_folder="$(get_cache_folder "${user}")"
   init_cache "${user}"
-  sync_cache "${cache_folder}" "${REMOTE_NS}/${user}" "master"
+  git_commit "${cache_folder}" '--allow-empty' '-m "Initial commit"'
+  git_push "${cache_folder}" '--all'
+  declare user_branch
+  update_cache "${user}" "${cache_folder}"
+  declare -r user_branch
+  user_branch="$(get_default_branch "${REMOTE_NS}/${user}")" \
+    || exit 1
+  remove_protected_branch "${project_id}" "${user_branch}"
+  set_protected_branch "${project_id}" "${user_branch}" "${DEV_ACCESS_LEVEL}"
+  set_protected_branch "${project_id}" "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  sync_cache "${cache_folder}" "${REMOTE_NS}/${user}" "$user_branch"
   git_add_all "${cache_folder}"
   git_commit "${cache_folder}" '--allow-empty' '-m "Create assignment"'
   git_push "${cache_folder}" '--all'
