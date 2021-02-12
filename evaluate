@@ -1,6 +1,6 @@
 #!/bin/bash
 
-main() {
+evaluate() {
 
   mkdir -p .results
   curl -o '.results/compile.svg' 'https://img.shields.io/badge/Compile-failed-critical'
@@ -97,4 +97,4 @@ EOD
   curl -o '.results/test.svg' "https://img.shields.io/badge/Tests%20Passed-${passed}/${runs}-${test_color}"
 }
 
-main
+evaluate
