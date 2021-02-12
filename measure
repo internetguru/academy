@@ -1,54 +1,63 @@
 #!/bin/bash
 
-# globals
-SCRIPT_NAME="$(basename "$0")"
-GITLAB_URL="https://gitlab.com"
-PROJECTS_FOLDER="projects"
-TOKEN="$1"
-CAM_LANG="java"
-
-exception() {
-  echo "EXCEPTION: ${1:-$SCRIPT_NAME Exception}" >&2
-  exit "${2:-1}"
-}
 get_project_origin_url() {
-  echo "https://oauth2:$TOKEN@gitlab.com/${1:-}.git"
+  declare -r project_name="${1}"
+  echo "https://oauth2:${TOKEN}@gitlab.com/${project_name}.git"
 }
 get_group_id() {
-  curl -s --header "Authorization: Bearer $TOKEN" "$GITLAB_URL/api/v4/groups" \
-    | jq -r --arg group_name "${1:-}" '.[] | select(.full_path==$group_name) | .id'
+  declare -r group_name="${1}"
+  curl -s --header "Authorization: Bearer ${TOKEN}" "${GITLAB_URL}/api/v4/groups" \
+    | jq -r --arg group_name "${group_name}" '.[] | select(.full_path==$group_name) | .id' \
+    || exception 'API error'
 }
 get_group_projects() {
-  curl -s --header "Authorization: Bearer $TOKEN" "$GITLAB_URL/api/v4/groups/${1:-}/projects" \
-    | jq -r '.[] | .name_with_namespace' | tr -d " "
+  declare -r group_name="${1}"
+  curl -s --header "Authorization: Bearer ${TOKEN}" "${GITLAB_URL}/api/v4/groups/${group_name}/projects" \
+    | jq -r '.[] | .name_with_namespace' | tr -d " " \
+    || exception 'API error'
 }
 
-mkdir "$PROJECTS_FOLDER"
-project_namespace="$(dirname "$PWD" | cut -d/ -f3-)"
-project_name="$(basename "$PWD")"
-# get all branches
-git fetch --all >/dev/null
+# shellcheck disable=SC2034
+# shellcheck disable=SC2155
+declare -r SCRIPT_NAME="$(basename "${0}")"
+declare -r GITLAB_URL='https://gitlab.com'
+declare -r TOKEN="${1}"
 
-# for all branches get user projects
-for branch in $(git branch -r | grep -v '\->'); do
-  namespace="$project_namespace/$(basename "$branch")/$project_name"
-  # get namespace id
-  group_id="$(get_group_id "$namespace")" \
-    || exception "API error"
-  [[ -z "$group_id" ]] \
-    && continue
-  projects="$(get_group_projects "$group_id")" \
-    || exception "API error"
-  # clone all projects from ns
-  for project in $projects; do
-    mkdir -p "$PROJECTS_FOLDER/$project"
-    git clone -q "$(get_project_origin_url "$project")" "$PROJECTS_FOLDER/$project" \
-      || exception "Unable to clone project $project from $namespace"
+measure() {
+  # shellcheck disable=SC2155
+  declare -r pwd="$(pwd)"
+  # shellcheck disable=SC2155
+  declare -r projects_folder="$(mktemp -d)"
+  # shellcheck disable=SC2155
+  declare -r project_namespace="$(dirname "${pwd}" | cut -d/ -f3-)"
+  # shellcheck disable=SC2155
+  declare -r project_name="$(basename "${pwd}")"
+
+  # get all branches
+  git fetch --all >/dev/null
+  # for all branches get user projects
+  declare namespace group_id projects
+  for branch in $(git branch -r | grep -v '\->'); do
+    namespace="${project_namespace}/$(basename "${branch}")/${project_name}"
+    # get namespace id
+    group_id="$(get_group_id "${namespace}")"
+    [[ -z "${group_id}" ]] \
+      && continue
+    projects="$(get_group_projects "${group_id}")"
+    # clone all projects from ns
+    for project in ${projects}; do
+      mkdir -p "${projects_folder}/${project}"
+      git clone -q "$(get_project_origin_url "${project}")" "${projects_folder}/{$project}" \
+        || exception "Unable to clone project ${project} from ${namespace}"
+    done
   done
-done
 
-# allow **/*
-shopt -s globstar
+  # allow **/*
+  shopt -s globstar
 
-# send projects into moss
-./moss -l "$CAM_LANG" -d "$PROJECTS_FOLDER"/**/src/main/**/*."$CAM_LANG" src/main/**/*."$CAM_LANG"
+  # send projects into moss
+  declare -r cam_lang='java'
+  ./moss -l "${cam_lang}" -d "$projects_folder"/**/src/main/**/*."${cam_lang}" src/main/**/*."${cam_lang}"
+}
+
+measure
