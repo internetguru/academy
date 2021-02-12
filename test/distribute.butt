@@ -22,7 +22,7 @@ end
 start "missing remote namespace"
   debug "echo 'user1' | $cad"
   assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid argument REMOTE_NAMESPACE in validate_arguments"
+  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid argument REMOTE_NAMESPACE in validate_arguments() [ #2 ]"
 end
 #######################################
 # : $((i++))
@@ -52,7 +52,7 @@ end
 #######################################
 : $((i++))
 start "missing root namespace"
-  debug "echo 'user1' | $cad 'xyz123xyz' '$tmp_project'"
+  debug "echo 'user1' | $cad 'xyz123xyz/abc' '$tmp_project'"
   assert_equal "$status" 1
   assert_startwith "${errlines[2]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
 end
