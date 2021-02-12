@@ -38,68 +38,53 @@ authorize() {
     | jq -r '.access_token' > "${TOKEN_FILE}"
 }
 get_project_id() {
-  declare -r project_name="${1//\//%2F}"
-  gitlab_api "api/v4/projects/${project_name}" | jq -r '.id'
+  declare -r ns="${1}"
+  gitlab_api "api/v4/projects/${ns}" | jq -r '.id'
 }
 get_default_branch() {
-  declare -r project_name="${1//\//%2F}"
-  gitlab_api "api/v4/projects/$project_name" | jq -r '.default_branch'
+  gitlab_api "api/v4/projects/$user_project_ns" | jq -r '.default_branch'
 }
 project_exists() {
-  declare -r project_name="${1}"
-  get_project_id "${project_name}" >/dev/null 2>&1
+  get_project_id "${user_project_ns}" >/dev/null 2>&1
 }
 get_group_id() {
   declare -r group_name="${1//\//%2F}"
   gitlab_api "api/v4/groups/${group_name}" | jq -r '.id'
 }
 request_exists() {
-  declare -r project_id="${1}"
   gitlab_api "api/v4/projects/${project_id}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}" \
     | grep -qv "^\[\]$"
 }
 create_request() {
-  declare -r project_id="${1}"
-  declare -r target_branch="${2}"
   gitlab_api "api/v4/projects/${project_id}/merge_requests" \
-    "{\"id\":\"${project_id}\", \"source_branch\":\"${SOURCE_BRANCH}\", \"target_branch\":\"${target_branch}\", \
+    "{\"id\":\"${project_id}\", \"source_branch\":\"${SOURCE_BRANCH}\", \"target_branch\":\"${user_branch}\", \
     \"remove_source_branch\":\"false\", \"title\":\"Update from ${SOURCE_BRANCH} branch\"}" >/dev/null
 }
-create_project() {
-  declare -r group_id="${1}"
-  declare -r project_name="${2}"
-  declare -r user_id="${3}"
+create_user_project() {
   declare visibility='public'
   [[ -n "${user_id}" ]] \
     && visibility='private'
   gitlab_api 'api/v4/projects' \
-    "{\"namespace_id\":\"${group_id}\", \"name\":\"${project_name}\", \"visibility\":\"${visibility}\"}" \
+    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
     | jq -r '.id'
 }
 get_role() {
-  declare -r project_id="${1}"
-  declare -r user_id="${2}"
   gitlab_api "api/v4/projects/${project_id}/members/all/${user_id}" | jq -r '.access_level'
 }
 add_developer() {
-  declare -r project_id="${1}"
-  declare -r user_id="${2}"
   [[ -z "${user_id}" ]] \
     && return
   # shellcheck disable=SC2155
-  declare -ir role="$(get_role "${project_id}" "${user_id}" 2>/dev/null)"
+  declare -ir role="$(get_role 2>/dev/null)"
   (( role >= DEV_ACCESS_LEVEL )) \
     && return
   gitlab_api "api/v4/projects/${project_id}/members" \
     "{\"access_level\":\"${DEV_ACCESS_LEVEL}\", \"user_id\":\"${user_id}\"}" >/dev/null
 }
 remove_protected_branch() {
-  declare -r project_id="${1}"
-  declare -r branch="${2}"
-  gitlab_api "api/v4/projects/${project_id}/protected_branches/${branch}" '-' >/dev/null
+  gitlab_api "api/v4/projects/${project_id}/protected_branches/${user_branch}" '-' >/dev/null
 }
 set_protected_branch() {
-  declare -r project_id="${1}"
   declare -r branch="${2}"
   declare -r access_level="${3}"
   gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${branch}&push_access_level=${access_level}&merge_access_level=${access_level}" '{}' >/dev/null
@@ -112,8 +97,7 @@ create_group() {
     | jq -r '.id'
 }
 get_user_id() {
-  declare -r user="${1}"
-  gitlab_api "api/v4/users?username=${user}" \
+  gitlab_api "api/v4/users?username=${user_name}" \
     | jq -r '.[] | .id' | sed 's/null//'
 }
 create_ns() {
@@ -129,112 +113,93 @@ create_ns() {
   create_group "$(basename "${ns}")" "${parent_id}"
 }
 get_remote_namespace() {
-  declare -r cache_folder="${1}"
-  git -C "${cache_folder}" config --get remote.origin.url | sed "s/^.*${GITLAB_URL}[:/]//;s/.git$//"
+  declare -r folder="${1}"
+  git -C "${folder}" config --get remote.origin.url | sed "s/^.*${GITLAB_URL}[:/]//;s/.git$//"
 }
 get_remote_url() {
-  declare -r user_project_name="${1}"
-  printf -- "https://oauth2:%s@%s/%s/%s.git" "${TOKEN}" "${GITLAB_URL}" "${REMOTE_NS}" "${user_project_name}"
+  printf -- "https://oauth2:%s@%s/%s.git" "${TOKEN}" "${GITLAB_URL}" "${user_project_ns}"
 }
 get_cache_folder() {
-  declare -r user_project_name="${1}"
-  printf -- "%s/%s/%s" "${CACHE_FOLDER}" "${REMOTE_NS}" "${user_project_name}"
+  printf -- "%s/%s" "${CACHE_FOLDER}" "${user_project_ns}"
 }
 init_cache() {
-  declare -r user_project_name="${1}"
   # shellcheck disable=SC2155
-  declare -r cache_folder="$(get_cache_folder "${user_project_name}")"
-  rm -rf "${cache_folder}"
-  git_clone "$(get_remote_url "${user_project_name}")" "${cache_folder}"
+  rm -rf "${user_cache_folder}"
+  git_clone "$(get_remote_url)" "${user_cache_folder}"
 }
 sync_cache() {
-  declare -r cache_folder="${1}"
-  declare -r user_ns="${2}"
-  declare -r user_branch="${3}"
-  rsync -a --delete --exclude .git/ "${PROJECT_FOLDER}/" "${cache_folder}" \
+  rsync -a --delete --exclude .git/ "${PROJECT_FOLDER}/" "${user_cache_folder}" \
     || exception "Unable to rsync files"
+  declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
   [[ "${UPDATE_LINKS}" == 'true' ]] \
-    && update_links "${user_ns}" "${cache_folder}/${README_FILE}" "${user_branch}"
+    && update_links
 }
 update_cache() {
-  declare -r user_project_name="${1}"
-  declare -r cache_folder="${2}"
-  [[ ! -d "${cache_folder}" ]] \
-    && init_cache "${user_project_name}" "${cache_folder}" \
+  [[ ! -d "${user_cache_folder}" ]] \
+    && init_cache "${user_cache_folder}" \
     && return
   # verify local remote
   declare actual_remote_ns
-  actual_remote_ns="$(get_remote_namespace "${cache_folder}")" \
+  actual_remote_ns="$(get_remote_namespace "${user_cache_folder}")" \
     || exit 1
-  [[ "${actual_remote_ns}" != "${REMOTE_NS}/${user_project_name}" ]] \
+  [[ "${actual_remote_ns}" != "${user_project_ns}" ]] \
     && exception 'Invalid user project remote origin url'
-  git_pull "${cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
+  git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
 }
 update_links() {
-  declare -r user_ns="${1}"
-  declare -r readme_path="${2}"
-  declare -r user_branch="${3}"
-  sed -i "s~/${PROJECT_NS}/~/${user_ns}/~g" "${readme_path}"
-  sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_branch}/\1~g" "${readme_path}"
-  sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_branch}~g" "${readme_path}"
+  sed -i "s~/${PROJECT_NS}/~/${user_project_ns}/~g" "${user_readme_path}"
+  sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_branch}/\1~g" "${user_readme_path}"
+  sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_branch}~g" "${user_readme_path}"
 }
 init_user_repo() {
-  declare -r user="${1}"
-  declare -r user_project_name="${2}"
   declare user_id=''
   [[ "${ASSIGN}" == "${NEVER}" ]] \
-    || user_id="$(get_user_id "${user}")" \
+    || user_id="$(get_user_id)" \
     || exit 1
   [[ "${ASSIGN}" == "${ALWAYS}" && -z "${user_id}" ]] \
-    && exception "User ${user} does not exist"
+    && exception "User ${user_name} does not exist"
   [[ -n "${GROUP_ID}" ]] \
     || GROUP_ID="$(get_group_id "${REMOTE_NS}" 2>/dev/null)" \
     || GROUP_ID="$(create_ns "${REMOTE_NS}")" \
     || exit 1
-  project_id="$(create_project "${GROUP_ID}" "${user_project_name}" "${user_id}")" \
+  project_id="$(create_user_project)" \
     || exit 1
-  add_developer "${project_id}" "${user_id}"
+  add_developer
   [[ "${COPY_ISSUES}" == 'true' ]] \
-    && copy_issues "${project_id}" "${user_id}"
-  # shellcheck disable=SC2155
-  declare -r cache_folder="$(get_cache_folder "${user_project_name}")"
-  init_cache "${user_project_name}"
-  git_commit "${cache_folder}" '--allow-empty' '-m "Initial commit"'
-  git_push "${cache_folder}" '--all'
+    && copy_issues
+  init_cache
+  git_commit "${user_cache_folder}" '--allow-empty' '-m "Initial commit"'
+  git_push "${user_cache_folder}" '--all'
   declare user_branch
-  user_branch="$(get_default_branch "${REMOTE_NS}/${user_project_name}")" \
+  user_branch="$(get_default_branch)" \
     || exit 1
-  remove_protected_branch "${project_id}" "${user_branch}"
-  set_protected_branch "${project_id}" "${user_branch}" "${DEV_ACCESS_LEVEL}"
-  set_protected_branch "${project_id}" "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
-  sync_cache "${cache_folder}" "${REMOTE_NS}/${user_project_name}" "$user_branch"
-  git_add_all "${cache_folder}"
-  git_commit "${cache_folder}" '--allow-empty' '-m "Create assignment"'
-  git_push "${cache_folder}" '--all'
-  git_checkout "${cache_folder}" "-B${SOURCE_BRANCH}"
-  git_push "${cache_folder}" '--all'
+  remove_protected_branch
+  set_protected_branch "${user_branch}" "${DEV_ACCESS_LEVEL}"
+  set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  sync_cache
+  git_add_all "${user_cache_folder}"
+  git_commit "${user_cache_folder}" '--allow-empty' '-m "Create assignment"'
+  git_push "${user_cache_folder}" '--all'
+  git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}"
+  git_push "${user_cache_folder}" '--all'
 }
 update_user_repo() {
-  declare -r user_project_name="${1}"
-  declare -r user_ns="${REMOTE_NS}/${user_project_name}"
-  # shellcheck disable=SC2155
-  declare -r cache_folder="$(get_cache_folder "${user_project_name}")"
   declare user_branch
-  update_cache "${user_project_name}" "${cache_folder}"
-  user_branch="$(get_default_branch "${user_ns}")" \
+  update_cache
+  user_branch="$(get_default_branch)" \
     || exit 1
-  git_checkout "${cache_folder}" "${SOURCE_BRANCH}"
-  sync_cache "${cache_folder}" "${user_ns}" "${user_branch}"
-  git_status_empty "${cache_folder}" \
+  git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
+  sync_cache
+  git_status_empty "${user_cache_folder}" \
     && return
-  git_add_all "${cache_folder}"
-  git_commit "${cache_folder}" '-m "Update assignment"'
-  git_push "${cache_folder}" '--all'
+  git_add_all "${user_cache_folder}"
+  git_commit "${user_cache_folder}" '-m "Update assignment"'
+  git_push "${user_cache_folder}" '--all'
   declare project_id
-  project_id="$(get_project_id "${user_ns}")" \
+  project_id="$(get_project_id "${user_project_ns}")" \
     || exit 1
-  request_exists "${project_id}" \
-    || create_request "${project_id}" "${user_branch}"
+  request_exists \
+    || create_request
 }
 read_issues() {
   ISSUES="$(gitlab_api "api/v4/projects/${PROJECT_ID}/issues?labels=assignment")" \
@@ -242,8 +207,6 @@ read_issues() {
     || exit 1
 }
 copy_issues() {
-  declare -r project_id="${1}"
-  declare -r user_id="${2}"
   (( ISSUES_COUNT < 0 )) \
     && read_issues
   declare i issue
@@ -292,14 +255,16 @@ acquire_token() {
     || exit 1
 }
 process_users() {
-  declare username
+  declare user_name
   declare user_project_name
+  declare user_project_ns
+  declare user_cache_folder
   declare -i valid=0
   declare -i invalid=0
   # shellcheck disable=SC2013
-  for username in $(cat <&3); do
-    msg_start "Processing repository for ${username}"
-    [[ ! "${username}" =~ ^[a-zA-Z0-9][a-z0-9_.-]*$ ]] \
+  for user_name in $(cat <&3); do
+    msg_start "Processing repository for ${user_name}"
+    [[ ! "${user_name}" =~ ^[a-zA-Z0-9][a-z0-9_.-]*$ ]] \
       && msg_end INVALID \
       && invalid+=1 \
       && continue
@@ -307,12 +272,14 @@ process_users() {
     [[ "${DRY_RUN}" == 'true' ]] \
       && msg_end SKIPPED \
       && continue
-    user_project_name="${USER_PROJECT_PREFIX}-${username}"
-    project_exists "${REMOTE_NS}/${user_project_name}" \
-      && update_user_repo "${user_project_name}" \
+    user_project_name="${USER_PROJECT_PREFIX}-${user_name}"
+    user_project_ns="${REMOTE_NS}/${user_project_name}"
+    user_cache_folder="$(get_cache_folder)"
+    project_exists \
+      && update_user_repo \
       && msg_end UPDATED \
       && continue
-    init_user_repo "${username}" "${user_project_name}"
+    init_user_repo
     msg_end CREATED
   done
   (( valid != 0 || invalid != 0 )) \
