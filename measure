@@ -1,12 +1,10 @@
 #!/bin/bash
 
-set -x
-
 # shellcheck disable=SC2034
 # shellcheck disable=SC2155
 declare -r SCRIPT_NAME="$(basename "${0}")"
 # shellcheck disable=SC2034
-declare -r TOKEN="${1}"
+declare -r TOKEN="${ACCESS_TOKEN}"
 
 measure() {
   # shellcheck disable=SC2155
