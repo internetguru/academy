@@ -31,7 +31,7 @@ measure() {
   declare group_id
   declare projects
   for branch in $(git branch -r | grep -v '\->'); do
-    namespace="${project_namespace}/$(basename "${branch}")/${project_name}"
+    namespace="${project_namespace}/$(basename "${branch}")"
     # get namespace id
     group_id="$(get_group_id "${namespace}")"
     [[ -z "${group_id}" ]] \
