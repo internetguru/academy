@@ -22,9 +22,29 @@ end
 start "missing remote namespace"
   debug "echo 'user1' | $cad"
   assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid argument REMOTE_NAMESPACE in validate_arguments() [ #2 ]"
+  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid REMOTE_NAMESPACE dirname [ #2 ]"
 end
 #######################################
+: $((i++))
+start "invalid remote namespace dirname"
+  debug "echo 'user1' | $cad '1/correct'"
+  assert_equal "$status" 2
+  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid REMOTE_NAMESPACE dirname [ #2 ]"
+end
+#######################################
+: $((i++))
+start "invalid remote namespace basename"
+  debug "echo 'user1' | $cad 'correct/1'"
+  assert_equal "$status" 2
+  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid REMOTE_NAMESPACE basename [ #2 ]"
+end
+#######################################
+: $((i++))
+start "missing root namespace"
+  debug "echo 'user1' | $cad 'xyz123xyz/abc' '$tmp_project'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[2]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
+end
 # : $((i++))
 # skip "missing users: not working on gh actions"
   # debug "$cad '$correct_ns'"
@@ -41,20 +61,6 @@ start "invalid users"
   .b' | $cad -n '$correct_ns' '$tmp_project'"
   assert_equal "$status" 3
   assert_startwith "${errlines[3]}" "Processing repository for .b ... [ INVALID ]"
-end
-#######################################
-: $((i++))
-start "invalid remote namespace format"
-  debug "echo 'user1' | $cad '1' '$tmp_project'"
-  assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid argument REMOTE_NAMESPACE in validate_arguments()"
-end
-#######################################
-: $((i++))
-start "missing root namespace"
-  debug "echo 'user1' | $cad 'xyz123xyz/abc' '$tmp_project'"
-  assert_equal "$status" 1
-  assert_startwith "${errlines[2]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
 end
 #######################################
 : $((i++))
