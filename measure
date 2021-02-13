@@ -1,46 +1,35 @@
 #!/bin/bash
 
-get_project_origin_url() {
-  echo "https://oauth2:${TOKEN}@gitlab.com/${project_name}.git"
-}
-get_group_projects() {
-  gitlab_api "${GITLAB_URL}/api/v4/groups/${group_id}/projects" \
-    | jq -r '.[] | .name_with_namespace' | tr -d " "
-}
-
 # shellcheck disable=SC2034
 # shellcheck disable=SC2155
 declare -r SCRIPT_NAME="$(basename "${0}")"
-declare -r GITLAB_URL='https://gitlab.com'
 declare -r TOKEN="${1}"
 
 measure() {
   # shellcheck disable=SC2155
   declare -r pwd="$(pwd)"
   # shellcheck disable=SC2155
-  declare -r projects_folder="$(mktemp -d)"
+  declare -r user_projects_folder="$(mktemp -d)"
   # shellcheck disable=SC2155
   declare -r project_namespace="$(dirname "${pwd}" | cut -d/ -f3-)"
-  # shellcheck disable=SC2155
-  declare -r project_name="$(basename "${pwd}")"
 
   # get all branches
   git fetch --all >/dev/null
   # for all branches get user projects
-  declare namespace
+  declare user_projects_namespace
   declare group_id
   declare projects
   for branch in $(git branch -r | grep -v '\->'); do
-    namespace="${project_namespace}/$(basename "${branch}")"
-    # get namespace id
-    group_id="$(get_group_id "${namespace}")"
+    user_projects_namespace="${project_namespace}/$(basename "${branch}")"
+    # get user_projects_namespace id
+    group_id="$(get_group_id "${user_projects_namespace}")"
     [[ -z "${group_id}" ]] \
       && continue
-    projects="$(get_group_projects)"
-    # clone all projects from ns
-    for project in ${projects}; do
-      mkdir -p "${projects_folder}/${project}"
-      git_clone "$(get_project_origin_url)" "${projects_folder}/{$project}"
+    user_projects="$(get_group_projects)"
+    # clone all user_projects from ns
+    for user_project_ns in ${user_projects}; do
+      mkdir -p "${user_projects_folder}/${user_project_ns}"
+      git_clone "$(get_remote_url)" "${user_projects_folder}/{$user_project_ns}"
     done
   done
 

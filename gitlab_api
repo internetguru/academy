@@ -124,3 +124,8 @@ get_remote_namespace() {
 get_remote_url() {
   printf -- "https://oauth2:%s@%s/%s.git" "${TOKEN}" "${GITLAB_URL}" "${user_project_ns}"
 }
+get_group_projects() {
+  # shellcheck disable=SC2154
+  gitlab_api "api/v4/groups/${group_id}/projects" \
+    | jq -r '.[] | .name_with_namespace' | tr -d " "
+}
