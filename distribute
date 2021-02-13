@@ -318,7 +318,7 @@ declare ISSUES=''
 declare -i ISSUES_COUNT=-1
 
 # USAGE
-declare -r USAGE="DESCRIPTION
+declare USAGE="DESCRIPTION
       This script reads USERNAMES from stdin using IFS. For each USERNAME it distributes files from PROJECT_FOLDER into REMOTE_NAMESPACE-USERNAME. Root namespace in REMOTE_NAMESPACE must exist, meaning e.g. 'umiami' in 'umiami/csc220/fall20'.
 
 USAGE

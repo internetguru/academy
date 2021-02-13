@@ -7,14 +7,16 @@ declare -r SCRIPT='ca'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -r CMD="${1}"
-#todo
-declare -r USAGE="usage: ${SCRIPT} <command> [<args>]
+declare USAGE="usage: ${SCRIPT} <command> [<args>]
 
 These are common ${SCRIPT} commands used in various situations:
 
    distribute        Create or update user repositories with files from source project.
+
    evaluate          Verify Java project and generate badges into README.
+
    help              Display this usage.
+
    measure           Compute software similarities between projects using Moss script.
 "
 
