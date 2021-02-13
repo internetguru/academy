@@ -5,25 +5,24 @@ before_script:
   # install requirements
   - apt update && apt install -y curl jq git
   # checkout to current branch
-  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
   # set git user
-  - git config --global user.email "$GITLAB_USER_EMAIL"
-  - git config --global user.name "Runner = $CI_RUNNER_DESCRIPTION"
+  - git config --global user.email "${GITLAB_USER_EMAIL}"
+  - git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
   # prepare acccess token for the distribution script
   - |
-      if [[ -z "$ACCESS_TOKEN" ]]; then
-        echo "Undefined variable ACCESS_TOKEN"
+      if [[ -z "${ACCESS_TOKEN}" ]]; then
+        echo "Undefined variable {ACCESS_TOKEN}"
         echo "Refer to README and make sure the current branch is protected."
         exit 1
       fi
   - export CA_DIR="$(mktemp -d)"
   # install cad
   - revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
-  - git clone --single-branch --branch $revision https://github.com/InternetGuru/ca $CA_DIR
+  - git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ca ${CA_DIR}
   # set permissions
-  - CA=$CA_DIR/ca
-  - ls -la $CA_DIR
-  - chmod +x $CA_DIR/*
+  - CA=${CA_DIR}/ca
+  - chmod +x ${CA_DIR}/*
 
 evaluate:
   image: maven:latest
@@ -32,10 +31,10 @@ evaluate:
     paths:
       - target/
   script:
-    - $CA evaluate
+    - ${CA} evaluate
   only:
     variables:
-      - $CA_EVALUATE
+      - ${CA_EVALUATE}
   artifacts:
     paths:
       - .results/
@@ -46,19 +45,19 @@ distribute:
   stage: build
   script:
     # e.g. /umiami/george/csc220
-    - namespace="$(dirname "$PWD" | cut -d/ -f3-)"
-    - project_name="$(basename "$PWD")"
+    - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
+    - declare -r project_name="$(basename "${PWD}")"
     # e.g. fall20
-    - branch="$(git rev-parse --abbrev-ref HEAD)"
+    - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set project remote for distribute.sh
-    - git remote set-url origin "$namespace/$project_name.git"
+    - git remote set-url origin "${namespace}/${project_name}.git"
     # set token file (will be deprecated)
-    - echo "$ACCESS_TOKEN" > $HOME/.gitlab_access_token
+    - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # distribute current project among all users
-    - $CA distribute --process-issues --update-links "$namespace/$branch/$project_name" <<< "$CA_USERS"
+    - ${CA} distribute --process-issues --update-links "${namespace}/${branch}/${project_name}" <<< "${CA_USERS}"
   only:
     variables:
-      - $CA_DISTRIBUTE
+      - ${CA_DISTRIBUTE}
   when: manual
 
 measure:
@@ -66,10 +65,10 @@ measure:
   stage: build
   script:
     # run plagiarism check
-    - curl -o moss "$CA_MOSSURL"
+    - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
-    - $CA measure
+    - ${CA} measure
   only:
     variables:
-      - $CA_MEASURE
+      - ${CA_MEASURE}
   when: manual
