@@ -3,21 +3,39 @@
 set -o pipefail
 #set -x
 
-declare -r CA_DIR="${CA_DIR:-.}"
+declare -r SCRIPT='ca'
+# shellcheck disable=SC2155
+declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
+declare -r CMD="${1}"
+#todo
+declare -r USAGE="usage: ${SCRIPT} <command> [<args>]
+
+These are common ${SCRIPT} commands used in various situations:
+
+   distribute        Create or update user repositories with files from source project.
+   evaluate          Verify Java project and generate badges into README.
+   help              Display this usage.
+   measure           Compute software similarities between projects using Moss script.
+"
 
 # shellcheck disable=SC1090
-. "$CA_DIR/commons"
+. "${DIR}/commons"
 # shellcheck disable=SC1090
-. "$CA_DIR/git_functions"
+. "${DIR}/git_functions"
 
-declare -r CA_CMD="${1}"
-case "${CA_CMD}" in
+case "${CMD}" in
+  help)
+    print_usage "${USAGE}"
+    ;;
   distribute|evaluate|measure)
     shift
     # shellcheck disable=SC1090
-    . "$CA_DIR/${CA_CMD}"
+    . "${DIR}/${CMD}"
+    ;;
+  "")
+    exception "Missing command, enter '${SCRIPT} help' to display usage" 2
     ;;
   *)
-    exception "Invalid command '${CA_CMD}'"
+    exception "Invalid command '${CMD}', enter '${SCRIPT} help' to display usage" 2
     ;;
 esac
