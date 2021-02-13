@@ -3,6 +3,7 @@
 # shellcheck disable=SC2034
 # shellcheck disable=SC2155
 declare -r SCRIPT_NAME="$(basename "${0}")"
+# shellcheck disable=SC2034
 declare -r TOKEN="${1}"
 
 measure() {
@@ -17,8 +18,8 @@ measure() {
   git fetch --all >/dev/null
   # for all branches get user projects
   declare user_projects_namespace
+  declare user_projects
   declare group_id
-  declare projects
   for branch in $(git branch -r | grep -v '\->'); do
     user_projects_namespace="${project_namespace}/$(basename "${branch}")"
     # get user_projects_namespace id
@@ -38,7 +39,7 @@ measure() {
 
   # send projects into moss
   declare -r cam_lang='java'
-  ./moss -l "${cam_lang}" -d "${projects_folder}"/**/src/main/**/*."${cam_lang}" src/main/**/*."${cam_lang}"
+  ./moss -l "${cam_lang}" -d "${user_projects_folder}"/**/src/main/**/*."${cam_lang}" src/main/**/*."${cam_lang}"
 }
 
 measure
