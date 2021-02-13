@@ -90,8 +90,8 @@ remove_protected_branch() {
   gitlab_api "api/v4/projects/${project_id}/protected_branches/${user_branch}" '-' >/dev/null
 }
 set_protected_branch() {
-  declare -r branch="${2}"
-  declare -r access_level="${3}"
+  declare -r branch="${1}"
+  declare -r access_level="${2}"
   gitlab_api "api/v4/projects/${project_id}/protected_branches?name=${branch}&push_access_level=${access_level}&merge_access_level=${access_level}" '{}' >/dev/null
 }
 create_group() {
