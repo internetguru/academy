@@ -135,6 +135,7 @@ read_project_info() {
 acquire_token() {
   [[ -s "${TOKEN_FILE}" ]] \
     || authorize
+  # shellcheck disable=SC2034
   TOKEN="$(cat "${TOKEN_FILE}")" \
     || exit 1
 }
