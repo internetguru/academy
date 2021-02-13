@@ -34,7 +34,7 @@ evaluate:
     - ${CA} evaluate
   only:
     variables:
-      - ${CA_EVALUATE}
+      - $CA_EVALUATE
   artifacts:
     paths:
       - .results/
@@ -57,7 +57,7 @@ distribute:
     - ${CA} distribute --process-issues --update-links "${namespace}/${branch}/${project_name}" <<< "${CA_USERS}"
   only:
     variables:
-      - ${CA_DISTRIBUTE}
+      - $CA_DISTRIBUTE
   when: manual
 
 measure:
@@ -70,5 +70,5 @@ measure:
     - ${CA} measure
   only:
     variables:
-      - ${CA_MEASURE}
+      - $CA_MEASURE
   when: manual
