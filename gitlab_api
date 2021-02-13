@@ -39,7 +39,7 @@ authorize() {
 get_project_id() {
   declare -r ns="${1}"
   # shellcheck disable=SC2154
-  gitlab_api "api/v4/projects/${user_project_ns//\//%2F}" | jq -r '.id'
+  gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id'
 }
 get_default_branch() {
   # shellcheck disable=SC2154
