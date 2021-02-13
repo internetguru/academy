@@ -1,20 +1,11 @@
 #!/bin/bash
 
 get_project_origin_url() {
-  declare -r project_name="${1}"
   echo "https://oauth2:${TOKEN}@gitlab.com/${project_name}.git"
 }
-get_group_id() {
-  declare -r group_name="${1}"
-  curl -s --header "Authorization: Bearer ${TOKEN}" "${GITLAB_URL}/api/v4/groups" \
-    | jq -r --arg group_name "${group_name}" '.[] | select(.full_path==$group_name) | .id' \
-    || exception 'API error'
-}
 get_group_projects() {
-  declare -r group_name="${1}"
-  curl -s --header "Authorization: Bearer ${TOKEN}" "${GITLAB_URL}/api/v4/groups/${group_name}/projects" \
-    | jq -r '.[] | .name_with_namespace' | tr -d " " \
-    || exception 'API error'
+  gitlab_api "${GITLAB_URL}/api/v4/groups/${group_id}/projects" \
+    | jq -r '.[] | .name_with_namespace' | tr -d " "
 }
 
 # shellcheck disable=SC2034
@@ -36,19 +27,20 @@ measure() {
   # get all branches
   git fetch --all >/dev/null
   # for all branches get user projects
-  declare namespace group_id projects
+  declare namespace
+  declare group_id
+  declare projects
   for branch in $(git branch -r | grep -v '\->'); do
     namespace="${project_namespace}/$(basename "${branch}")/${project_name}"
     # get namespace id
     group_id="$(get_group_id "${namespace}")"
     [[ -z "${group_id}" ]] \
       && continue
-    projects="$(get_group_projects "${group_id}")"
+    projects="$(get_group_projects)"
     # clone all projects from ns
     for project in ${projects}; do
       mkdir -p "${projects_folder}/${project}"
-      git clone -q "$(get_project_origin_url "${project}")" "${projects_folder}/{$project}" \
-        || exception "Unable to clone project ${project} from ${namespace}"
+      git_clone "$(get_project_origin_url)" "${projects_folder}/{$project}"
     done
   done
 
@@ -57,7 +49,7 @@ measure() {
 
   # send projects into moss
   declare -r cam_lang='java'
-  ./moss -l "${cam_lang}" -d "$projects_folder"/**/src/main/**/*."${cam_lang}" src/main/**/*."${cam_lang}"
+  ./moss -l "${cam_lang}" -d "${projects_folder}"/**/src/main/**/*."${cam_lang}" src/main/**/*."${cam_lang}"
 }
 
 measure
