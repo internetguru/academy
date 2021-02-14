@@ -18,28 +18,27 @@
 
 1. Add the following lines into your `.gitlab-ci.yml` file and choose what you want process by adding specific variables.
 
-```yaml
-include:
-  - 'https://raw.githubusercontent.com/InternetGuru/ca/dev/gitlab-stages.yml'
+   ```yaml
+   include:
+     - 'https://raw.githubusercontent.com/InternetGuru/ca/dev/gitlab-stages.yml'
 
-variables:
-  # Run distribution script
-  # Destination namespace for assignment projects is `project_namespace/project_branch/project_name-user`
-  CA_DISTRIBUTE: "true"
-  # Users for distribution separated by spaces
-  CA_USERS: "solver1 solver2 solver3"
+   variables:
+     # Run distribution script
+     # Destination namespace for assignment projects is `project_namespace/project_branch/project_name-user`
+     CA_DISTRIBUTE: "true"
+     # Users for distribution separated by spaces
+     CA_USERS: "solver1 solver2 solver3"
 
-  # Run evaluation script
-  # It generates badges for README file (see below)
-  CA_EVALUATE: "true"
+     # Run evaluation script
+     # It generates badges for README file (see below)
+     CA_EVALUATE: "true"
 
-  # Run measure script
-  # You will find the URL with Moss results at the end of the pipeline output log
-  CA_MEASURE: "true"
-  # Link to public moss script
-  CA_MOSSURL: "https://moss_url"
-
-```
+     # Run measure script
+     # You will find the URL with Moss results at the end of the pipeline output log
+     CA_MEASURE: "true"
+     # Link to public moss script
+     CA_MOSSURL: "https://moss_url"
+   ```
 
 1. To run desired process, [run CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is automatic.
 
