@@ -56,7 +56,7 @@ distribute:
     # distribute current project among all users
     - |
         ${CA} distribute --update-links --namespace "${namespace}/${branch}" \
-        --process-issues --prefix "${project_name}" <<< "${CA_USERS}"
+        --process-issues --prefix "${project_name}-" <<< "${CA_USERS}"
   only:
     variables:
       - $CA_DISTRIBUTE

@@ -17,9 +17,6 @@ TODO
 `-a`, `--assign WHEN`
        Assign `ROLE` (see below) to users for newly created projects and assign users to issues `always`, `never`, or `auto` (default).
 
-`-d`, `--directory PROJECT_FOLDER`
-       Specify the `PROJECT_FOLDER` (default PWD).
-
 `-h`, `--help`
        Display usage.
 
@@ -31,6 +28,12 @@ TODO
 
 `-n`, `--dry-run`
        Only process arguments, options and stdin validation. Would not proceed with create or update user repositories.
+
+`-p`, `--prefix PREFIX`
+       Prepend PREFIX in front of created repositories names. PREFIX is empty by default.
+
+`-s`, `--namespace NAMESPACE`
+       Distribute repositories into NAMESPACE instead of current project's namespace.
 
 ## EXIT STATUS
 

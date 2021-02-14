@@ -10,7 +10,7 @@ init_cache() {
   git_clone "$(get_remote_url)" "${user_cache_folder}"
 }
 sync_cache() {
-  rsync -a --delete --exclude .git/ "${FOLDER}/" "${user_cache_folder}" \
+  rsync -a --delete --exclude .git/ "${WORKING_DIR}/" "${user_cache_folder}" \
     || exception "Unable to rsync files"
   [[ "${UPDATE_LINKS}" == 'true' ]] \
     && update_links
@@ -104,11 +104,11 @@ read_project_info() {
   [[ "${COPY_ISSUES}" == 'false' && "${UPDATE_LINKS}" == 'false' && -n "${NAMESPACE}" ]] \
     && msg_end SKIPPED \
     && return
-  [[ -d "${FOLDER}/.git" ]] \
-    || exception 'PROJECT_FOLDER is not a GitLab project'
-  PROJECT_LINK="$(get_remote_namespace "${FOLDER}")" \
+  [[ -d "${WORKING_DIR}/.git" ]] \
+    || exception 'GitLab project not found in WORKING_DIR'
+  PROJECT_LINK="$(get_remote_namespace "${WORKING_DIR}")" \
     && PROJECT_ID="$(get_project_id "${PROJECT_LINK}")" \
-    && PROJECT_BRANCH="$(git_current_branch "${FOLDER}")" \
+    && PROJECT_BRANCH="$(git_current_branch "${WORKING_DIR}")" \
     || exit 1
   [[ -z "${NAMESPACE}" ]] \
     && NAMESPACE="$(dirname "${PROJECT_LINK}")"
@@ -156,9 +156,6 @@ process_users() {
 }
 distribute() {
   # shellcheck disable=SC2155
-  declare -r FOLDER="$(readlink -f "${DIRECTORY}")"
-  [[ "${UPDATE_LINKS}" == 'false' || -f "${FOLDER}/${README_FILE}" ]] \
-    || exception 'Readme file not found'
   [[ ! -t 0 ]] \
     || exception 'Missing stdin' 2
   exec 3<&0
@@ -180,7 +177,6 @@ declare -ri DEV_ACCESS_LEVEL=30
 declare -ri MAINTAINER_ACCESS_LEVEL=40
 
 # default variables
-declare DIRECTORY='.'
 declare DRY_RUN='false'
 declare COPY_ISSUES='false'
 declare UPDATE_LINKS='false'
@@ -198,8 +194,8 @@ declare ACCESS_TOKEN
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:d:hilnp:s:' \
-  --longoptions 'assign:,directory:,help,process-issues,update-links,dry-run,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'a:hilnp:s:' \
+  --longoptions 'assign:,help,process-issues,update-links,dry-run,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -212,18 +208,17 @@ while (( $# > 0 )); do
       [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
         || exception 'Invalid option ASSIGN value'
       shift; shift ;;
-    -d|--directory)
-      DIRECTORY="${2}"
-      [[ -d "${DIRECTORY}" ]] \
-        || exception 'PROJECT_FOLDER not found'
-      shift; shift ;;
     -h|--help) print_usage && exit 0 ;;
     -i|--process-issues) COPY_ISSUES='true'; shift ;;
-    -l|--update-links) UPDATE_LINKS='true'; shift ;;
+    -l|--update-links)
+      UPDATE_LINKS='true'
+      [[ -f "${WORKING_DIR}/${README_FILE}" ]] \
+        || exception 'Readme file not found in WORKING_DIR'
+      shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -p|--prefix)
-      PREFIX="${2}-"
-      [[ "${PREFIX}" =~ ^([a-z0-9]{2,}-)+$ ]] \
+      PREFIX="${2}"
+      [[ "${PREFIX}" =~ ^[a-z0-9][a-z0-9-]+$ ]] \
         || exception 'Unsupported PREFIX value' 2
       shift; shift ;;
     -s|--namespace)
@@ -236,4 +231,5 @@ while (( $# > 0 )); do
   esac
 done
 
+# run main function
 distribute

@@ -6,8 +6,10 @@ set -o pipefail
 declare -r SCRIPT='ca'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
-declare -r CMD="${1}"
-declare -r USAGE="usage: ${SCRIPT} <command> [<args>]
+declare -r USAGE="usage: ${SCRIPT} [-w] <command> [<args>]
+
+    -w, --working-dir WORKING_DIR
+           Run as if ${SCRIPT} was started in WORKING_DIR instead of the current working directory.
 
 These are common ${SCRIPT} commands used in various situations:
 
@@ -24,19 +26,31 @@ These are common ${SCRIPT} commands used in various situations:
 # shellcheck disable=SC1090
 . "${DIR}/gitlab_api"
 
-case "${CMD}" in
-  help)
-    fmt -tw "$(tput cols)" <<< "${USAGE}"
-    ;;
-  distribute|evaluate|measure)
-    shift
-    # shellcheck disable=SC1090
-    . "${DIR}/${CMD}"
-    ;;
-  "")
-    exception "Missing command, enter '${SCRIPT} help' to display usage" 2
-    ;;
-  *)
-    exception "Invalid command '${CMD}', enter '${SCRIPT} help' to display usage" 2
-    ;;
-esac
+# shellcheck disable=SC2155
+declare WORKING_DIR="$(readlink -f ".")"
+while (( $# > 0 )); do
+  case "${1}" in
+    -w|--working-dir)
+      WORKING_DIR="$(readlink -f "${2}")"
+      [[ -d "${WORKING_DIR}" ]] \
+        || exception 'WORKING_DIR not found'
+      shift; shift ;;
+    help)
+      fmt -tw "$(tput cols)" <<< "${USAGE}"
+      exit
+      ;;
+    distribute|evaluate|measure)
+      declare -r CMD="${1}"
+      shift
+      # shellcheck disable=SC1090
+      . "${DIR}/${CMD}"
+      exit $?
+      ;;
+    "")
+      exception "Missing command, enter '${SCRIPT} help' to display usage" 2
+      ;;
+    *)
+      exception "Invalid command '${1}', enter '${SCRIPT} help' to display usage" 2
+      ;;
+  esac
+done
