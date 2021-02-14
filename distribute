@@ -10,9 +10,8 @@ init_cache() {
   git_clone "$(get_remote_url)" "${user_cache_folder}"
 }
 sync_cache() {
-  rsync -a --delete --exclude .git/ "${PROJECT_FOLDER}/" "${user_cache_folder}" \
+  rsync -a --delete --exclude .git/ "${FOLDER}/" "${user_cache_folder}" \
     || exception "Unable to rsync files"
-  declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
   [[ "${UPDATE_LINKS}" == 'true' ]] \
     && update_links
 }
@@ -29,7 +28,8 @@ update_cache() {
   git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
 }
 update_links() {
-  sed -i "s~/${PROJECT_NS}/~/${user_project_ns}/~g" "${user_readme_path}"
+  declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
+  sed -i "s~/${PROJECT_LINK}/~/${user_project_ns}/~g" "${user_readme_path}"
   sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_branch}/\1~g" "${user_readme_path}"
   sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_branch}~g" "${user_readme_path}"
 }
@@ -41,8 +41,8 @@ init_user_repo() {
   [[ "${ASSIGN}" == "${ALWAYS}" && -z "${user_id}" ]] \
     && exception "User ${user_name} does not exist"
   [[ -n "${GROUP_ID}" ]] \
-    || GROUP_ID="$(get_group_id "${REMOTE_NS}" 2>/dev/null)" \
-    || GROUP_ID="$(create_ns "${REMOTE_NS}")" \
+    || GROUP_ID="$(get_group_id "${NAMESPACE}" 2>/dev/null)" \
+    || GROUP_ID="$(create_ns "${NAMESPACE}")" \
     || exit 1
   project_id="$(create_user_project)" \
     || exit 1
@@ -99,37 +99,19 @@ copy_issues() {
     gitlab_api "api/v4/projects/${project_id}/issues" "${issue}" >/dev/null
   done
 }
-validate_arguments() {
-  msg_start 'Validating arguments'
-  [[ -n "${REMOTE_NS}" ]] \
-    || exception 'Missing argument REMOTE_NAMESPACE' 2
-  [[ "${REMOTE_NS}" =~ ^[a-z0-9]{2,}(/[a-z0-9]{2,})*$ ]] \
-    || exception 'Invalid REMOTE_NAMESPACE dirname' 2
-  [[ "${USER_PROJECT_PREFIX}" =~ ^[a-z0-9]{2,}$ ]] \
-    || exception 'Invalid REMOTE_NAMESPACE basename' 2
-  [[ -d "${PROJECT_FOLDER}" ]] \
-    || exception 'Project folder not found'
-  [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
-    || exception 'Invalid option ASSIGN'
-  [[ "${COPY_ISSUES}" == 'false' || -d "${PROJECT_FOLDER}/.git" ]] \
-    || exception 'To copy issues, project must be a git repository'
-  [[ "${UPDATE_LINKS}" == 'false' || -d "${PROJECT_FOLDER}/.git" ]] \
-    || exception 'To update links, project must be a git repository'
-  [[ "${UPDATE_LINKS}" == 'false' || -f "${PROJECT_FOLDER}/${README_FILE}" ]] \
-    || exception 'Readme file not found'
-  [[ ! -t 0 ]] \
-    || exception 'Missing stdin' 2
-  msg_end
-}
 read_project_info() {
   msg_start 'Getting project information'
-  [[ "${COPY_ISSUES}" == 'false' && "${UPDATE_LINKS}" == 'false' ]] \
+  [[ "${COPY_ISSUES}" == 'false' && "${UPDATE_LINKS}" == 'false' && -n "${NAMESPACE}" ]] \
     && msg_end SKIPPED \
     && return
-  PROJECT_NS="$(get_remote_namespace "${PROJECT_FOLDER}")" \
-    && PROJECT_ID="$(get_project_id "${PROJECT_NS}")" \
-    && PROJECT_BRANCH="$(git_current_branch "${PROJECT_FOLDER}")" \
+  [[ -d "${FOLDER}/.git" ]] \
+    || exception 'PROJECT_FOLDER is not a GitLab project'
+  PROJECT_LINK="$(get_remote_namespace "${FOLDER}")" \
+    && PROJECT_ID="$(get_project_id "${PROJECT_LINK}")" \
+    && PROJECT_BRANCH="$(git_current_branch "${FOLDER}")" \
     || exit 1
+  [[ -z "${NAMESPACE}" ]] \
+    && NAMESPACE="$(dirname "${PROJECT_LINK}")"
   msg_end
 }
 acquire_token() {
@@ -157,8 +139,8 @@ process_users() {
     [[ "${DRY_RUN}" == 'true' ]] \
       && msg_end SKIPPED \
       && continue
-    user_project_name="${USER_PROJECT_PREFIX}-${user_name}"
-    user_project_ns="${REMOTE_NS}/${user_project_name}"
+    user_project_name="${PREFIX}${user_name}"
+    user_project_ns="${NAMESPACE}/${user_project_name}"
     user_cache_folder="$(get_cache_folder)"
     project_exists \
       && update_user_repo \
@@ -171,6 +153,19 @@ process_users() {
     || exception 'Empty or invalid stdin' 2
   (( invalid == 0 )) \
     || exception "Invalid username occurred ${invalid} time(s)" 3
+}
+distribute() {
+  # shellcheck disable=SC2155
+  declare -r FOLDER="$(readlink -f "${DIRECTORY}")"
+  [[ "${UPDATE_LINKS}" == 'false' || -f "${FOLDER}/${README_FILE}" ]] \
+    || exception 'Readme file not found'
+  [[ ! -t 0 ]] \
+    || exception 'Missing stdin' 2
+  exec 3<&0
+  check_command git jq
+  acquire_token
+  read_project_info
+  process_users
 }
 
 # global constants
@@ -190,8 +185,10 @@ declare DRY_RUN='false'
 declare COPY_ISSUES='false'
 declare UPDATE_LINKS='false'
 declare ASSIGN="${AUTO}"
+declare NAMESPACE=''
+declare PREFIX=''
 declare GROUP_ID=''
-declare PROJECT_NS=''
+declare PROJECT_LINK=''
 declare PROJECT_ID=''
 declare PROJECT_BRANCH=''
 declare ISSUES=''
@@ -201,8 +198,8 @@ declare ACCESS_TOKEN
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:d:hiln' \
-  --longoptions 'assign:,directory:,help,process-issues,update-links,dry-run' \
+OPT="$(getopt --name "${0}" --options 'a:d:hilnp:s:' \
+  --longoptions 'assign:,directory:,help,process-issues,update-links,dry-run,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -210,29 +207,33 @@ OPT="$(getopt --name "${0}" --options 'a:d:hiln' \
 # process options
 while (( $# > 0 )); do
   case "${1}" in
-    -a|--assign) shift; ASSIGN="${1}"; shift ;;
-    -d|--directory) shift; DIRECTORY="${1}"; shift ;;
+    -a|--assign)
+      ASSIGN="${2}"
+      [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
+        || exception 'Invalid option ASSIGN value'
+      shift; shift ;;
+    -d|--directory)
+      DIRECTORY="${2}"
+      [[ -d "${DIRECTORY}" ]] \
+        || exception 'PROJECT_FOLDER not found'
+      shift; shift ;;
     -h|--help) print_usage && exit 0 ;;
     -i|--process-issues) COPY_ISSUES='true'; shift ;;
     -l|--update-links) UPDATE_LINKS='true'; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
+    -p|--prefix)
+      PREFIX="${2}-"
+      [[ "${PREFIX}" =~ ^([a-z0-9]{2,}-)+$ ]] \
+        || exception 'Unsupported PREFIX value' 2
+      shift; shift ;;
+    -s|--namespace)
+      NAMESPACE="${2}"
+      [[ "${NAMESPACE}" =~ ^[a-z0-9]{2,}(/[a-z0-9]{2,})*$ ]] \
+        || exception 'Unsupported REMOTE_NAMESPACE dirname' 2
+      shift; shift ;;
     --) shift; break ;;
      *) break ;;
   esac
 done
 
-# validate and authorize
-# shellcheck disable=SC2155
-declare -r REMOTE_NS="$(dirname "${1}")"
-# shellcheck disable=SC2155
-declare -r USER_PROJECT_PREFIX="$(basename "${1}")"
-# shellcheck disable=SC2155
-declare -r PROJECT_FOLDER="$(readlink -f "${DIRECTORY}")"
-
-validate_arguments
-# redir stdin
-exec 3<&0
-check_command git jq
-acquire_token
-read_project_info
-process_users
+distribute

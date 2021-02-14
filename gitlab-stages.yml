@@ -54,7 +54,9 @@ distribute:
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # distribute current project among all users
-    - ${CA} distribute --process-issues --update-links "${namespace}/${branch}/${project_name}" <<< "${CA_USERS}"
+    - |
+        ${CA} distribute --update-links --namespace "${namespace}/${branch}" \
+        --process-issues --prefix "${project_name}" <<< "${CA_USERS}"
   only:
     variables:
       - $CA_DISTRIBUTE
