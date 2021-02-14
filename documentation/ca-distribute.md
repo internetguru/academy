@@ -1,23 +1,18 @@
-CA-DISTRIBUTE 1 2021-02-14 GNU "User Manuals"
-=============================================
+# CA-DISTRIBUTE 1 2021-02-14 GNU "User Manuals"
 
-NAME
-----
+## NAME
 
 CA Distribute - distribute assignment among users
 
-SYNOPSIS
---------
+## SYNOPSIS
 
 `ca distribute` [`-adhiln`] `REMOTE_NAMESPACE`
 
-DESCRIPTION
------------
+## DESCRIPTION
 
 TODO
 
-OPTIONS
--------
+## OPTIONS
 
 `-a[WHEN]`, `--assign[=WHEN]`
        Assign `ROLE` (see below) to users for newly created projects and assign users to issues `always`, `never`, or `auto` (default).
@@ -37,8 +32,7 @@ OPTIONS
 `-n`, `--dry-run`
        Only process arguments, options and stdin validation. Would not proceed with create or update user repositories.
 
-EXIT STATUS
------------
+## EXIT STATUS
 
 1
        Other error.
@@ -49,22 +43,18 @@ EXIT STATUS
 3
        Some (or all) invalid users.
 
-EXAMPLES
---------
+## EXAMPLES
 
 TODO (?)
 
-BUGS
-----
+## BUGS
 
 TODO link to github (?)
 
-AUTHOR
-------
+## AUTHOR
 
 TODO name <email>
 
-SEE ALSO
---------
+## SEE ALSO
 
 TODO other manuals, other links (?)
