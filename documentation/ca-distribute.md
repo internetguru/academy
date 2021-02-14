@@ -34,14 +34,11 @@ TODO
 
 ## EXIT STATUS
 
-1
-       Other error.
+1      Other error.
 
-2
-       Invalid options or arguments including empty or missing stdin.
+2      Invalid options or arguments including empty or missing stdin.
 
-3
-       Some (or all) invalid users.
+3      Some (or all) invalid users.
 
 ## EXAMPLES
 
