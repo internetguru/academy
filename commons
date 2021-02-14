@@ -52,12 +52,25 @@ exception() {
   exit "${code}"
 }
 print_usage() {
-  declare -r usage="${1}"
-  fmt -w "$(tput cols)" <<< "${usage}"
+  declare out
+  # shellcheck disable=SC2155
+  declare usage="$(get_md_section "## SYNOPSIS" < "documentation/ca-${CMD}.md")"
+  [[ -n "${usage}" ]] \
+    && out="usage: ${usage}"
+  # shellcheck disable=SC2155
+  declare options="$(get_md_section "## OPTIONS" < "documentation/ca-${CMD}.md")"
+  # shellcheck disable=SC2001
+  [[ -n "${options}" ]] \
+    && out="${out}"$'\n'"$(sed 's/^/    /g' <<< "${options}")"
+  fmt -w "$(tput cols)" <<< "${out}"
 }
 check_command() {
   for cmd in "${@}"; do
     command -v "${cmd}" >/dev/null 2>&1 \
       || exception "Command ${cmd} not found"
   done
+}
+get_md_section() {
+  awk -v section="${1}" 'BEGIN{ out=0 } /^##/{ if ($0 == section){ out=1; next } else { out=0 } } { if (out == 1) { print } }' \
+    | sed 's/`//g'
 }

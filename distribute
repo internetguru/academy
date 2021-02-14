@@ -246,7 +246,7 @@ while (( $# > 0 )); do
   case "${1}" in
     -a|--assign) shift; ASSIGN="${1}"; shift ;;
     -d|--directory) shift; DIRECTORY="${1}"; shift ;;
-    -h|--help) print_usage "${USAGE}" && exit 0 ;;
+    -h|--help) print_usage && exit 0 ;;
     -i|--process-issues) COPY_ISSUES='true'; shift ;;
     -l|--update-links) UPDATE_LINKS='true'; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
