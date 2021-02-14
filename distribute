@@ -174,9 +174,6 @@ process_users() {
 }
 
 # global constants
-# shellcheck disable=SC2155
-# shellcheck disable=SC2034
-declare -r SCRIPT_NAME="$(basename "${0}")"
 declare -r TOKEN_FILE="${HOME}/.gitlab_access_token"
 declare -r CACHE_FOLDER="${HOME}/.ca_distribute_cache"
 declare -r README_FILE='README.md'

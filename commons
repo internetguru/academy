@@ -44,7 +44,7 @@ prompt() {
   prompt "${message}"
 }
 exception() {
-  declare -r message="${1:-${SCRIPT_NAME} unknown exception}"
+  declare -r message="${1:-Unknown exception}"
   declare -ri code=${2:-1}
   (( code == 1 )) \
     && printf -- '%s in %s() [ #%d ]\n' "${message}" "${FUNCNAME[1]}" "${code}" >&2 \
