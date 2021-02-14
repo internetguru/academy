@@ -12,11 +12,8 @@ declare -r USAGE="usage: ${SCRIPT} <command> [<args>]
 These are common ${SCRIPT} commands used in various situations:
 
    distribute        Create or update user repositories with files from source project.
-
    evaluate          Verify Java project and generate badges into README.
-
    help              Display this usage.
-
    measure           Compute software similarities between projects using Moss script.
 "
 
@@ -29,7 +26,7 @@ These are common ${SCRIPT} commands used in various situations:
 
 case "${CMD}" in
   help)
-    format_usage <<< "${USAGE}"
+    fmt -tw "$(tput cols)" <<< "${USAGE}"
     ;;
   distribute|evaluate|measure)
     shift
