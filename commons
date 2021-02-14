@@ -62,10 +62,7 @@ print_usage() {
   # shellcheck disable=SC2001
   [[ -n "${options}" ]] \
     && out="${out}"$'\n'"$(sed 's/^/    /g' <<< "${options}")"
-  format_usage <<< "${out}"
-}
-format_usage() {
-  fmt -w "$(tput cols)"
+  fmt -w "$(tput cols)" <<< "${out}"
 }
 check_command() {
   for cmd in "${@}"; do
