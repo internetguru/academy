@@ -25,8 +25,7 @@ measure() {
   for branch in $(git branch -r | grep -v '\->'); do
     user_projects_namespace="${project_namespace}/$(basename "${branch}")"
     # get user_projects_namespace id
-    group_id="$(get_group_id "${user_projects_namespace}")" \
-      || exit 1
+    group_id="$(get_group_id "${user_projects_namespace}")"
     [[ -z "${group_id}" ]] \
       && continue
     user_projects="$(get_group_projects)" \
