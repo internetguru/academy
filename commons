@@ -54,11 +54,11 @@ exception() {
 print_usage() {
   declare out
   # shellcheck disable=SC2155
-  declare usage="$(get_md_section "## SYNOPSIS" < "documentation/ca-${CMD}.md")"
+  declare usage="$(get_md_section "## SYNOPSIS" < "${DIR}/documentation/${SCRIPT}-${CMD}.md")"
   [[ -n "${usage}" ]] \
     && out="usage: ${usage}"
   # shellcheck disable=SC2155
-  declare options="$(get_md_section "## OPTIONS" < "documentation/ca-${CMD}.md")"
+  declare options="$(get_md_section "## OPTIONS" < "${DIR}/documentation/${SCRIPT}-${CMD}.md")"
   # shellcheck disable=SC2001
   [[ -n "${options}" ]] \
     && out="${out}"$'\n'"$(sed 's/^/    /g' <<< "${options}")"
