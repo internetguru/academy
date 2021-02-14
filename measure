@@ -2,9 +2,6 @@
 
 #set -x
 
-# shellcheck disable=SC2034
-declare -r TOKEN="${ACCESS_TOKEN}"
-
 measure() {
   # shellcheck disable=SC2155
   declare -r pwd="$(pwd)"
