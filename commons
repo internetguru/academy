@@ -74,7 +74,8 @@ check_command() {
   done
 }
 get_md_section() {
-  awk -v section="${1}" '
+  declare -r section="${1}"
+  awk -v section="${section}" '
     BEGIN {
       out = 0
     }
