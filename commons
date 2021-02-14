@@ -71,6 +71,20 @@ check_command() {
   done
 }
 get_md_section() {
-  awk -v section="${1}" 'BEGIN{ out=0 } /^##/{ if ($0 == section){ out=1; next } else { out=0 } } { if (out == 1) { print } }' \
+  awk -v section="${1}" '
+    BEGIN {
+      out = 0
+    }
+    /^##/ {
+      if ($0 == section) {
+        out = 1; next
+      }
+      out = 0
+    }
+    {
+      if (out == 1) {
+        print
+      }
+    }' \
     | sed 's/`//g'
 }
