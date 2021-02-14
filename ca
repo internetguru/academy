@@ -7,7 +7,7 @@ declare -r SCRIPT='ca'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -r CMD="${1}"
-declare USAGE="usage: ${SCRIPT} <command> [<args>]
+declare -r USAGE="usage: ${SCRIPT} <command> [<args>]
 
 These are common ${SCRIPT} commands used in various situations:
 
@@ -29,7 +29,7 @@ These are common ${SCRIPT} commands used in various situations:
 
 case "${CMD}" in
   help)
-    print_usage "${USAGE}"
+    format_usage <<< "${USAGE}"
     ;;
   distribute|evaluate|measure)
     shift
