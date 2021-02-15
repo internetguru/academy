@@ -67,7 +67,7 @@ measure:
   stage: build
   script:
     # empty CA_BRANCHES => get all branches
-    declare ignore=''
+    - declare ignore=''
     - |
         if [[ -z "${CA_BRANCHES}" ]]; then
           CA_BRANCHES="$(git ls-remote -h --refs origin | sed 's~.*refs/heads/~~')"
