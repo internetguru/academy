@@ -3,7 +3,7 @@
 #set -x
 
 get_namespaces() {
-  [[ -n "${NAMESPACE}" ]] \
+  [[ -n "${NAMESPACE// /}" ]] \
     && echo "${NAMESPACE}" \
     && return
   git_remote_branches "${WORKING_DIR}" | sed "s~^~$(get_remote_namespace "${WORKING_DIR}")/~"
