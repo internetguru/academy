@@ -20,6 +20,9 @@ before_script:
   # install cad
   - revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
   - git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ca ${CA_DIR}
+  # e.g. /umiami/george/csc220
+  - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
+  - declare -r project_name="$(basename "${PWD}")"
   # set permissions
   - CA=${CA_DIR}/ca
   - chmod +x ${CA_DIR}/*
@@ -44,9 +47,6 @@ distribute:
   image: debian:stretch
   stage: build
   script:
-    # e.g. /umiami/george/csc220
-    - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
-    - declare -r project_name="$(basename "${PWD}")"
     # e.g. fall20
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set project remote for distribute.sh
@@ -66,10 +66,18 @@ measure:
   image: debian:stretch
   stage: build
   script:
-    # run plagiarism check
+    # empty CA_BRANCHES => get all branches
+    - |
+        if [[ -z "${CA_BRANCHES}" ]]; then
+          CA_BRANCHES="$(git branch -r | grep -v "\->" | sed 's~[^/]\+/~~g' | tr $'\n' ' ')"
+        fi
+    # prefix branches by namespace/
+    - declare -r namespaces="$(sed "s/ \(\w\+\)/ ${namespace}\/\1/g")"
+    # download moss script
     - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
-    - ${CA} measure
+    # run measure for given or all branches
+    - ${CA} measure -s "${namespaces}" -p "${project_name}-"
   only:
     variables:
       - $CA_MEASURE
