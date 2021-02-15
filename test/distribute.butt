@@ -2,7 +2,7 @@
 
 i=0
 status=
-cad=${CAD_BIN:-ca distribute}
+ca=${CA_BIN:-ca}
 tmp_project=$(mktemp -d)
 
 #######################################
@@ -12,61 +12,54 @@ correct_ns="umiami/tests"
 #######################################
 : $((i++))
 start "help"
-  debug "$cad --help"
+  debug "$ca distribute --help"
   assert_equal "$status" 0
-  assert_startwith "${outlines[0]}" "usage: ca distribute [-adhiln] REMOTE_NAMESPACE"
-end
-#######################################
-: $((i++))
-start "missing remote namespace"
-  debug "echo 'user1' | $cad"
-  assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid REMOTE_NAMESPACE dirname [ #2 ]"
+  assert_startwith "${outlines[0]}" "usage: ca distribute [-ahilnps]"
 end
 #######################################
 : $((i++))
 start "invalid remote namespace dirname"
-  debug "echo 'user1' | $cad '1/correct'"
+  debug "echo 'user1' | $ca distribute -s '1/correct'"
   assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid REMOTE_NAMESPACE dirname [ #2 ]"
+  assert_startwith "${errlines[0]}" "Unsupported REMOTE_NAMESPACE dirname [ #2 ]"
 end
 #######################################
 : $((i++))
-start "invalid remote namespace basename"
-  debug "echo 'user1' | $cad 'correct/1'"
+start "invalid prefix"
+  debug "echo 'user1' | $ca distribute -p '1'"
   assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Validating arguments ... Invalid REMOTE_NAMESPACE basename [ #2 ]"
+  assert_startwith "${errlines[0]}" "Unsupported PREFIX value [ #2 ]"
 end
 #######################################
 : $((i++))
 start "missing root namespace"
-  debug "echo 'user1' | $cad 'xyz123xyz/abc' '$tmp_project'"
+  debug "echo 'user1' | $ca -w '$tmp_project' distribute -s 'xyz123xyz/abc'"
   assert_equal "$status" 1
-  assert_startwith "${errlines[2]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
+  assert_startwith "${errlines[1]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
 end
 # : $((i++))
 # skip "missing users: not working on gh actions"
-  # debug "$cad '$correct_ns'"
+  # debug "$ca '$correct_ns'"
   # assert_equal "$status" 2
   # assert_startwith "${errlines[0]}" "EXCEPTION: Missing stdin"
 # end
 #######################################
 : $((i++))
 start "invalid users"
-  debug "echo '-a' | $cad -n '$correct_ns' '$tmp_project'"
+  debug "echo '-a' | $ca -w '$tmp_project' distribute -s '$correct_ns'"
   assert_equal "$status" 3
-  assert_startwith "${errlines[2]}" "Processing repository for -a ... [ INVALID ]"
+  assert_startwith "${errlines[2]}" "Invalid username occurred 1 time(s) [ #3 ]"
   debug "echo 'aaaaaa
-  .b' | $cad -n '$correct_ns' '$tmp_project'"
+  .b' | $ca -w '$tmp_project' distribute -s '$correct_ns'"
   assert_equal "$status" 3
-  assert_startwith "${errlines[3]}" "Processing repository for .b ... [ INVALID ]"
+  assert_startwith "${errlines[3]}" "Invalid username occurred 1 time(s) [ #3 ]"
 end
 #######################################
 : $((i++))
-start "invalid project path"
-  debug "echo 'user1' | $cad '$correct_ns' -d '/foo'"
+start "missing working dir"
+  debug "echo 'user1' | $ca -w '/foo' -s '$correct_ns'"
   assert_equal "$status" 1
-  assert_startwith "${errlines[0]}" "Validating arguments ... Project folder not found in validate_arguments()"
+  assert_startwith "${errlines[0]}" "WORKING_DIR not found in main() [ #1 ]"
 end
 #######################################
 ## Requirements
