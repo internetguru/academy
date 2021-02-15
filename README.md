@@ -36,6 +36,9 @@
      CA_MEASURE: "true"
      # Link to public moss script
      CA_MOSSURL: "https://moss_url"
+     # Which branches to measure (optional)
+     # Measure all branches when this variable is missing
+     CA_BRANCHES: "branch1 branch2 branch3"
    ```
 
 1. To run the CA script on demand, [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is triggered automatically after each commit.

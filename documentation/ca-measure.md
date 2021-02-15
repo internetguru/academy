@@ -6,7 +6,7 @@ CA Measure - measure software similarities using Moss script
 
 ## SYNOPSIS
 
-`ca measure` [`-hps`]
+`ca measure` [`-hips`]
 
 ## DESCRIPTION
 
@@ -17,6 +17,9 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Together with
 `-h`, `--help`
        Display usage.
 
+`-i`, `--ignore`
+       Ignore non-existing namespaces (EXIT STATUS 3).
+
 `-p`, `--prefix PREFIX`
        From given NAMESPACE (below) add only projects with matching PREFIX (empty by default).
 
@@ -26,6 +29,10 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Together with
 ## EXIT STATUS
 
 1      Other error.
+
+2      Invalid options or arguments.
+
+3      Remote namespace (group) not found.
 
 ## EXAMPLES
 
