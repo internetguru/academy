@@ -6,16 +6,16 @@ CA Distribute - distribute assignment among users
 
 ## SYNOPSIS
 
-`ca distribute` [`-adhiln`] `REMOTE_NAMESPACE`
+`ca distribute` [`-ahilnps`]
 
 ## DESCRIPTION
 
-TODO
+This script distributes files from WORKING_DIR into NAMESPACE/USERNAME for each USERNAME from stdin.
 
 ## OPTIONS
 
 `-a`, `--assign WHEN`
-       Assign `ROLE` (see below) to users for newly created projects and assign users to issues `always`, `never`, or `auto` (default).
+       Assign developer role to users for newly created projects and assign users to issues `always`, `never`, or according to account existence `auto` (default).
 
 `-h`, `--help`
        Display usage.
@@ -33,7 +33,7 @@ TODO
        Prepend PREFIX in front of created repositories names. PREFIX is empty by default.
 
 `-s`, `--namespace NAMESPACE`
-       Distribute repositories into NAMESPACE instead of current project's namespace.
+       Distribute repositories into NAMESPACE instead of the current project's namespace.
 
 ## EXIT STATUS
 
@@ -45,16 +45,16 @@ TODO
 
 ## EXAMPLES
 
-TODO (?)
+TODO
 
 ## BUGS
 
-TODO link to github (?)
+TODO
 
 ## AUTHOR
 
-TODO name <email>
+George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-TODO other manuals, other links (?)
+TODO

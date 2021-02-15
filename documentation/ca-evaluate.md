@@ -1,51 +1,38 @@
+# CA-EVALUATE 1 2021-02-14 GNU "User Manuals"
 
-# CA Evaluate
+## NAME
 
-> This script evaluates GitLab Java projects on compilation, coding style and automatic tests. It generates colored summary badges and logs to be displayed and linked from projects' README files.
+CA Evaluate - evaluate project and create status badges
 
-## GitLab CI Usage
+## SYNOPSIS
 
-1. Navigate into the project and switch to the branch you want to display badges in README file.
+`ca evaluate`
 
-   - E.g. [umiami/george/csc220/matrix](https://gitlab.com/umiami/george/csc220/matrix)
+## DESCRIPTION
 
-1. Add the following lines into your `.gitlab-ci.yml` file. You may want to select a different evaluate script revision. Do not modify `CAE_REVISION` variable unless you know what you're doing.
+Evaluates current project on compilation, coding style and automatic tests. Generates colored summary badges and logs to be displayed and linked from project's README files.
 
-   ```
-   include:
-     - 'https://raw.githubusercontent.com/InternetGuru/cae/master/gitlab-evaluate.yml'
+## OPTIONS
 
-   variables:
-     CAE_REVISION: "1"
+n/a
 
-   stages:
-     - evaluate
-   ```
+## EXIT STATUS
 
-1. Display badges in `README.md` file with links to appropriate log files:
+1      Other error.
 
-   ```
-   [![pipeline status](https://gitlab.com/$PROJECT_NS/badges/$BRANCH/pipeline.svg)](https://gitlab.com/$PROJECT_NS/-/pipelines?ref=$BRANCH)
-   [![compile](https://gitlab.com/$PROJECT_NS/builds/artifacts/$BRANCH/raw/.results/compile.svg?job=evaluate)](https://gitlab.com/$PROJECT_NS/-/jobs/artifacts/$BRANCH/file/.results/compile.log?job=evaluate)
-   [![checkstyle](https://gitlab.com/$PROJECT_NS/builds/artifacts/$BRANCH/raw/.results/checkstyle.svg?job=evaluate)](https://gitlab.com/$PROJECT_NS/-/jobs/artifacts/$BRANCH/file/.results/checkstyle.log?job=evaluate)
-   [![test](https://gitlab.com/$PROJECT_NS/builds/artifacts/$BRANCH/raw/.results/test.svg?job=evaluate)](https://gitlab.com/$PROJECT_NS/-/jobs/artifacts/$BRANCH/file/.results/test.log?job=evaluate)
-   ```
+## EXAMPLES
 
-   - Replace `$PROJECT_NS` with your actual project namespace, e.g. `umiami/george/csc220/matrix`.
-   - Replace `$BRANCH` with actual branch for current `README.md` file, e.g. `master` or `fall20`.
+n/a
 
-## Checkstyle IDE Extensions
+## BUGS
 
-- [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
-- [Eclipse](https://checkstyle.org/eclipse-cs/#!/)
-- [NetBeans](https://checkstyle.org/netbeans.html)
-- [Intellij IDEA](https://checkstyle.org/idea.html)
+TODO
 
-## Suggestions
+## AUTHOR
 
-- [ ] Next to affected lines percentage, add a badge with list of errors/warnings types.
+George J. Pavelka <george@internetguru.io>
 
-## Resources
+## SEE ALSO
 
 - [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 - [How to write doc comments for the javadoc tool](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html)
@@ -54,3 +41,8 @@
 - [Maven checkstyle plugin](https://maven.apache.org/plugins/maven-checkstyle-plugin/)
 - [GitLab job artifacts](https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html)
 - [Shields.io](https://shields.io/)
+
+- [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
+- [Eclipse](https://checkstyle.org/eclipse-cs/#!/)
+- [NetBeans](https://checkstyle.org/netbeans.html)
+- [Intellij IDEA](https://checkstyle.org/idea.html)
