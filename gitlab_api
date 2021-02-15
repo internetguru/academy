@@ -126,7 +126,8 @@ get_remote_namespace() {
   git -C "${folder}" config --get remote.origin.url | sed "s/^.*${GITLAB_URL}[:/]//;s/.git$//"
 }
 get_remote_url() {
-  printf -- "https://oauth2:%s@%s/%s.git" "${ACCESS_TOKEN}" "${GITLAB_URL}" "${user_project_ns}"
+  declare -r project="${1}"
+  printf -- "https://oauth2:%s@%s/%s.git" "${ACCESS_TOKEN}" "${GITLAB_URL}" "${project}"
 }
 get_group_projects() {
   # shellcheck disable=SC2154

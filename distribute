@@ -7,7 +7,7 @@ get_cache_folder() {
 init_cache() {
   # shellcheck disable=SC2155
   rm -rf "${user_cache_folder}"
-  git_clone "$(get_remote_url)" "${user_cache_folder}"
+  git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
   rsync -a --delete --exclude .git/ "${WORKING_DIR}/" "${user_cache_folder}" \

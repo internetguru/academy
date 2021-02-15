@@ -67,9 +67,11 @@ measure:
   stage: build
   script:
     # empty CA_BRANCHES => get all branches
+    declare ignore=''
     - |
         if [[ -z "${CA_BRANCHES}" ]]; then
           CA_BRANCHES="$(git ls-remote -h --refs origin | sed 's~.*refs/heads/~~')"
+          ignore='--ignore'
         fi
     # prefix branches by namespace/
     - declare -r namespaces="$(sed "s~^~${namespace}/~" <<< "$CA_BRANCHES")"
@@ -77,7 +79,7 @@ measure:
     - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
     # run measure for given or all branches
-    - ${CA} measure -s "${namespaces}" -p "${project_name}-"
+    - ${CA} measure "${ignore}" --namespace "${namespaces}" --prefix "${project_name}-"
   only:
     variables:
       - $CA_MEASURE
