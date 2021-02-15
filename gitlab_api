@@ -123,7 +123,7 @@ create_ns() {
 }
 get_remote_namespace() {
   declare -r folder="${1}"
-  git -C "${folder}" config --get remote.origin.url | sed "s/^.*${GITLAB_URL}[:/]//;s/.git$//"
+  git -C "${folder}" remote get-url --push origin | sed "s/^.*${GITLAB_URL}[:/]//;s/.git$//"
 }
 get_remote_url() {
   declare -r project="${1}"

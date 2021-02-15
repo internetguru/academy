@@ -24,7 +24,7 @@ before_script:
   - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
   - declare -r project_name="$(basename "${PWD}")"
   # simplify project remote url
-  - git remote set-url origin "${namespace}/${project_name}.git"
+  - git remote set-url --push origin "${namespace}/${project_name}.git"
   # set permissions
   - CA=${CA_DIR}/ca
   - chmod +x ${CA_DIR}/*
