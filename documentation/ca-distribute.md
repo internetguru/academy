@@ -27,7 +27,7 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
        Replace all occurrences of the assignment project's remote URL and its current branch with destination repository remote URL and its main branch in `README.md`. `PROJECT_FOLDER` must be a GitLab project.
 
 `-n`, `--dry-run`
-       Only process arguments, options and stdin validation. Would not proceed with create or update user repositories.
+       Only process options and stdin validation. Would not proceed with create or update user repositories.
 
 `-p`, `--prefix PREFIX`
        Prepend PREFIX in front of created repositories names. PREFIX is empty by default.

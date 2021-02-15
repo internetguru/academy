@@ -89,3 +89,10 @@ git_fetch_all() {
   out="$(git -C "${git_dir}" fetch --all 2>&1)" \
     || exception "${out}"
 }
+git_remote_branches() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" ls-remote -h --refs origin 2>&1 | sed 's~.*refs/heads/~~')" \
+    || exception "${out}"
+  printf -- '%s\n' "${out}"
+}
