@@ -72,7 +72,7 @@ measure:
           CA_BRANCHES="$(git branch -r | grep -v "\->" | sed 's~[^/]\+/~~g' | tr $'\n' ' ')"
         fi
     # prefix branches by namespace/
-    - declare -r namespaces="$(sed "s/ \(\w\+\)/ ${namespace}\/\1/g")"
+    - declare -r namespaces="$(sed "s/ \([^ ]\+\)/ ${namespace}\/\1/g")"
     # download moss script
     - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
