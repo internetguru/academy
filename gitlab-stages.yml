@@ -73,9 +73,6 @@ measure:
         fi
     # prefix branches by namespace/
     - declare -r namespaces="$(sed "s~\(^\| \)\([^ ]\+\)~${namespace}/\2 ~g" <<< "$CA_BRANCHES")"
-    - git ls-remote -h --refs origin
-    - echo "$CA_BRANCHES"
-    - echo "$namespaces"
     # download moss script
     - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
