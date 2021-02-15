@@ -13,10 +13,14 @@ declare -r USAGE="usage: ${SCRIPT} [-w] <command> [<args>]
 
 These are common ${SCRIPT} commands used in various situations:
 
-   distribute        Create or update user repositories with files from source project.
-   evaluate          Verify Java project and generate badges into README.
-   help              Display this usage.
-   measure           Compute software similarities between projects using Moss script.
+    distribute
+           Create or update user repositories with files from source project.
+    evaluate
+           Verify Java project and generate badges into README.
+    help
+           Display this usage.
+    measure
+           Compute software similarities between projects using Moss script.
 "
 
 # shellcheck disable=SC1090
@@ -36,7 +40,7 @@ while (( $# > 0 )); do
         || exception 'WORKING_DIR not found'
       shift; shift ;;
     help)
-      fmt -tw "$(tput cols)" <<< "${USAGE}"
+      fmt -w "$(tput cols)" <<< "${USAGE}"
       exit
       ;;
     distribute|evaluate|measure)
