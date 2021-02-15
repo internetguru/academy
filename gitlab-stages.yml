@@ -69,10 +69,10 @@ measure:
     # empty CA_BRANCHES => get all branches
     - |
         if [[ -z "${CA_BRANCHES}" ]]; then
-          CA_BRANCHES="$(git ls-remote -h --refs origin | sed 's~.*refs/heads/\(.*\)~\1~g' | tr $'\n' ' ')"
+          CA_BRANCHES="$(git ls-remote -h --refs origin | sed 's~.*refs/heads/~~')"
         fi
     # prefix branches by namespace/
-    - declare -r namespaces="$(sed "s~\(^\| \)\([^ ]\+\)~${namespace}/\2 ~g" <<< "$CA_BRANCHES")"
+    - declare -r namespaces="$(sed "s~^~${namespace}/~" <<< "$CA_BRANCHES")"
     # download moss script
     - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
