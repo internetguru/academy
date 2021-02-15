@@ -69,7 +69,7 @@ measure:
     # empty CA_BRANCHES => get all branches
     - |
         if [[ -z "${CA_BRANCHES}" ]]; then
-          CA_BRANCHES="$(git branch -r | grep -v "\->" | sed 's~[^/]\+/~~g' | tr $'\n' ' ')"
+          CA_BRANCHES="$(git ls-remote -h --refs origin | sed 's~.*refs/heads/\(.*\)~\1~g' | tr $'\n' ' ')"
         fi
     # prefix branches by namespace/
     - declare -r namespaces="$(sed "s~\(^\| \)\([^ ]\+\)~${namespace}/\2 ~g" <<< "$CA_BRANCHES")"
