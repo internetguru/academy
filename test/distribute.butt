@@ -49,10 +49,10 @@ start "invalid users"
   debug "echo '-a' | $ca -w '$tmp_project' distribute -s '$correct_ns'"
   assert_equal "$status" 3
   assert_startwith "${errlines[2]}" "Invalid username occurred 1 time(s) [ #3 ]"
-  debug "echo 'aaaaaa
+  debug "echo '-a
   .b' | $ca -w '$tmp_project' distribute -s '$correct_ns'"
   assert_equal "$status" 3
-  assert_startwith "${errlines[3]}" "Invalid username occurred 1 time(s) [ #3 ]"
+  assert_startwith "${errlines[3]}" "Invalid username occurred 2 time(s) [ #3 ]"
 end
 #######################################
 : $((i++))
