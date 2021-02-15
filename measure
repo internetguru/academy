@@ -22,7 +22,7 @@ measure() {
       [[ -n "${PREFIX}" && "$(basename "${user_project_ns}")" != "$PREFIX"* ]] \
         && continue
       mkdir -p "${user_projects_folder}/${user_project_ns}"
-      git_clone "$(get_remote_url)" "${user_projects_folder}/{$user_project_ns}"
+      git_clone "$(get_remote_url)" "${user_projects_folder}/${user_project_ns}"
     done
   done
   # allow **/*
