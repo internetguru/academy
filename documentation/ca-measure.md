@@ -10,7 +10,7 @@ CA Measure - measure software similarities using Moss script
 
 ## DESCRIPTION
 
-Downloads assignment solution repositories of provided namespace/prefix. Together with the current project (supposedly the sample solution), measures software similarities between each other. The link with evaluation results appears at the end of the script.
+Downloads all repositories from a NAMESPACE matching given PREFIX. Together with the current project (supposedly the sample solution), measures software similarities between each other. The link with evaluation results appears at the end of the script.
 
 ## OPTIONS
 

@@ -42,7 +42,7 @@ George J. Pavelka <george@internetguru.io>
 - [GitLab job artifacts](https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html)
 - [Shields.io](https://shields.io/)
 
-- [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
-- [Eclipse](https://checkstyle.org/eclipse-cs/#!/)
-- [NetBeans](https://checkstyle.org/netbeans.html)
-- [Intellij IDEA](https://checkstyle.org/idea.html)
+- [Checkstyle for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
+- [Checkstyle for Eclipse](https://checkstyle.org/eclipse-cs/#!/)
+- [Checkstyle for NetBeans](https://checkstyle.org/netbeans.html)
+- [Checkstyle for Intellij IDEA](https://checkstyle.org/idea.html)

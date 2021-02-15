@@ -10,7 +10,7 @@ CA Distribute - distribute assignment among users
 
 ## DESCRIPTION
 
-This script distributes files from WORKING_DIR into NAMESPACE/USERNAME for each USERNAME from stdin.
+This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME for each USERNAME from stdin.
 
 ## OPTIONS
 
