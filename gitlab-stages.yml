@@ -20,6 +20,11 @@ before_script:
   # install cad
   - revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
   - git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ca ${CA_DIR}
+  # e.g. /umiami/george/csc220
+  - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
+  - declare -r project_name="$(basename "${PWD}")"
+  # simplify project remote url
+  - git remote set-url --push origin "${namespace}/${project_name}.git"
   # set permissions
   - CA=${CA_DIR}/ca
   - chmod +x ${CA_DIR}/*
@@ -44,17 +49,14 @@ distribute:
   image: debian:stretch
   stage: build
   script:
-    # e.g. /umiami/george/csc220
-    - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
-    - declare -r project_name="$(basename "${PWD}")"
     # e.g. fall20
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
-    # set project remote for distribute.sh
-    - git remote set-url origin "${namespace}/${project_name}.git"
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # distribute current project among all users
-    - ${CA} distribute --process-issues --update-links "${namespace}/${branch}/${project_name}" <<< "${CA_USERS}"
+    - |
+        ${CA} distribute --update-links --namespace "${namespace}/${branch}" \
+        --process-issues --prefix "${project_name}-" <<< "${CA_USERS}"
   only:
     variables:
       - $CA_DISTRIBUTE
@@ -64,10 +66,20 @@ measure:
   image: debian:stretch
   stage: build
   script:
-    # run plagiarism check
+    - declare namespaces=''
+    - declare ignore=''
+    # prefix branches by namespace/
+    - |
+        if [[ -n "${CA_BRANCHES}" ]]; then
+          namespaces="$(sed "s~^~${namespace}/~" <<< "$CA_BRANCHES")"
+        else
+          ignore='--ignore'
+        fi
+    # download moss script
     - curl -o moss "${CA_MOSSURL}"
     - chmod +x moss
-    - ${CA} measure
+    # run measure for given or all branches
+    - ${CA} measure "${ignore}" --namespace "${namespaces}" --prefix "${project_name}-"
   only:
     variables:
       - $CA_MEASURE

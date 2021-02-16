@@ -1,42 +1,55 @@
+# CA-MEASURE 1 2021-02-14 GNU "User Manuals"
 
-# CA Measure
+## NAME
 
-> This GitLab CI project downloads GitLab repositories and *measures for software similarities* using Moss script. It includes current project (on current branch) plus all repositories distributed from its individual branches using [CAD](https://github.com/InternetGuru/cad).
+CA Measure - measure software similarities using Moss script
 
-## GitLab CI Usage
+## SYNOPSIS
 
-1. Make sure you have your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token). On GitLab [set ACCESS_TOKEN variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) into your root namespace.
+`ca measure` [`-hinps`]
 
-   - E.g. into `umiami/george`
+## DESCRIPTION
 
-1. Navigate into the project and switch to the branch you want to include into Moss. Make sure [the branch is protected](https://docs.gitlab.com/ee/user/project/protected_branches.html).
+Downloads all repositories from a NAMESPACE matching given PREFIX. Together with the current project (supposedly the sample solution), measures software similarities between each other. The link with evaluation results appears at the end of the script.
 
-   - E.g. [umiami/george/csc220/matrix](https://gitlab.com/umiami/george/csc220/matrix)
+## OPTIONS
 
-1. Add the following lines into your `.gitlab-ci.yml`. Specify Moss location URL in `CAM_MOSS` variable. You may want to select a different `measure.sh` revision. Do not modify `CAM_REVISION` variable unless you know what you're doing.
+`-h`, `--help`
+       Display usage.
 
-    ```
-    include: 'https://raw.githubusercontent.com/InternetGuru/cam/master/gitlab-measure.yml'
+`-i`, `--ignore`
+       Ignore non-existing namespaces (EXIT STATUS 3).
 
-    variables:
-      CAM_MOSSURL: ""
-      CAM_REVISION: "1"
+`-n`, `--dry-run`
+       Only process option validation. Would not proceed with cloning repositories and Moss execution.
 
-    stages:
-      - measure
-    ```
+`-p`, `--prefix PREFIX`
+       From given NAMESPACE (below) add only projects with matching PREFIX (empty by default).
 
-1. To execute coding assignment measure and obtain URL with Moss results [run **measure stage** CI manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). You will find the URL with Moss results at the end of the pipeline output log.
+`-s`, `--namespace NAMESPACE`
+       Add projects from given NAMESPACE. May contain multiple values separated by space. Process all branches in project's namespace if missing or empty.
 
-## Suggestions
+## EXIT STATUS
 
-- [ ] Add BUTT tests.
-- [ ] Specify branches to include/exclude.
-- [ ] Modify source code location.
-- [ ] Support other languages and extensions.
-- [ ] Add GitHub support.
+1      Other error.
 
-## Sources
+2      Invalid options or arguments.
+
+3      Remote namespace (group) not found.
+
+## EXAMPLES
+
+n/a
+
+## BUGS
+
+TODO
+
+## AUTHOR
+
+George J. Pavelka <george@internetguru.io>
+
+## SEE ALSO
 
 - [Moss](https://theory.stanford.edu/~aiken/moss/)
 - [Mossum: results visualization](https://github.com/hjalti/mossum)

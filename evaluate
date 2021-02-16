@@ -2,14 +2,14 @@
 
 evaluate() {
 
-  mkdir -p .results
-  curl -o '.results/compile.svg' 'https://img.shields.io/badge/Compile-failed-critical'
-  curl -o '.results/checkstyle.svg' 'https://img.shields.io/badge/Code%20Style-n/a-gray'
-  curl -o '.results/test.svg' 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
+  mkdir -p "${RESULTS}"
+  curl -o "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
+  curl -o "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
+  curl -o "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
 
-  mvn compile > .results/compile.log 2>&1 \
+  mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
     || exit 0
-  curl -o '.results/compile.svg' 'https://img.shields.io/badge/Compile-passed-success'
+  curl -o "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
 
   # shellcheck disable=SC2155
   declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
@@ -27,8 +27,8 @@ evaluate() {
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
-      <sourceDirectory>$(pwd)/${src}</sourceDirectory>
-      <testSourceDirectory>$(pwd)/src/test</testSourceDirectory>
+      <sourceDirectory>${WORKING_DIR}/${src}</sourceDirectory>
+      <testSourceDirectory>${WORKING_DIR}/src/test</testSourceDirectory>
       <pluginManagement>
         <plugins>
            <plugin>
@@ -59,19 +59,18 @@ evaluate() {
 EOD
 
   # run checkstyle and save warnings and errors into log
-  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > .results/checkstyle.log
+  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
   [[ ${PIPESTATUS[0]} != 0 ]] \
     && exit 1
 
   # shellcheck disable=SC2155
-  declare -ri errs=$(cut -d" " -f2 < '.results/checkstyle.log' | sort -ut: -k1,2 | wc -l)
+  declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
   # shellcheck disable=SC2155
   declare -ri lines=$(find ${src} -name '*.java' -exec cat {} + | wc -l)
   declare -i perc=100
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
 
-  # output results to .results/checkstyle.json
   declare color='brightgreen'
   (( perc < 85 )) \
     && color='green'
@@ -82,19 +81,28 @@ EOD
   (( perc < 45 )) \
     && color='red'
 
-  curl -o '.results/checkstyle.svg' "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
+  curl -o "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
 
   declare test_color='success'
-  mvn test > .results/test.log 2>&1 \
+  mvn -f "${POM}" test > "${TEST_LOG}" 2>&1 \
     || test_color='critical'
   # shellcheck disable=SC2155
-  declare -r summary=$(grep 'Tests run:' .results/test.log | head -n1)
+  declare -r summary=$(grep 'Tests run:' "${TEST_LOG}" | head -n1)
   # shellcheck disable=SC2155
   declare -ri runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
   # shellcheck disable=SC2155
   declare -ri failures=$(tr -d ',' <<< "${summary}" | cut -d' ' -f6)
   declare -ri passed=$((runs - failures))
-  curl -o '.results/test.svg' "https://img.shields.io/badge/Tests%20Passed-${passed}/${runs}-${test_color}"
+  curl -o "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${runs}-${test_color}"
 }
+
+declare -r POM="${WORKING_DIR}/pom.xml"
+declare -r RESULTS=".results"
+declare -r COMPILE_LOG="${RESULTS}/compile.log"
+declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
+declare -r TEST_LOG="${RESULTS}/test.log"
+declare -r COMPILE_SVG="${RESULTS}/compile.svg"
+declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
+declare -r TEST_SVG="${RESULTS}/test.svg"
 
 evaluate

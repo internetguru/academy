@@ -6,31 +6,34 @@ CA Distribute - distribute assignment among users
 
 ## SYNOPSIS
 
-`ca distribute` [`-adhiln`] `REMOTE_NAMESPACE`
+`ca distribute` [`-ahilnps`]
 
 ## DESCRIPTION
 
-TODO
+This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME for each USERNAME from stdin.
 
 ## OPTIONS
 
-`-a[WHEN]`, `--assign[=WHEN]`
-       Assign `ROLE` (see below) to users for newly created projects and assign users to issues `always`, `never`, or `auto` (default).
-
-`-d`, `--directory`
-       Specify the `PROJECT_FOLDER` (default PWD).
+`-a`, `--assign WHEN`
+       Assign developer role to users for newly created projects and assign users to issues `always`, `never`, or according to account existence `auto` (default).
 
 `-h`, `--help`
        Display usage.
 
 `-i`, `--process-issues`
-       Look for GitLab issues in the `PROJECT_FOLDER`. If `PROJECT_FOLDER` is a GitLab repository, copy issues marked with 'assignment' label into destination repositories.
+       Copy issues marked with 'assignment' label into destination repositories. `PROJECT_FOLDER` must be a GitLab project.
 
 `-l`, `--update-links`
-       Look for a `README.md` if the `PROJECT_FOLDER` is a GitLab repository. Replace all occurrences of the assignment project's remote URL and its current branch with destination repository remote URL and its main branch.
+       Replace all occurrences of the assignment project's remote URL and its current branch with destination repository remote URL and its main branch in `README.md`. `PROJECT_FOLDER` must be a GitLab project.
 
 `-n`, `--dry-run`
-       Only process arguments, options and stdin validation. Would not proceed with create or update user repositories.
+       Only process options and stdin validation. Would not proceed with create or update user repositories.
+
+`-p`, `--prefix PREFIX`
+       Prepend PREFIX in front of created repositories names. PREFIX is empty by default.
+
+`-s`, `--namespace NAMESPACE`
+       Distribute repositories into NAMESPACE instead of the current project's namespace.
 
 ## EXIT STATUS
 
@@ -42,16 +45,16 @@ TODO
 
 ## EXAMPLES
 
-TODO (?)
+TODO
 
 ## BUGS
 
-TODO link to github (?)
+TODO
 
 ## AUTHOR
 
-TODO name <email>
+George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-TODO other manuals, other links (?)
+TODO

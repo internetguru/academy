@@ -16,41 +16,45 @@
 
    - E.g. [umiami/george/csc220/matrix@fall20](https://gitlab.com/umiami/george/csc220/matrix/-/tree/fall20)
 
-1. Add the following lines into your `.gitlab-ci.yml` file and choose what you want process by adding specific variables.
+1. Add the following lines into your `.gitlab-ci.yml` file (create one if it doesn't exist) and choose what you want process by adding specific variables. E.g. if your main branch contains solution and another branch contains assignment, you want to distribute the other branch and measure the main branch (against assignment solutions). You probably want to evaluate both branches.
 
    ```yaml
    include:
+     # Mandatory include with variable branch name, e.g. `dev`
      - 'https://raw.githubusercontent.com/InternetGuru/ca/dev/gitlab-stages.yml'
 
    variables:
-     # Run distribution script
-     # Destination namespace for assignment projects is `project_namespace/project_branch/project_name-user`
+     # To run distribute script
      CA_DISTRIBUTE: "true"
-     # Users for distribution separated by spaces
+     # List of users to distribute to separated by spaces
      CA_USERS: "solver1 solver2 solver3"
 
-     # Run evaluation script
-     # It generates badges for README file (see below)
+     # To run evaluate script
      CA_EVALUATE: "true"
 
-     # Run measure script
-     # You will find the URL with Moss results at the end of the pipeline output log
+     # To run measure script
      CA_MEASURE: "true"
      # Link to public moss script
      CA_MOSSURL: "https://moss_url"
+     # Which branches to measure (optional)
+     # Measure all branches when this variable is missing
+     CA_BRANCHES: "branch1 branch2 branch3"
    ```
 
-1. To run desired process, [run CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is automatic.
-
+1. To run the CA script on demand, [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is triggered automatically after each commit.
 
 1. Display badges in `README.md` file with links to appropriate log files (evaluate process):
 
    ```md
-   [![pipeline status](https://gitlab.com/$PROJECT_NS/badges/$BRANCH/pipeline.svg)](https://gitlab.com/$PROJECT_NS/-/pipelines?ref=$BRANCH)
-   [![compile](https://gitlab.com/$PROJECT_NS/builds/artifacts/$BRANCH/raw/.results/compile.svg?job=evaluate)](https://gitlab.com/$PROJECT_NS/-/jobs/artifacts/$BRANCH/file/.results/compile.log?job=evaluate)
-   [![checkstyle](https://gitlab.com/$PROJECT_NS/builds/artifacts/$BRANCH/raw/.results/checkstyle.svg?job=evaluate)](https://gitlab.com/$PROJECT_NS/-/jobs/artifacts/$BRANCH/file/.results/checkstyle.log?job=evaluate)
-   [![test](https://gitlab.com/$PROJECT_NS/builds/artifacts/$BRANCH/raw/.results/test.svg?job=evaluate)](https://gitlab.com/$PROJECT_NS/-/jobs/artifacts/$BRANCH/file/.results/test.log?job=evaluate)
+   [![pipeline status](https://gitlab.com/${PROJECT}/badges/${BRANCH}/pipeline.svg)](https://gitlab.com/${PROJECT}/-/pipelines?ref=${BRANCH})
+   [![compile](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/compile.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/compile.log?job=evaluate)
+   [![checkstyle](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/checkstyle.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/checkstyle.log?job=evaluate)
+   [![test](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/test.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/test.log?job=evaluate)
    ```
 
-   - Replace `$PROJECT_NS` with your actual project namespace, e.g. `umiami/george/csc220/matrix`.
-   - Replace `$BRANCH` with actual branch for current `README.md` file, e.g. `master` or `fall20`.
+   - Replace `${PROJECT}` with your actual project's link, e.g. `umiami/george/csc220/lab01`.
+   - Replace `${BRANCH}` with an actual branch, e.g. `master`.
+
+## Licensing
+
+TODO
