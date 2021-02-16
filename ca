@@ -6,22 +6,6 @@ set -o pipefail
 declare -r SCRIPT='ca'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
-declare -r USAGE="usage: ${SCRIPT} [-w] <command> [<args>]
-
-    -w, --working-dir WORKING_DIR
-           Run as if ${SCRIPT} was started in WORKING_DIR instead of the current working directory.
-
-These are common ${SCRIPT} commands used in various situations:
-
-    distribute
-           Create or update user repositories with files from source project.
-    evaluate
-           Verify Java project and generate badges into README.
-    help
-           Display this usage.
-    measure
-           Compute software similarities between projects using Moss script.
-"
 
 # shellcheck disable=SC1090
 . "${DIR}/commons"
@@ -40,7 +24,7 @@ while (( $# > 0 )); do
         || exception 'WORKING_DIR not found'
       shift; shift ;;
     help)
-      fmt -w "$(tput cols)" <<< "${USAGE}"
+      print_usage
       exit
       ;;
     distribute|evaluate|measure)
