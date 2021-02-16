@@ -2,6 +2,7 @@
 
 # shellcheck disable=SC2034
 declare -r GITLAB_URL='gitlab.com'
+declare -r TOKEN_FILE="${HOME}/.gitlab_access_token"
 
 gitlab_api() {
   declare -r url="${1}"
@@ -11,7 +12,7 @@ gitlab_api() {
     && req='POST'
   [[ "${data}" == '-' ]] \
     && req='DELETE' \
-    && data="{}"
+    && d;ta="{}"
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
@@ -26,18 +27,12 @@ gitlab_api() {
     && exception "Request status ${status}: ${url}"
   printf -- '%s\n' "${output}"
 }
-authorize() {
+get_token() {
   [[ "$(tty)" =~ "not a tty" ]] \
     && exception "Unable to authorize without TOKEN_FILE"
   exec 0</dev/tty
-  prompt 'Username'
-  declare username="${REPLY}"
-  prompt 'Password' silent
-  declare password="${REPLY}"
-  echo
-  gitlab_api 'oauth/token' \
-    "{\"grant_type\":\"password\", \"username\":\"${username}\", \"password\":\"${password}\"}" \
-    | jq -r '.access_token' > "${TOKEN_FILE}"
+  prompt 'GitLab personal access token'
+  echo "${REPLY}" > "${TOKEN_FILE}"
 }
 get_project_id() {
   declare -r ns="${1}"
@@ -133,4 +128,11 @@ get_group_projects() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/groups/${group_id}/projects" \
     | jq -r '.[] | .name_with_namespace' | tr -d " "
+}
+acquire_token() {
+  [[ -s "${TOKEN_FILE}" ]] \
+    || get_token
+  # shellcheck disable=SC2034
+  ACCESS_TOKEN="$(cat "${TOKEN_FILE}")" \
+    || exit 1
 }

@@ -114,13 +114,6 @@ read_project_info() {
     && NAMESPACE="$(dirname "${PROJECT_LINK}")"
   msg_end
 }
-acquire_token() {
-  [[ -s "${TOKEN_FILE}" ]] \
-    || authorize
-  # shellcheck disable=SC2034
-  ACCESS_TOKEN="$(cat "${TOKEN_FILE}")" \
-    || exit 1
-}
 process_users() {
   declare user_name
   declare user_project_name
@@ -166,7 +159,6 @@ distribute() {
 }
 
 # global constants
-declare -r TOKEN_FILE="${HOME}/.gitlab_access_token"
 declare -r CACHE_FOLDER="${HOME}/.ca_distribute_cache"
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'

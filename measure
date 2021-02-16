@@ -21,6 +21,7 @@ get_groups() {
   done
 }
 measure() {
+  acquire_token
   # shellcheck disable=SC2155
   declare -r user_projects_folder="$(mktemp -d)"
   declare user_projects
