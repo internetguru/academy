@@ -12,7 +12,7 @@ gitlab_api() {
     && req='POST'
   [[ "${data}" == '-' ]] \
     && req='DELETE' \
-    && d;ta="{}"
+    && data="{}"
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
