@@ -34,15 +34,28 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-- [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
-- [How to write doc comments for the javadoc tool](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html)
-- [Apache Maven](https://maven.apache.org/)
-- [checkstyle](https://checkstyle.sourceforge.io/)
-- [Maven checkstyle plugin](https://maven.apache.org/plugins/maven-checkstyle-plugin/)
-- [GitLab job artifacts](https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html)
-- [Shields.io](https://shields.io/)
+`ca-measure`(1), `ca-distribute`(1)
 
-- [Checkstyle for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
-- [Checkstyle for Eclipse](https://checkstyle.org/eclipse-cs/#!/)
-- [Checkstyle for NetBeans](https://checkstyle.org/netbeans.html)
-- [Checkstyle for Intellij IDEA](https://checkstyle.org/idea.html)
+
+[Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+
+[How to write doc comments for the javadoc tool](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html)
+
+[Apache Maven](https://maven.apache.org/)
+
+[checkstyle](https://checkstyle.sourceforge.io/)
+
+[Maven checkstyle plugin](https://maven.apache.org/plugins/maven-checkstyle-plugin/)
+
+[GitLab job artifacts](https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html)
+
+[Shields.io](https://shields.io/)
+
+
+[Checkstyle for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
+
+[Checkstyle for Eclipse](https://checkstyle.org/eclipse-cs/#!/)
+
+[Checkstyle for NetBeans](https://checkstyle.org/netbeans.html)
+
+[Checkstyle for Intellij IDEA](https://checkstyle.org/idea.html)
