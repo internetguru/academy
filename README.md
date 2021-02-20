@@ -4,7 +4,7 @@
 
 # Coding Assignment | CA
 
-> TODO
+> The ca command provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
 
 ## Requirements
 
