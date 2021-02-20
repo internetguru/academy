@@ -10,7 +10,7 @@ CA - coding assignment
 
 ## DESCRIPTION
 
-TODO
+This script provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
 
 ## OPTIONS
 
