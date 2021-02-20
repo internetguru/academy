@@ -6,6 +6,34 @@
 
 > TODO
 
+## Requirements
+
+* Installed `git` with defined user and email
+* Installed `jq`, see https://stedolan.github.io/jq/
+* Installed `go-md2man` (optional)
+
+## Installation
+
+- To install locally, simply clone this project and set an alias.
+
+   ```
+   git clone https://github.com/InternetGuru/ca.git
+   echo alias ca=\"$PWD/ca/ca\" >> ~/.bashrc
+   source ~/.bashrc
+   ```
+
+- For global installation, clone this project into shared folder and create a symbolic link.
+
+   ```
+   sudo git clone https://github.com/InternetGuru/ca.git /usr/local/src
+   sudo ln -s "/usr/local/src/ca/ca" /usr/local/share/ca
+   ```
+
+- To install `man` documentation, run the following script. (optional)
+   ```
+   sudo ./install.sh
+   ```
+
 ## GitLab CI Usage
 
 1. Make sure you have your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token). On GitLab [set ACCESS_TOKEN variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) into your root namespace.
@@ -14,7 +42,7 @@
 
 1. Navigate into the project and switch to the branch you want to process. Make sure [the branch is protected](https://docs.gitlab.com/ee/user/project/protected_branches.html).
 
-   - E.g. [umiami/george/csc220/matrix@fall20](https://gitlab.com/umiami/george/csc220/matrix/-/tree/fall20)
+   - E.g. [umiami/george/csc220/lab01@spring21](https://gitlab.com/umiami/george/csc220/lab01/-/tree/spring21)
 
 1. Add the following lines into your `.gitlab-ci.yml` file (create one if it doesn't exist) and choose what you want process by adding specific variables. E.g. if your main branch contains solution and another branch contains assignment, you want to distribute the other branch and measure the main branch (against assignment solutions). You probably want to evaluate both branches.
 
