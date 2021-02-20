@@ -16,7 +16,7 @@
 
 - To install locally, simply clone this project and set an alias.
 
-   ```
+   ```sh
    git clone https://github.com/InternetGuru/ca.git
    echo alias ca=\"$PWD/ca/ca\" >> ~/.bashrc
    source ~/.bashrc
@@ -24,13 +24,13 @@
 
 - For global installation, clone this project into shared folder and create a symbolic link.
 
-   ```
+   ```sh
    sudo git clone https://github.com/InternetGuru/ca.git /usr/local/src
    sudo ln -s "/usr/local/src/ca/ca" /usr/local/share/ca
    ```
 
 - To install `man` documentation, run the following script. (optional)
-   ```
+   ```sh
    sudo ./install.sh
    ```
 
@@ -73,7 +73,7 @@
 
 1. Display badges in `README.md` file with links to appropriate log files (evaluate process):
 
-   ```md
+   ```markdown
    [![pipeline status](https://gitlab.com/${PROJECT}/badges/${BRANCH}/pipeline.svg)](https://gitlab.com/${PROJECT}/-/pipelines?ref=${BRANCH})
    [![compile](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/compile.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/compile.log?job=evaluate)
    [![checkstyle](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/checkstyle.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/checkstyle.log?job=evaluate)
