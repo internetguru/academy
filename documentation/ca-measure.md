@@ -2,7 +2,7 @@
 
 ## NAME
 
-CA Measure - measure software similarities using Moss script
+CA-Measure - measure software similarities using Moss script
 
 ## SYNOPSIS
 

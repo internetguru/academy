@@ -2,7 +2,7 @@
 
 ## NAME
 
-CA Distribute - distribute assignment among users
+CA-Distribute - distribute assignment among users
 
 ## SYNOPSIS
 

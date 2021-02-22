@@ -19,5 +19,5 @@ for file in "${DIR}/documentation/"*; do
     || exception "Unable to install man page"
 done
 
-mandb --quiet \
+mandb --create --quiet /usr/local/man/ \
   || exception "Unable to update man database"

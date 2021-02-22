@@ -1,8 +1,8 @@
-# CA-EVALUATE 1 2021-02-14 GNU "User Manuals"
+# CA EVALUATE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-CA Evaluate - evaluate project and create status badges
+CA-Evaluate - evaluate project and create status badges
 
 ## SYNOPSIS
 
