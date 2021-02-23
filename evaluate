@@ -89,15 +89,13 @@ EOD
   # shellcheck disable=SC2155
   declare -r summary=$(grep 'Tests run:' "${TEST_LOG}" | head -n1)
   # shellcheck disable=SC2155
-  declare -i runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
+  declare -ri runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
   # shellcheck disable=SC2155
   declare -ri failures=$(tr -d ',' <<< "${summary}" | cut -d' ' -f6)
   # shellcheck disable=SC2155
   declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
-  declare -i passed=$((runs - failures))
-  (( skipped > 0 )) \
-    && runs=$skipped \
-    && passed=0
+  declare -ri total=$((runs - skipped))
+  declare -ri passed=$((total - failures))
   curl -o "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${runs}-${test_color}"
 }
 
