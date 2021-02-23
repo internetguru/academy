@@ -96,7 +96,7 @@ EOD
   declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
   declare -ri total=$((runs - skipped))
   declare -ri passed=$((total - failures))
-  curl -o "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${runs}-${test_color}"
+  curl -o "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
 }
 
 declare -r POM="${WORKING_DIR}/pom.xml"
