@@ -89,12 +89,12 @@ EOD
   # shellcheck disable=SC2155
   declare -r summary=$(grep 'Tests run:' "${TEST_LOG}" | head -n1)
   # shellcheck disable=SC2155
-  declare -ri runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
+  declare -i runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
   # shellcheck disable=SC2155
   declare -ri failures=$(tr -d ',' <<< "${summary}" | cut -d' ' -f6)
   # shellcheck disable=SC2155
   declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
-  declare -ri passed=$((runs - failures))
+  declare -i passed=$((runs - failures))
   (( skipped > 0 )) \
     && runs=$skipped \
     && passed=0
