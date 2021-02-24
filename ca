@@ -16,6 +16,8 @@ declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # shellcheck disable=SC2155
 declare WORKING_DIR="$(readlink -f ".")"
+(( $# == 0 )) \
+  && exception "Missing command, enter '${SCRIPT} help' to display usage" 2
 while (( $# > 0 )); do
   case "${1}" in
     -w|--working-dir)
@@ -33,9 +35,6 @@ while (( $# > 0 )); do
       # shellcheck disable=SC1090
       . "${DIR}/${CMD}"
       exit $?
-      ;;
-    "")
-      exception "Missing command, enter '${SCRIPT} help' to display usage" 2
       ;;
     *)
       exception "Invalid command '${1}', enter '${SCRIPT} help' to display usage" 2

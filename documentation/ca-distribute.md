@@ -45,7 +45,17 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 
 ## EXAMPLES
 
-TODO
+```
+echo "solver1 solver2 solver3" | ca distribute -l -p "lab01-" -s "umiami/george/csc220/spring21"
+```
+
+Given example distributes current directory into following locations. The `-l` option updates links in README files.
+
+```
+umiami/george/csc220/spring/lab01-solver1
+umiami/george/csc220/spring/lab01-solver2
+umiami/george/csc220/spring/lab01-solver3
+```
 
 ## BUGS
 
