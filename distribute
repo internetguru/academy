@@ -47,8 +47,7 @@ init_user_repo() {
   project_id="$(create_user_project)" \
     || exit 1
   add_developer
-  [[ -n "${ISSUES_LABEL}" ]] \
-    && copy_issues
+  copy_issues
   init_cache
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Initial commit"'
   git_push "${user_cache_folder}" '--all'
@@ -89,8 +88,6 @@ read_issues() {
     || exit 1
 }
 copy_issues() {
-  (( ISSUES_COUNT < 0 )) \
-    && read_issues
   declare i issue
   for (( i=0; i < ISSUES_COUNT; i++ )); do
     issue="$(jq ".[${i}] | {title, description, due_date}" <<< "${ISSUES}")"
@@ -181,7 +178,7 @@ declare PROJECT_LINK=''
 declare PROJECT_ID=''
 declare PROJECT_BRANCH=''
 declare ISSUES=''
-declare -i ISSUES_COUNT=-1
+declare -i ISSUES_COUNT=0
 # shellcheck disable=SC2034
 declare ACCESS_TOKEN
 
