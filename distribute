@@ -125,7 +125,9 @@ process_users() {
   declare -i invalid=0
   # shellcheck disable=SC2013
   for user_name in $(cat <&3); do
-    msg_start "Processing repository for ${user_name}"
+    user_project_name="${PREFIX}${user_name}"
+    user_project_ns="${NAMESPACE}/${user_project_name}"
+    msg_start "${user_project_ns}"
     [[ ! "${user_name}" =~ ^[a-zA-Z0-9][a-z0-9_.-]*$ ]] \
       && msg_end INVALID \
       && invalid+=1 \
@@ -134,8 +136,6 @@ process_users() {
     [[ "${DRY_RUN}" == 'true' ]] \
       && msg_end SKIPPED \
       && continue
-    user_project_name="${PREFIX}${user_name}"
-    user_project_ns="${NAMESPACE}/${user_project_name}"
     user_cache_folder="$(get_cache_folder)"
     ! project_exists \
       && init_user_repo \
