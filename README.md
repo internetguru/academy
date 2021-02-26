@@ -48,12 +48,15 @@
 
    ```yaml
    include:
-     # Mandatory include with variable branch name, e.g. `dev`
+     # Mandatory include with variable branch name, e.g. "dev"
      - 'https://raw.githubusercontent.com/InternetGuru/ca/dev/gitlab-stages.yml'
 
    variables:
      # To run distribute script
      CA_DISTRIBUTE: "true"
+     # Distribute issues only with "assignment" label
+     # Default value is current branch, e.g. "spring21"
+     CA_ISSUES: "assignment"
      # List of users to distribute to separated by spaces
      CA_USERS: "solver1 solver2 solver3"
 
