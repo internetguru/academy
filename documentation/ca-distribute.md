@@ -20,8 +20,8 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 `-h`, `--help`
        Display usage.
 
-`-i`, `--process-issues`
-       Copy issues marked with 'assignment' label into destination repositories. `PROJECT_FOLDER` must be a GitLab project.
+`-i`, `--process-issues ISSUES_LABEL`
+       Copy issues marked with `ISSUES_LABEL` label into destination repositories. `PROJECT_FOLDER` must be a GitLab project.
 
 `-l`, `--update-links`
        Replace all occurrences of the assignment project's remote URL and its current branch with destination repository remote URL and its main branch in `README.md`. `PROJECT_FOLDER` must be a GitLab project.
