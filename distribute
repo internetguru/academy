@@ -64,15 +64,19 @@ init_user_repo() {
   git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}"
   git_push "${user_cache_folder}" '--all'
 }
-update_user_repo() {
-  declare user_branch
+status_empty () {
   update_cache
+  declare user_branch
   user_branch="$(get_default_branch)" \
     || exit 1
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
-  git_status_empty "${user_cache_folder}" \
-    && return
+  git_status_empty "${user_cache_folder}"
+}
+update_user_repo() {
+  declare user_branch
+  user_branch="$(get_default_branch)" \
+    || exit 1
   git_add_all "${user_cache_folder}"
   git_commit "${user_cache_folder}" '-m "Update assignment"'
   git_push "${user_cache_folder}" '--all'
@@ -133,12 +137,15 @@ process_users() {
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
     user_cache_folder="$(get_cache_folder)"
-    project_exists \
-      && update_user_repo \
-      && msg_end UPDATED \
+    ! project_exists \
+      && init_user_repo \
+      && msg_end CREATED \
       && continue
-    init_user_repo
-    msg_end CREATED
+    status_empty \
+      && msg_end PASSED \
+      && continue
+    update_user_repo \
+      && msg_end UPDATED
   done
   (( valid != 0 || invalid != 0 )) \
     || exception 'Empty or invalid stdin' 2
