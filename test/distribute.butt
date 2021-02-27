@@ -35,7 +35,7 @@ end
 start "missing root namespace"
   debug "echo 'user1' | $ca -w '$tmp_project' distribute -s 'xyz123xyz/abc'"
   assert_equal "$status" 1
-  assert_startwith "${errlines[1]}" "Processing repository for user1 ... Root group xyz123xyz does not exist in create_ns()"
+  assert_startwith "${errlines[1]}" "xyz123xyz/abc/user1 ... Root group xyz123xyz does not exist in create_ns()"
 end
 # : $((i++))
 # skip "missing users: not working on gh actions"
