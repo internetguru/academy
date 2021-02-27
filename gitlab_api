@@ -58,7 +58,7 @@ request_exists() {
 create_request() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/projects/${project_id}/merge_requests" \
-    "{\"id\":\"${project_id}\", \"source_branch\":\"${SOURCE_BRANCH}\", \"target_branch\":\"${user_branch}\", \
+    "{\"id\":\"${project_id}\", \"source_branch\":\"${SOURCE_BRANCH}\", \"target_branch\":\"${user_default_branch}\", \
     \"remove_source_branch\":\"false\", \"title\":\"Update from ${SOURCE_BRANCH} branch\"}" >/dev/null
 }
 create_user_project() {
@@ -85,7 +85,7 @@ add_developer() {
     "{\"access_level\":\"${DEV_ACCESS_LEVEL}\", \"user_id\":\"${user_id}\"}" >/dev/null
 }
 remove_protected_branch() {
-  gitlab_api "api/v4/projects/${project_id}/protected_branches/${user_branch}" '-' >/dev/null
+  gitlab_api "api/v4/projects/${project_id}/protected_branches/${user_default_branch}" '-' >/dev/null
 }
 set_protected_branch() {
   declare -r branch="${1}"
