@@ -83,10 +83,10 @@ git_commit() {
   out="$(git -C "${git_dir}" commit "${@}" 2>&1)" \
     || exception "${out}"
 }
-git_fetch_all() {
+git_fetch() {
   declare -r git_dir="${1:-.}"
   declare out
-  out="$(git -C "${git_dir}" fetch --all 2>&1)" \
+  out="$(git -C "${git_dir}" fetch "${@}" 2>&1)" \
     || exception "${out}"
 }
 git_remote_branches() {
