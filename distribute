@@ -69,9 +69,10 @@ status_empty () {
   declare user_branch
   user_branch="$(get_default_branch)" \
     || exit 1
-  git_fetch "${user_cache_folder}" origin "${user_branch}:${user_branch}"
-  git_fetch "${user_cache_folder}" origin "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
+  git_checkout "${user_branch}"
+  git_pull origin "${user_branch}"
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
+  git_pull origin "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
 }
