@@ -26,6 +26,7 @@ update_cache() {
   [[ "${actual_remote_ns}" != "${user_project_ns}" ]] \
     && exception 'Invalid user project remote origin url'
   git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
+  git_pull "${user_cache_folder}" 'origin' "${user_branch}:${user_branch}"
 }
 update_links() {
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
@@ -65,11 +66,10 @@ init_user_repo() {
   git_push "${user_cache_folder}" '--all'
 }
 status_empty () {
-  update_cache
   declare user_branch
   user_branch="$(get_default_branch)" \
     || exit 1
-  git_pull "${user_cache_folder}" origin "${user_branch}:${user_branch}"
+  update_cache
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
