@@ -1,37 +1,42 @@
 
-before_script:
+.before_script_global: &global_init |
   # fix TERM
-  - export TERM=xterm
-  # install requirements
-  - apt update && apt install -y curl jq git
+  export TERM=xterm
   # checkout to current branch
-  - git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
+  git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
   # set git user
-  - git config --global user.email "${GITLAB_USER_EMAIL}"
-  - git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
-  # prepare acccess token for the distribution script
-  - |
-      if [[ -z "${ACCESS_TOKEN}" ]]; then
-        echo "Undefined variable {ACCESS_TOKEN}"
-        echo "Refer to README and make sure the current branch is protected."
-        exit 1
-      fi
-  - export CA_DIR="$(mktemp -d)"
+  git config --global user.email "${GITLAB_USER_EMAIL}"
+  git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  export CA_DIR="$(mktemp -d)"
   # install cad
-  - revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
-  - git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ca ${CA_DIR}
+  revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
+  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ca ${CA_DIR}
   # e.g. /umiami/george/csc220
-  - declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
-  - declare -r project_name="$(basename "${PWD}")"
+  declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
+  declare -r project_name="$(basename "${PWD}")"
   # simplify project remote url
-  - git remote set-url --push origin "${namespace}/${project_name}.git"
+  git remote set-url --push origin "${namespace}/${project_name}.git"
   # set permissions
-  - CA=${CA_DIR}/ca
-  - chmod +x ${CA_DIR}/*
+  CA=${CA_DIR}/ca
+  chmod +x ${CA_DIR}/*
+
+.before_script_token: &validate_token |
+  # prepare acccess token for the distribution script
+  if [[ -z "${ACCESS_TOKEN}" ]]; then
+    echo "Undefined variable {ACCESS_TOKEN}"
+    echo "Refer to README and make sure the current branch is protected."
+    exit 1
+  fi
+
+.before_script_apt: &apt_requirements |
+  # install requirements
+  apt update && apt install -y curl jq git
 
 evaluate:
   image: maven:latest
   stage: build
+  before_script:
+    - *global_init
   cache:
     paths:
       - target/
@@ -48,6 +53,10 @@ evaluate:
 distribute:
   image: debian:stretch
   stage: build
+  before_script:
+    - *validate_token
+    - *global_init
+    - *apt_requirements
   script:
     # e.g. fall20
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -66,6 +75,10 @@ distribute:
 measure:
   image: debian:stretch
   stage: build
+  before_script:
+    - *validate_token
+    - *global_init
+    - *apt_requirements
   script:
     - declare namespaces=''
     - declare ignore=''
