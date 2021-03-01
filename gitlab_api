@@ -127,7 +127,26 @@ get_remote_url() {
 get_group_projects() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/groups/${group_id}/projects" \
-    | jq -r '.[] | .name_with_namespace' | tr -d " "
+    | jq -cr '.[] | { name_with_namespace, id }' | tr -d " "
+}
+get_namespaces() {
+  # shellcheck disable=SC2153
+  [[ -n "${NAMESPACE// /}" ]] \
+    && echo "${NAMESPACE}" \
+    && return
+  git_remote_branches "${WORKING_DIR}" | sed "s~^~$(dirname "$(get_remote_namespace "${WORKING_DIR}")")/~"
+}
+get_groups() {
+  declare group_id
+  declare namespace
+  for namespace in $(get_namespaces); do
+    [[ "${namespace}" =~ ^[a-z0-9]{2,}(/[a-z0-9]{2,})*$ ]] \
+      || exception "Unsupported NAMESPACE '${namespace}'" 2
+    group_id="$(get_group_id "${namespace}" 2>/dev/null)"
+    [[ -z "${group_id}" && "${IGNORE}" == 'false' ]] \
+      && exception "Namespace '${namespace}' not found" 3
+    echo "${group_id} "
+  done
 }
 acquire_token() {
   [[ -s "${TOKEN_FILE}" ]] \

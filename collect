@@ -12,11 +12,13 @@ sync_files() {
   mkdir -p "${user_projects_folder}/${user_project_ns}"
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
-  exclude='*'
+  declare exclude='*'
+  declare include="--include=${EDITABLE} --include=*/"
   [[ "${EDITABLE}" == '*' ]] \
+    && include="" \
     && exclude='.git/'
   rsync -a --delete \
-    --exclude "${exclude}" --include "${EDITABLE}" \
+    $include --exclude "${exclude}" \
     "${user_projects_folder}/${user_project_ns}/" "${WORKING_DIR}" \
     || exception 'Unable to rsync files'
 }
@@ -39,16 +41,19 @@ collect() {
       user_project_ns="$(jq -r '.name_with_namespace' <<< "${user_project}")"
       user_project_id="$(jq -r '.id' <<< "${user_project}")"
       user_name="$(basename "${user_project_ns}" | cut -d- -f2)"
+      echo "$user_project_ns"
       [[ "$(basename "${user_project_ns}")" != "${PREFIX}"* ]] \
         && continue
       [[ "${DRY_RUN}" == 'true' ]] \
         && continue
       last_commit="$(get_last_commit)" \
         || exception "Unable to get last commit"
-      echo ${BASH_SOURCE[1]}
-      continue
+      [[ "${last_commit}" == 'null' ]] \
+        && echo "No commit found" \
+        && continue
       sync_files
-      ${BASH_SOURCE[1]} -w "${user_projects_folder}/${user_project_ns}" evaluate
+      "${DIR}/${SCRIPT}" -w "${user_projects_folder}/${user_project_ns}" evaluate
+      printf "Code style: "
       cat "${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
       cat "${user_projects_folder}/${user_project_ns}/.results/test.txt"
     done
@@ -59,7 +64,7 @@ declare IGNORE='false'
 declare DRY_RUN='false'
 declare PREFIX=''
 declare NAMESPACE=''
-declare EDITABLE='*'
+declare EDITABLE='src/main/*.java'
 declare DEADLINE=''
 
 # get options
