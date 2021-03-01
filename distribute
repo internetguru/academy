@@ -10,8 +10,7 @@ init_cache() {
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
-  rsync -a --delete --exclude .git/ --exclude "${CA_USERS_FILE}" \
-    "${WORKING_DIR}/" "${user_cache_folder}" \
+  rsync -a --delete --exclude .git/ "${WORKING_DIR}/" "${user_cache_folder}" \
     || exception "Unable to rsync files"
   [[ "${UPDATE_LINKS}" == 'true' ]] \
     && update_links
@@ -164,7 +163,6 @@ distribute() {
 
 # global constants
 declare -r CACHE_FOLDER="${HOME}/.ca_distribute_cache"
-declare -r CA_USERS_FILE="CA_USERS"
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'
 declare -r ALWAYS='always'
