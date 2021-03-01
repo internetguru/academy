@@ -32,6 +32,42 @@
   # install requirements
   apt update && apt install -y curl jq git
 
+collect:
+  image: debian:stretch
+  stage: build
+  before_script:
+    - *validate_token
+    - *apt_requirements
+    - *global_init
+  script:
+    - declare namespaces=''
+    - declare ignore=''
+    # prefix branches by namespace/
+    - |
+        if [[ -n "${CA_BRANCHES}" ]]; then
+          namespaces="$(sed "s~^~${namespace}/~" <<< "$CA_BRANCHES")"
+        else
+          ignore='--ignore'
+        fi
+    # prepare deadline and editable options
+    - declare deadline=''
+    - declare editable=''
+    - |
+        if [[ -n "${CA_DEADLINE}" ]]; then
+          deadline="--deadline '${CA_DEADLINE}'"
+        fi
+        if [[ -n "${CA_EDITABLE}" ]]; then
+          editable="--editable '"${CA_EDITABLE}'"
+        fi
+    # run collect for given or all branches
+    - |
+        ${CA} collect "${ignore}" ${deadline} ${editable} \
+        --namespace "${namespaces}" --prefix "${project_name}-"
+  only:
+    variables:
+      - $CA_COLLECT
+  when: manual
+
 evaluate:
   image: maven:latest
   stage: build
