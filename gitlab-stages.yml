@@ -55,8 +55,8 @@ distribute:
   stage: build
   before_script:
     - *validate_token
-    - *global_init
     - *apt_requirements
+    - *global_init
   script:
     # e.g. fall20
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -77,8 +77,8 @@ measure:
   stage: build
   before_script:
     - *validate_token
-    - *global_init
     - *apt_requirements
+    - *global_init
   script:
     - declare namespaces=''
     - declare ignore=''
