@@ -26,12 +26,13 @@ update_cache() {
   [[ "${actual_remote_ns}" != "${user_project_ns}" ]] \
     && exception 'Invalid user project remote origin url'
   git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
+  git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
 update_links() {
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
   sed -i "s~${PROJECT_LINK}~${user_project_ns}~g" "${user_readme_path}"
-  sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_branch}/\1~g" "${user_readme_path}"
-  sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_branch}~g" "${user_readme_path}"
+  sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_default_branch}/\1~g" "${user_readme_path}"
+  sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_default_branch}~g" "${user_readme_path}"
 }
 init_user_repo() {
   declare user_id=''
@@ -51,11 +52,11 @@ init_user_repo() {
   init_cache
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Initial commit"'
   git_push "${user_cache_folder}" '--all'
-  declare user_branch
-  user_branch="$(get_default_branch)" \
+  declare user_default_branch
+  user_default_branch="$(get_default_branch)" \
     || exit 1
   remove_protected_branch
-  set_protected_branch "${user_branch}" "${DEV_ACCESS_LEVEL}"
+  set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
   sync_cache
   git_add_all "${user_cache_folder}"
@@ -66,18 +67,11 @@ init_user_repo() {
 }
 status_empty () {
   update_cache
-  declare user_branch
-  user_branch="$(get_default_branch)" \
-    || exit 1
-  git_pull "${user_cache_folder}" origin "${user_branch}:${user_branch}"
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
 }
 update_user_repo() {
-  declare user_branch
-  user_branch="$(get_default_branch)" \
-    || exit 1
   git_add_all "${user_cache_folder}"
   git_commit "${user_cache_folder}" '-m "Update assignment"'
   git_push "${user_cache_folder}" '--all'
@@ -122,6 +116,7 @@ process_users() {
   declare user_project_name
   declare user_project_ns
   declare user_cache_folder
+  declare user_default_branch
   declare -i valid=0
   declare -i invalid=0
   # shellcheck disable=SC2013
@@ -142,6 +137,8 @@ process_users() {
       && init_user_repo \
       && msg_end CREATED \
       && continue
+    user_default_branch="$(get_default_branch)" \
+      || exit 1
     status_empty \
       && msg_end PASSED \
       && continue
