@@ -1,0 +1,91 @@
+#!/bin/bash
+
+get_last_commit() {
+  declare date="${DEADLINE}"
+  [[ -z "${date}" ]] \
+    && date="$(date --iso-8601)"
+  gitlab_api "api/v4/projects/${user_project_id}/events?action=pushed" \
+    | jq -r "[.[] | select(.author_username == \"${user_name}\" and \
+    .created_at <= \"${date}\")][0] | .push_data .commit_to"
+}
+sync_files() {
+  mkdir -p "${user_projects_folder}/${user_project_ns}"
+  git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
+  git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
+  exclude='*'
+  [[ "${EDITABLE}" == '*' ]] \
+    && exclude='.git/'
+  rsync -a --delete \
+    --exclude "${exclude}" --include "${EDITABLE}" \
+    "${user_projects_folder}/${user_project_ns}/" "${WORKING_DIR}" \
+    || exception 'Unable to rsync files'
+}
+collect() {
+  acquire_token
+  # shellcheck disable=SC2155
+  declare -r user_projects_folder="$(mktemp -d)"
+  declare user_projects
+  declare group_id
+  declare user_project_ns
+  declare user_project_id
+  declare user_name
+  declare last_commit
+  # shellcheck disable=SC2034
+  for group_id in $(get_groups); do
+    user_projects="$(get_group_projects)" \
+      || exit 1
+    # clone all user_projects from ns
+    for user_project in ${user_projects}; do
+      user_project_ns="$(jq -r '.name_with_namespace' <<< "${user_project}")"
+      user_project_id="$(jq -r '.id' <<< "${user_project}")"
+      user_name="$(basename "${user_project_ns}" | cut -d- -f2)"
+      [[ "$(basename "${user_project_ns}")" != "${PREFIX}"* ]] \
+        && continue
+      [[ "${DRY_RUN}" == 'true' ]] \
+        && continue
+      last_commit="$(get_last_commit)" \
+        || exception "Unable to get last commit"
+      echo ${BASH_SOURCE[1]}
+      continue
+      sync_files
+      ${BASH_SOURCE[1]} -w "${user_projects_folder}/${user_project_ns}" evaluate
+      cat "${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
+      cat "${user_projects_folder}/${user_project_ns}/.results/test.txt"
+    done
+  done
+}
+
+declare IGNORE='false'
+declare DRY_RUN='false'
+declare PREFIX=''
+declare NAMESPACE=''
+declare EDITABLE='*'
+declare DEADLINE=''
+
+# get options
+declare OPT
+OPT="$(getopt --name "${0}" --options 'hid:ne:p:s:' \
+  --longoptions 'ignore,deadline:,dry-run,editable:,help,prefix:,namespace:' \
+  -- "$@")" \
+  && eval set -- "${OPT}" \
+  || exit 1
+
+# TODO: validate deadline and editable params
+
+# process options
+while (( $# > 0 )); do
+  # shellcheck disable=SC2034
+  case "${1}" in
+    -h|--help) print_usage && exit 0 ;;
+    -i|--ignore) IGNORE='true'; shift ;;
+    -d|--deadline) DEADLINE="${2}"; shift; shift ;;
+    -n|--dry-run) DRY_RUN='true'; shift ;;
+    -e|--editable) EDITABLE="${2}"; shift; shift ;;
+    -p|--prefix) PREFIX="${2}"; shift; shift ;;
+    -s|--namespace) NAMESPACE="${NAMESPACE} ${2}"; shift; shift ;;
+    --) shift; break ;;
+     *) break ;;
+  esac
+done
+
+collect

@@ -51,7 +51,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca-evaluate`(1), `ca-distribute`(1)
+`ca-collect`(1), `ca-distribute`(1), `ca-evaluate`(1)
 
 [Moss](https://theory.stanford.edu/~aiken/moss/)
 

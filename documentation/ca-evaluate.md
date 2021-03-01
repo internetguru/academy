@@ -34,7 +34,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca-measure`(1), `ca-distribute`(1)
+`ca-collect`(1), `ca-distribute`(1), `ca-measure`(1)
 
 
 [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)

@@ -82,6 +82,7 @@ EOD
     && color='red'
 
   curl -o "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
+  echo "${perc}" > "${CHECKSTYLE_TXT}"
 
   declare test_color='success'
   mvn -f "${POM}" test > "${TEST_LOG}" 2>&1 \
@@ -97,6 +98,7 @@ EOD
   declare -ri total=$((runs - skipped))
   declare -ri passed=$((total - failures))
   curl -o "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
+  grep 'Tests run:' "${TEST_LOG}" > "${TEST_TXT}"
 }
 
 declare -r POM="${WORKING_DIR}/pom.xml"
@@ -104,6 +106,8 @@ declare -r RESULTS=".results"
 declare -r COMPILE_LOG="${RESULTS}/compile.log"
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r TEST_LOG="${RESULTS}/test.log"
+declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
+declare -r TEST_TXT="${RESULTS}/test.txt"
 declare -r COMPILE_SVG="${RESULTS}/compile.svg"
 declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
 declare -r TEST_SVG="${RESULTS}/test.svg"
