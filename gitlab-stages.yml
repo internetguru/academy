@@ -63,7 +63,7 @@ distribute:
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     - |
-        if [[  -f "CA_USERS" ]];
+        if [[ -f "CA_USERS" ]];
           mv "CA_USERS" ..
         fi
     # distribute current project among all users
