@@ -32,12 +32,16 @@
   # install requirements
   apt update && apt install -y curl jq git
 
+.before_script_yum: &yum_requirements |
+  # install requirements
+  yum install -y curl jq git
+
 collect:
-  image: debian:stretch
+  image: maven:latest
   stage: build
   before_script:
     - *validate_token
-    - *apt_requirements
+    - *yum_requirements
     - *global_init
   script:
     - declare namespaces=''
