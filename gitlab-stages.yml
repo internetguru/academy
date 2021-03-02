@@ -32,16 +32,16 @@
   # install requirements
   apt update && apt install -y curl jq git
 
-.before_script_mvn: &apt_maven |
-  apt update && apt install -y maven
+.before_script_java: &apt_java |
+  apt update && apt install -y default-jdk maven
 
 collect:
-  image: openjdk:latest
+  image: debian:latest
   stage: build
   before_script:
     - *validate_token
     - *apt_requirements
-    - *apt_maven
+    - *apt_java
     - *global_init
   script:
     - declare namespaces=''
