@@ -81,11 +81,16 @@ collect:
     # run collect for given or all branches
     - |
         ${CA} collect ${deadline} ${editable} \
-        --namespace "${namespaces}" --prefix "${project_name}-"
+        --namespace "${namespaces}" --prefix "${project_name}-" \
+        --download ".collect"
   only:
     variables:
       - $CA_COLLECT
   when: manual
+  artifacts:
+    paths:
+      - .collect/
+    expire_in: 1 year
 
 evaluate:
   image: maven:latest
