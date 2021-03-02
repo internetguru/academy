@@ -4,8 +4,7 @@ get_last_commit() {
   [[ -z "${DEADLINE}" ]] \
     && git_last_commit "${user_projects_folder}/${user_project_ns}" \
     && return
-  gitlab_api "api/v4/projects/${user_project_id}/events?action=pushed" \
-    | jq -r "[.[] | select(.created_at <= \"${DEADLINE}\")][0] | .push_data .commit_to"
+  get_last_push
 }
 sync_files() {
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"

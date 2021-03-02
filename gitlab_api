@@ -148,6 +148,11 @@ get_groups() {
     echo "${group_id} "
   done
 }
+get_last_push() {
+  # shellcheck disable=SC2154
+  gitlab_api "api/v4/projects/${user_project_id}/events?action=pushed" \
+    | jq -r "[.[] | select(.created_at <= \"${DEADLINE}\")][0] | .push_data .commit_to"
+}
 acquire_token() {
   [[ -s "${TOKEN_FILE}" ]] \
     || get_token
