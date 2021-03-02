@@ -34,13 +34,13 @@
 
 .before_script_apt: &apt_requirements |
   # install requirements
-  apt update && apt install -y curl jq git
+  apt update && apt install -y curl jq git rsync
 
 .before_script_java: &apt_java |
   apt update && apt install -y default-jdk maven
 
 collect:
-  image: debian:latest
+  image: debian:stretch
   stage: build
   before_script:
     - *validate_token
