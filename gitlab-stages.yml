@@ -61,7 +61,7 @@ collect:
           deadline="--deadline '${CA_DEADLINE}'"
         fi
         if [[ -n "${CA_EDITABLE}" ]]; then
-          editable="--editable '"${CA_EDITABLE}'"
+          editable="--editable "'${CA_EDITABLE}'"
         fi
     # run collect for given or all branches
     - |
