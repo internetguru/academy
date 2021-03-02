@@ -75,4 +75,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca-collect`(1), `ca-evaluate`(1), `ca-measure`(1)
+`ca`(1), `ca-collect`(1), `ca-evaluate`(1), `ca-measure`(1)
