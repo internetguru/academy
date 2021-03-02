@@ -9,14 +9,9 @@ get_last_commit() {
 }
 sync_files() {
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
-  declare exclude='*'
-  declare include="--include=${EDITABLE} --include=*/"
-  [[ "${EDITABLE}" == '*' ]] \
-    && include="" \
-    && exclude='.git/'
+  # shellcheck disable=SC2086
   rsync -a --delete \
-    $include --exclude "${exclude}" \
-    "${user_projects_folder}/${user_project_ns}/" "${WORKING_DIR}" \
+    "${user_projects_folder}/${user_project_ns}/"${EDITABLE} "${WORKING_DIR}" \
     || exception 'Unable to rsync files'
 }
 collect() {
@@ -84,7 +79,11 @@ while (( $# > 0 )); do
     -i|--ignore) IGNORE='true'; shift ;;
     -d|--deadline) DEADLINE="${2}"; shift; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
-    -e|--editable) EDITABLE="${2}"; shift; shift ;;
+    -e|--editable)
+      EDITABLE="${2}";
+      [[ "${EDITABLE}" == *".."* ]] \
+        && exception "Invalid editable option, contains '..'"
+      shift; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
     -s|--namespace) NAMESPACE="${NAMESPACE} ${2}"; shift; shift ;;
     --) shift; break ;;
