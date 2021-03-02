@@ -49,6 +49,8 @@ collect:
     - *apt_java
     - *global_init
   script:
+    # set token file (will be deprecated)
+    - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     - declare namespaces=''
     - declare ignore=''
     # prefix branches by namespace/
