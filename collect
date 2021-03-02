@@ -33,9 +33,9 @@ collect() {
       user_project_ns="$(jq -r '.name_with_namespace' <<< "${user_project}")"
       user_project_id="$(jq -r '.id' <<< "${user_project}")"
       user_name="$(basename "${user_project_ns}" | cut -d- -f2)"
-      echo "$user_project_ns"
       [[ "$(basename "${user_project_ns}")" != "${PREFIX}"* ]] \
         && continue
+      echo "$user_project_ns"
       [[ "${DRY_RUN}" == 'true' ]] \
         && continue
       mkdir -p "${user_projects_folder}/${user_project_ns}"
