@@ -52,11 +52,6 @@ collect() {
         && continue
       sync_files
       "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
-
-      # ukladat do download directory se sumarem
-      # v CI logu vypisovat promenny
-      # spoustet collect na dane branchi a CA_SOURCE urci z jake branche se maji brat soubory
-
       mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
       compile_txt="${user_projects_folder}/${user_project_ns}/.results/compile.txt"
       checkstyle_txt="${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
