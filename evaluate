@@ -82,7 +82,7 @@ EOD
     && color='red'
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
-  echo "${perc}" > "${CHECKSTYLE_TXT}"
+  echo "Code style: ${perc}" > "${CHECKSTYLE_TXT}"
 
   declare test_color='success'
   mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \

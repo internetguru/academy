@@ -46,7 +46,6 @@ collect() {
         && continue
       sync_files
       "${DIR}/${SCRIPT}" -w "${user_projects_folder}/${user_project_ns}" evaluate
-      printf "Code style: "
       cat "${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
       cat "${user_projects_folder}/${user_project_ns}/.results/test.txt"
     done
