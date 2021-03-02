@@ -63,6 +63,15 @@
      # To run evaluate script
      CA_EVALUATE: "true"
 
+     # To run collect script
+     CA_COLLECT: "true"
+     # To specify source files
+     CA_SOURCE: "branch"
+     #
+     CA_DEADLINE: "date"
+     #
+     CA_EDITABLE: "pattern"
+
      # To run measure script
      CA_MEASURE: "true"
      # Link to public moss script
