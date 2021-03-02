@@ -15,8 +15,11 @@ sync_files() {
 }
 collect() {
   acquire_token
+  [[ -z "${DOWNLOAD}" ]] \
+    && DOWNLOAD="$(mktemp -d)"
+  mkdir -p "${DOWNLOAD}"
   # shellcheck disable=SC2155
-  declare -r user_projects_folder="$(mktemp -d)"
+  declare -r user_projects_folder="${DOWNLOAD}"
   declare user_projects
   declare group_id
   declare user_project_ns
@@ -49,6 +52,11 @@ collect() {
         && continue
       sync_files
       "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
+
+      # ukladat do download directory se sumarem
+      # v CI logu vypisovat promenny
+      # spoustet collect na dane branchi a CA_SOURCE urci z jake branche se maji brat soubory
+
       mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
       compile_txt="${user_projects_folder}/${user_project_ns}/.results/compile.txt"
       checkstyle_txt="${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
@@ -68,11 +76,12 @@ declare PREFIX=''
 declare NAMESPACE=''
 declare EDITABLE='src/main/*.java'
 declare DEADLINE=''
+declare DOWNLOAD=''
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'hid:ne:p:s:' \
-  --longoptions 'ignore,deadline:,dry-run,editable:,help,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'hid:o:ne:p:s:' \
+  --longoptions 'ignore,deadline:,download:,dry-run,editable:,help,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -86,6 +95,7 @@ while (( $# > 0 )); do
     -h|--help) print_usage && exit 0 ;;
     -i|--ignore) IGNORE='true'; shift ;;
     -d|--deadline) DEADLINE="${2}"; shift; shift ;;
+    -o|--download) DOWNLOAD="${2}"; shift; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -e|--editable)
       EDITABLE="${2}";
