@@ -62,6 +62,7 @@ collect:
     # checkout to CA_SOURCE branch
     - |
         if [[ -n "${CA_SOURCE}" ]]; then
+          git fetch --all
           git checkout "${CA_SOURCE}"
         fi
     # prepare deadline and editable options
