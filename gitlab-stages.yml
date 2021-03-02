@@ -76,8 +76,8 @@ collect:
           editable="--editable '${CA_EDITABLE}'"
         fi
     # output variables
-    - echo "CA_DEADLINE='${$CA_DEADLINE}'"
-    - echo "CA_EDITABLE='${$CA_EDITABLE}'"
+    - echo "CA_DEADLINE='${CA_DEADLINE}'"
+    - echo "CA_EDITABLE='${CA_EDITABLE}'"
     # run collect for given or all branches
     - |
         ${CA} collect ${deadline} ${editable} \
