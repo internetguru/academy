@@ -32,16 +32,16 @@
   # install requirements
   apt update && apt install -y curl jq git
 
-.before_script_yum: &yum_requirements |
-  # install requirements
-  yum install -y curl jq git
+.before_script_mvn: &apt_maven |
+  apt update && apt install -y maven
 
 collect:
-  image: maven:latest
+  image: openjdk:latest
   stage: build
   before_script:
     - *validate_token
-    - *yum_requirements
+    - *apt_requirements
+    - *apt_maven
     - *global_init
   script:
     - declare namespaces=''
