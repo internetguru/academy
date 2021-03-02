@@ -1,16 +1,13 @@
 #!/bin/bash
 
 get_last_commit() {
-  declare date="${DEADLINE}"
-  [[ -z "${date}" ]] \
-    && date="$(date --iso-8601)"
+  [[ -z "${DEADLINE}" ]] \
+    && get_last_commit "${user_projects_folder}/${user_project_ns}" \
+    && return
   gitlab_api "api/v4/projects/${user_project_id}/events?action=pushed" \
-    | jq -r "[.[] | select(.author_username == \"${user_name}\" and \
-    .created_at <= \"${date}\")][0] | .push_data .commit_to"
+    | jq -r "[.[] | select(.created_at <= \"${DEADLINE}\")][0] | .push_data .commit_to"
 }
 sync_files() {
-  mkdir -p "${user_projects_folder}/${user_project_ns}"
-  git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
   declare exclude='*'
   declare include="--include=${EDITABLE} --include=*/"
@@ -46,6 +43,8 @@ collect() {
         && continue
       [[ "${DRY_RUN}" == 'true' ]] \
         && continue
+      mkdir -p "${user_projects_folder}/${user_project_ns}"
+      git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
       last_commit="$(get_last_commit)" \
         || exception "Unable to get last commit"
       [[ "${last_commit}" == 'null' ]] \

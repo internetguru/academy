@@ -96,3 +96,10 @@ git_remote_branches() {
     || exception "${out}"
   printf -- '%s\n' "${out}"
 }
+git_last_commit() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" rev-parse --short HEAD)" \
+    || exception "${out}"
+  printf -- '%s\n' "${out}"
+}
