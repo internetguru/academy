@@ -41,9 +41,9 @@ collect:
   stage: build
   before_script:
     - *validate_token
+  script:
     - *yum_requirements
     - *global_init
-  script:
     - declare namespaces=''
     - declare ignore=''
     # prefix branches by namespace/
