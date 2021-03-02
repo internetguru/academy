@@ -15,11 +15,11 @@ sync_files() {
 }
 collect() {
   acquire_token
-  [[ -z "${DOWNLOAD}" ]] \
-    && DOWNLOAD="$(mktemp -d)"
-  mkdir -p "${DOWNLOAD}"
+  [[ -z "${OUTPUT}" ]] \
+    && OUTPUT="$(mktemp -d)"
+  mkdir -p "${OUTPUT}"
   # shellcheck disable=SC2155
-  declare -r user_projects_folder="${DOWNLOAD}"
+  declare -r user_projects_folder="${OUTPUT}"
   declare user_projects
   declare group_id
   declare user_project_ns
@@ -71,12 +71,12 @@ declare PREFIX=''
 declare NAMESPACE=''
 declare EDITABLE='src/main/*.java'
 declare DEADLINE=''
-declare DOWNLOAD=''
+declare OUTPUT=''
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'hid:o:ne:p:s:' \
-  --longoptions 'ignore,deadline:,download:,dry-run,editable:,help,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'hid:no:e:p:s:' \
+  --longoptions 'ignore,deadline:,dry-run,editable:,help,output:,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -94,7 +94,7 @@ while (( $# > 0 )); do
       [[ "${DEADLINE}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(Z|[+−][0-9]{2}:[0-9]{2})?)?)?$ ]] \
         || exception "Invalid deadline option"
       shift; shift ;;
-    -o|--download) DOWNLOAD="${2}"; shift; shift ;;
+    -o|--output) OUTPUT="${2}"; shift; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -e|--editable)
       EDITABLE="${2}";
