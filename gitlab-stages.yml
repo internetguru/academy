@@ -57,12 +57,12 @@ collect:
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     - declare namespaces=''
     - declare ignore=''
-    # prefix branches by namespace/
+    # process files distributed from current branch
+    - namespaces="${namespace}/${CI_COMMIT_REF_NAME}"
+    # checkout to CA_SOURCE branch
     - |
-        if [[ -n "${CA_BRANCHES}" ]]; then
-          namespaces="$(sed "s~^~${namespace}/~" <<< "$CA_BRANCHES")"
-        else
-          ignore='--ignore'
+        if [[ -n "${CA_SOURCE}" ]]; then
+          git checkout "${CA_SOURCE}"
         fi
     # prepare deadline and editable options
     - declare deadline=''
@@ -79,7 +79,7 @@ collect:
     - echo "CA_EDITABLE='${$CA_EDITABLE}'"
     # run collect for given or all branches
     - |
-        ${CA} collect "${ignore}" ${deadline} ${editable} \
+        ${CA} collect ${deadline} ${editable} \
         --namespace "${namespaces}" --prefix "${project_name}-"
   only:
     variables:
