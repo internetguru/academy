@@ -39,6 +39,10 @@
 .before_script_java: &apt_java |
   apt update && apt install -y default-jdk maven
 
+cache:
+  paths:
+    - .apt
+
 collect:
   image: debian:stretch
   stage: build
