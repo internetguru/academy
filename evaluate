@@ -7,9 +7,14 @@ evaluate() {
   curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
   curl -so "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
 
+  echo "failed" > "${COMPILE_TXT}"
+  echo "n/a" > "${CHECKSTYLE_TXT}"
+  echo "n/a" > "${TEST_TXT}"
+
   mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
     || exit 0
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
+  echo "passed" > "${COMPILE_TXT}"
 
   # shellcheck disable=SC2155
   declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
@@ -82,7 +87,7 @@ EOD
     && color='red'
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
-  echo "Code style: ${perc}" > "${CHECKSTYLE_TXT}"
+  echo "${perc}%" > "${CHECKSTYLE_TXT}"
 
   declare test_color='success'
   mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \
@@ -106,6 +111,7 @@ declare -r RESULTS="${WORKING_DIR}/.results"
 declare -r COMPILE_LOG="${RESULTS}/compile.log"
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r TEST_LOG="${RESULTS}/test.log"
+declare -r COMPILE_TXT="${RESULTS}/compile.txt"
 declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
 declare -r TEST_TXT="${RESULTS}/test.txt"
 declare -r COMPILE_SVG="${RESULTS}/compile.svg"

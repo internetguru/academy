@@ -23,6 +23,9 @@ collect() {
   declare user_project_id
   declare user_name
   declare last_commit
+  declare compile_txt
+  declare checkstyle_txt
+  declare test_txt
   # shellcheck disable=SC2034
   for group_id in $(get_groups); do
     user_projects="$(get_group_projects)" \
@@ -45,9 +48,16 @@ collect() {
         && echo "No commit found" \
         && continue
       sync_files
-      "${DIR}/${SCRIPT}" -w "${user_projects_folder}/${user_project_ns}" evaluate
-      cat "${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
-      cat "${user_projects_folder}/${user_project_ns}/.results/test.txt"
+      "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
+      mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
+      compile_txt="${user_projects_folder}/${user_project_ns}/.results/compile.txt"
+      checkstyle_txt="${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
+      test_txt="${user_projects_folder}/${user_project_ns}/.results/test.txt"
+      results=("${compile_txt}" "${checkstyle_txt}" "${test_txt}")
+      for result in "${results[@]}"; do
+        basename "${result%.txt}"
+        cat "${result}"
+      done
     done
   done
 }
