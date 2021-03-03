@@ -2,7 +2,7 @@
 
 ## NAME
 
-CA-Collect - TODO
+CA-Collect - evaluate repositories against source tests
 
 ## SYNOPSIS
 
@@ -10,7 +10,7 @@ CA-Collect - TODO
 
 ## DESCRIPTION
 
-Downloads all repositories from a NAMESPACE matching given PREFIX. TODO
+Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on WORKING_DIR replacing only EDITABLE files from individual repositories.
 
 ## OPTIONS
 
