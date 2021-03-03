@@ -57,7 +57,8 @@
      # Distribute issues only with "assignment" label
      # Default value is current branch, e.g. "spring21"
      CA_ISSUES: "assignment"
-     # List of users to distribute to separated by spaces
+     # List of users to distribute to separated by spaces or commas
+     # Note: you may also use CA_USERS file (won't be distributed)
      CA_USERS: "solver1 solver2 solver3"
 
      # To run evaluate script

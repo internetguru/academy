@@ -127,11 +127,13 @@ distribute:
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - mv "CA_USERS" .. 2>/dev/null
     # distribute current project among all users
     - |
         ${CA} distribute --update-links --namespace "${namespace}/${branch}" \
         --process-issues "${CA_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-        --prefix "${project_name}-" <<< "${CA_USERS}"
+        --prefix "${project_name}-" \
+        <<< "$({ echo "${CA_USERS}"; cat '../CA_USERS' 2>/dev/null; } | tr ',' ' ')"
   only:
     variables:
       - $CA_DISTRIBUTE
