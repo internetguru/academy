@@ -75,14 +75,17 @@ collect:
         if [[ -n "${CA_EDITABLE}" ]]; then
           editable="--editable '${CA_EDITABLE}'"
         fi
-    # output variables
-    - echo "CA_DEADLINE='${CA_DEADLINE}'"
-    - echo "CA_EDITABLE='${CA_EDITABLE}'"
+    - mkdir .collect
     # run collect for given or all branches
     - |
         ${CA} collect ${deadline} ${editable} \
         --namespace "${namespaces}" --prefix "${project_name}-" \
-        --download ".collect"
+        --download ".collect" > .collect/summary.txt
+    # output variables and summary
+    - |
+      echo "CA_DEADLINE: '${CA_DEADLINE}'"
+      echo "CA_EDITABLE: '${CA_EDITABLE}'"
+      echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
   only:
     variables:
       - $CA_COLLECT

@@ -81,8 +81,6 @@ OPT="$(getopt --name "${0}" --options 'hid:no:e:p:s:' \
   && eval set -- "${OPT}" \
   || exit 1
 
-# TODO: validate deadline and editable params
-
 # process options
 while (( $# > 0 )); do
   # shellcheck disable=SC2034
