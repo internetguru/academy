@@ -2,7 +2,7 @@
 
 ## NAME
 
-CA - coding assignment
+CA - coding assignment handling
 
 ## SYNOPSIS
 
@@ -10,7 +10,7 @@ CA - coding assignment
 
 ## DESCRIPTION
 
-This script provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
+Provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
 
 ## OPTIONS
 
@@ -25,7 +25,7 @@ distribute
        Create or update user repositories with files from source project.
 
 evaluate
-       Verify Java project and generate badges into README.
+       Verify Java project and generate badges for README.
 
 help
        Display this usage.
