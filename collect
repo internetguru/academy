@@ -65,7 +65,6 @@ collect() {
   done
 }
 
-declare IGNORE='false'
 declare DRY_RUN='false'
 declare PREFIX=''
 declare NAMESPACE=''
@@ -75,8 +74,8 @@ declare OUTPUT=''
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'hid:no:e:p:s:' \
-  --longoptions 'ignore,deadline:,dry-run,editable:,help,output:,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'hd:e:no:p:s:' \
+  --longoptions 'help,deadline:,editable:,dry-run,output:,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -86,19 +85,18 @@ while (( $# > 0 )); do
   # shellcheck disable=SC2034
   case "${1}" in
     -h|--help) print_usage && exit 0 ;;
-    -i|--ignore) IGNORE='true'; shift ;;
     -d|--deadline)
       DEADLINE="${2}";
       [[ "${DEADLINE}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(Z|[+−][0-9]{2}:[0-9]{2})?)?)?$ ]] \
         || exception "Invalid deadline option"
       shift; shift ;;
-    -o|--output) OUTPUT="${2}"; shift; shift ;;
-    -n|--dry-run) DRY_RUN='true'; shift ;;
     -e|--editable)
       EDITABLE="${2}";
       [[ "${EDITABLE}" == *".."* ]] \
         && exception "Invalid editable option, contains '..'"
       shift; shift ;;
+    -n|--dry-run) DRY_RUN='true'; shift ;;
+    -o|--output) OUTPUT="${2}"; shift; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
     -s|--namespace) NAMESPACE="${NAMESPACE} ${2}"; shift; shift ;;
     --) shift; break ;;

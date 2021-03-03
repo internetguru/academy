@@ -17,16 +17,16 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on
 `-h`, `--help`
        Display usage.
 
-`-i`, `--ignore`
-       Ignore non-existing namespaces (EXIT STATUS 3).
+`-d`, `--deadline DATE`
+       TODO
 
-`-d`, `--deadline`
+`-e`, `--editable PATTERN`
        TODO
 
 `-n`, `--dry-run`
        Only process option validation. Would not proceed with cloning repositories and evaluation.
 
-`-e`, `--editable`
+`-o`, `--output DIR`
        TODO
 
 `-p`, `--prefix PREFIX`
