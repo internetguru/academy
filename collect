@@ -106,7 +106,7 @@ while (( $# > 0 )); do
         || mkdir -p "${OUTPUT}" \
         || exception "Unable to crete '${OUTPUT}' directory"
       [[ -z "$(ls "${OUTPUT}/")" ]] \
-        || exception "Output directory 'ls' is not empty"
+        || { echo "[$(ls "${OUTPUT}/")]"; exception "Output directory 'ls' is not empty"; }
       shift; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
     -s|--namespace)
