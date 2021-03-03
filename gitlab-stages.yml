@@ -75,6 +75,7 @@ collect:
           editable="--editable '${CA_EDITABLE}'"
         fi
     # run collect for given or all branches
+    - mkdir -p '.collect'
     - |
         ${CA} collect ${deadline} ${editable} \
         --namespace "${user_namespace}" --prefix "${project_name}-" \
