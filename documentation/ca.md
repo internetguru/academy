@@ -21,6 +21,9 @@ Provides commands to _distribute_ coding assignments to solvers, _evaluate_ indi
 
 These are common ca commands used in various situations:
 
+collect
+       Download repositories and evaluate against source tests.
+
 distribute
        Create or update user repositories with files from source project.
 
@@ -51,4 +54,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca-distribute`(1), `ca-evaluate`(1), `ca-measure`(1)
+`ca-collect`(1), `ca-distribute`(1), `ca-evaluate`(1), `ca-measure`(1)

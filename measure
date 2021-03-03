@@ -1,8 +1,6 @@
 #!/bin/bash
-
-#set -x
-
 get_namespaces() {
+  # shellcheck disable=SC2153
   [[ -n "${NAMESPACE// /}" ]] \
     && echo "${NAMESPACE}" \
     && return
@@ -26,17 +24,19 @@ measure() {
   declare -r user_projects_folder="$(mktemp -d)"
   declare user_projects
   declare group_id
+  # shellcheck disable=SC2034
   for group_id in $(get_groups); do
     user_projects="$(get_group_projects)" \
       || exit 1
     # clone all user_projects from ns
     for user_project in ${user_projects}; do
-      [[ "$(basename "${user_project}")" != "${PREFIX}"* ]] \
+      user_project_ns="$(jq -r '.name_with_namespace' <<< "${user_project}")"
+      [[ "$(basename "${user_project_ns}")" != "${PREFIX}"* ]] \
         && continue
       [[ "${DRY_RUN}" == 'true' ]] \
         && continue
-      mkdir -p "${user_projects_folder}/${user_project}"
-      git_clone "$(get_remote_url "${user_project}")" "${user_projects_folder}/${user_project}"
+      mkdir -p "${user_projects_folder}/${user_project_ns}"
+      git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
     done
   done
   [[ "${DRY_RUN}" == 'true' ]] \
@@ -64,6 +64,7 @@ OPT="$(getopt --name "${0}" --options 'hinp:s:' \
 
 # process options
 while (( $# > 0 )); do
+  # shellcheck disable=SC2034
   case "${1}" in
     -h|--help) print_usage && exit 0 ;;
     -i|--ignore) IGNORE='true'; shift ;;

@@ -28,9 +28,73 @@
     exit 1
   fi
 
+.before_script_apt_cache: &apt_cache |
+  rm -f /etc/apt/apt.conf.d/docker-clean
+  mkdir .apt && mkdir /var/cache/apt/archives && mount --bind .apt /var/cache/apt/archives/
+
 .before_script_apt: &apt_requirements |
   # install requirements
-  apt update && apt install -y curl jq git
+  apt update && apt install -y curl jq git rsync
+
+.before_script_java: &apt_java |
+  apt update && apt install -y default-jdk maven
+
+cache:
+  paths:
+    - .apt
+
+collect:
+  image: debian:stretch
+  stage: build
+  before_script:
+    - *validate_token
+    - *apt_cache
+    - *apt_requirements
+    - *apt_java
+    - *global_init
+  script:
+    # set token file (will be deprecated)
+    - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    # process files distributed from current branch
+    - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
+    # checkout to CA_SOURCE branch
+    - |
+        if [[ -z "${CA_SOURCE}" ]]; then
+          CA_SOURCE='master'
+        fi
+        git fetch --all
+        git checkout "${CA_SOURCE}"
+    # prepare deadline and editable options
+    - declare deadline=''
+    - declare editable=''
+    - |
+        if [[ -n "${CA_DEADLINE}" ]]; then
+          deadline="--deadline '${CA_DEADLINE}'"
+        fi
+        if [[ -n "${CA_EDITABLE}" ]]; then
+          editable="--editable '${CA_EDITABLE}'"
+        fi
+    # run collect for given or all branches
+    - |
+        ${CA} collect ${deadline} ${editable} \
+        --namespace "${user_namespace}" --prefix "${project_name}-" \
+        --output '.collect' | tee '.collect/summary.txt'
+    # output variables and summary
+    - |
+      echo '#######################'
+      echo "CA_DEADLINE: '${CA_DEADLINE}'"
+      echo "CA_EDITABLE: '${CA_EDITABLE}'"
+      echo "CA_SOURCE: '${CA_SOURCE}'"
+      echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
+      echo '#######################'
+  only:
+    variables:
+      - $CA_COLLECT
+  when: manual
+  artifacts:
+    paths:
+      - .collect/
+    expire_in: 1 year
 
 evaluate:
   image: maven:latest
@@ -55,6 +119,7 @@ distribute:
   stage: build
   before_script:
     - *validate_token
+    - *apt_cache
     - *apt_requirements
     - *global_init
   script:
@@ -79,6 +144,7 @@ measure:
   stage: build
   before_script:
     - *validate_token
+    - *apt_cache
     - *apt_requirements
     - *global_init
   script:

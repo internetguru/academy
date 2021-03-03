@@ -127,7 +127,12 @@ get_remote_url() {
 get_group_projects() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/groups/${group_id}/projects" \
-    | jq -r '.[] | .name_with_namespace' | tr -d " "
+    | jq -cr '.[] | { name_with_namespace, id }' | tr -d " "
+}
+get_last_push() {
+  # shellcheck disable=SC2154
+  gitlab_api "api/v4/projects/${user_project_id}/events?action=pushed" \
+    | jq -r "[.[] | select(.created_at < \"${DEADLINE}\")][0] | .push_data .commit_to"
 }
 acquire_token() {
   [[ -s "${TOKEN_FILE}" ]] \

@@ -3,13 +3,18 @@
 evaluate() {
 
   mkdir -p "${RESULTS}"
-  curl -o "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
-  curl -o "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
-  curl -o "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
+  curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
+  curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
+  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
+
+  echo "failed" > "${COMPILE_TXT}"
+  echo "n/a" > "${CHECKSTYLE_TXT}"
+  echo "n/a" > "${TEST_TXT}"
 
   mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
     || exit 0
-  curl -o "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
+  curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
+  echo "passed" > "${COMPILE_TXT}"
 
   # shellcheck disable=SC2155
   declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
@@ -59,7 +64,7 @@ evaluate() {
 EOD
 
   # run checkstyle and save warnings and errors into log
-  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
+  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}" 2>&1
   [[ ${PIPESTATUS[0]} != 0 ]] \
     && exit 1
 
@@ -81,10 +86,11 @@ EOD
   (( perc < 45 )) \
     && color='red'
 
-  curl -o "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
+  curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
+  echo "${perc}%" > "${CHECKSTYLE_TXT}"
 
   declare test_color='success'
-  mvn -f "${POM}" test > "${TEST_LOG}" 2>&1 \
+  mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \
     || test_color='critical'
   # shellcheck disable=SC2155
   declare -r summary=$(grep 'Tests run:' "${TEST_LOG}" | head -n1)
@@ -96,14 +102,18 @@ EOD
   declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
   declare -ri total=$((runs - skipped))
   declare -ri passed=$((total - failures))
-  curl -o "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
+  curl -so "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
+  echo "${summary}" > "${TEST_TXT}"
 }
 
 declare -r POM="${WORKING_DIR}/pom.xml"
-declare -r RESULTS=".results"
+declare -r RESULTS="${WORKING_DIR}/.results"
 declare -r COMPILE_LOG="${RESULTS}/compile.log"
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r TEST_LOG="${RESULTS}/test.log"
+declare -r COMPILE_TXT="${RESULTS}/compile.txt"
+declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
+declare -r TEST_TXT="${RESULTS}/test.txt"
 declare -r COMPILE_SVG="${RESULTS}/compile.svg"
 declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
 declare -r TEST_SVG="${RESULTS}/test.svg"
