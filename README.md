@@ -65,12 +65,13 @@
 
      # To run collect script
      CA_COLLECT: "true"
-     # To specify source files
-     CA_SOURCE: "branch"
-     #
-     CA_DEADLINE: "date"
-     #
-     CA_EDITABLE: "pattern"
+     # To specify source project branch, master by default (optional)
+     CA_SOURCE: "master"
+     # Checkout last commit pushed before deadline (optional)
+     # Date is in ISO 8601 format, e.g. 2021-03-03T07:31:36+00:00
+     CA_DEADLINE: "2021-02-15"
+     # Which user files and folders are evaluated, 'src/main/*.java' by default (optional)
+     CA_EDITABLE: "src/main/*.java"
 
      # To run measure script
      CA_MEASURE: "true"

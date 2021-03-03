@@ -21,15 +21,15 @@ create_results() {
   test_txt="${user_projects_folder}/${user_project_ns}/.results/test.txt"
   results=("${compile_txt}" "${checkstyle_txt}" "${test_txt}")
   for result in "${results[@]}"; do
-    basename "${result%.txt}"
-    cat "${result}"
+    printf -- '%s %s' "$(basename -z "${result%.txt}")" "$(< "${result}")"
   done
+  echo
+  git_reset_hard "${user_projects_folder}/${user_project_ns}"
 }
 collect() {
   acquire_token
   [[ -z "${OUTPUT}" ]] \
     && OUTPUT="$(mktemp -d)"
-  mkdir -p "${OUTPUT}"
   # shellcheck disable=SC2155
   declare -r user_projects_folder="${OUTPUT}"
   declare user_projects
@@ -66,7 +66,7 @@ collect() {
       && continue
     sync_files
     create_results
-done
+  done
 }
 
 declare DRY_RUN='false'
@@ -100,7 +100,14 @@ while (( $# > 0 )); do
         && exception "Invalid editable option, contains '..'"
       shift; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
-    -o|--output) OUTPUT="${2}"; shift; shift ;;
+    -o|--output)
+      OUTPUT="${2}";
+      [[ -d "${OUTPUT}" ]] \
+        || mkdir -p "${OUTPUT}" \
+        || exception "Unable to crete '${OUTPUT}' directory"
+      [[ -z "$(ls "${OUTPUT}/")" ]] \
+        || exception "Output directory 'ls' is not empty"
+      shift; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
     -s|--namespace)
       NAMESPACE="${NAMESPACE} ${2}";

@@ -89,6 +89,12 @@ git_fetch() {
   out="$(git -C "${git_dir}" fetch "${@}" 2>&1)" \
     || exception "${out}"
 }
+git_reset_hard() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" reset --hard 2>&1)" \
+    || exception "${out}"
+}
 git_remote_branches() {
   declare -r git_dir="${1:-.}"
   declare out
