@@ -58,7 +58,6 @@ collect:
     - declare namespace=''
     # process files distributed from current branch
     - namespace="${namespace}/${CI_COMMIT_REF_NAME}"
-    -
     # checkout to CA_SOURCE branch
     - |
         if [[ -z "${CA_SOURCE}" ]]; then
