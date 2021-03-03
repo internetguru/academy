@@ -79,8 +79,9 @@ collect:
     - |
         ${CA} collect ${deadline} ${editable} \
         --namespace "${user_namespace}" --prefix "${project_name}-" \
-        --output '.collect' | tee '.collect/summary.txt'
+        --output '.collect' | tee 'summary.txt'
     # output variables and summary
+    - mv 'summary.txt' '.collect/'
     - |
       echo '#######################'
       echo "CA_DEADLINE: '${CA_DEADLINE}'"
