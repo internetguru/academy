@@ -33,7 +33,7 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on
        From given NAMESPACE (below) add only projects with matching PREFIX (empty by default).
 
 `-s`, `--namespace NAMESPACE`
-       Add projects from given NAMESPACE. May contain multiple values separated by space. Process all branches in project's namespace if missing or empty.
+       Add projects from given NAMESPACE.
 
 ## EXIT STATUS
 
