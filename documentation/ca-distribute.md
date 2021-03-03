@@ -2,7 +2,7 @@
 
 ## NAME
 
-CA-Distribute - distribute assignment among users
+CA-Distribute - distribute an assignment among users
 
 ## SYNOPSIS
 
@@ -10,7 +10,7 @@ CA-Distribute - distribute assignment among users
 
 ## DESCRIPTION
 
-This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME for each USERNAME from stdin.
+This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME for each USERNAME from stdin. For existing projects creates merge requests if files in WORKING_DIR have changed.
 
 ## OPTIONS
 
@@ -20,11 +20,11 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 `-h`, `--help`
        Display usage.
 
-`-i`, `--process-issues ISSUES_LABEL`
-       Copy issues marked with `ISSUES_LABEL` label into destination repositories. `PROJECT_FOLDER` must be a GitLab project.
+`-i`, `--process-issues LABEL`
+       Copy issues marked with `LABEL` into destination repositories. Note: `WORKING_DIR` must be a GitLab project.
 
 `-l`, `--update-links`
-       Replace all occurrences of the assignment project's remote URL and its current branch with destination repository remote URL and its main branch in `README.md`. `PROJECT_FOLDER` must be a GitLab project.
+       Replace all occurrences of the assignment project's remote URL and its current branch with destination repository remote URL and its main branch in `README.md`. Note: `WORKING_DIR` must be a GitLab project.
 
 `-n`, `--dry-run`
        Only process options and stdin validation. Would not proceed with create or update user repositories.
@@ -63,7 +63,7 @@ The following example does the same job dynamically. Assuming you are in a `lab0
 echo "solver1 solver2 solver3" | ca distribute -l -p "$(basename $PWD)-" -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
 ```
 
-Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all solvers. Different branch would create a separate namespace and different (lab) folder would distribute the assignment into appropriate lab repositories.
+Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all solvers. Different branch would create a separate namespace and different folder (lab) would distribute the assignment into appropriate lab repositories.
 
 ## BUGS
 

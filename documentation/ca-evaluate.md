@@ -1,4 +1,4 @@
-# CA EVALUATE 1 2021-02-14 GNU "User Manuals"
+# CA-EVALUATE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
@@ -10,7 +10,7 @@ CA-Evaluate - evaluate project and create status badges
 
 ## DESCRIPTION
 
-Evaluates current project on compilation, coding style and automatic tests. Generates colored summary badges and logs to be displayed and linked from project's README files.
+Evaluates current project on compilation, coding style and automatic tests. Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
 
 ## OPTIONS
 
