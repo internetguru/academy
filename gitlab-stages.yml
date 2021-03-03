@@ -85,6 +85,7 @@ collect:
       echo '#######################'
       echo "CA_DEADLINE: '${CA_DEADLINE}'"
       echo "CA_EDITABLE: '${CA_EDITABLE}'"
+      echo "CA_SOURCE: '${CA_SOURCE}'"
       echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
       echo '#######################'
   only:
