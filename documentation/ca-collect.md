@@ -6,11 +6,11 @@ CA-Collect - evaluate repositories against source tests
 
 ## SYNOPSIS
 
-`ca collect` [`-hidneps`]
+`ca collect` [`-hdenops`]
 
 ## DESCRIPTION
 
-Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on WORKING_DIR replacing only EDITABLE files from individual repositories.
+Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on source project replacing only editable files from individual repositories.
 
 ## OPTIONS
 
@@ -18,16 +18,16 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on
        Display usage.
 
 `-d`, `--deadline DATE`
-       TODO
+       Checkout each repository to the latest commit _pushed_ before DATE. DATE must be in ISO 8601 format, e.g. `2021-03-05` or `2021-03-05T00:41:21+00:00`. Uses latest existing commits by default.
 
-`-e`, `--editable PATTERN`
-       TODO
+`-e`, `--editable FILE...`
+       In the source project, replace specific FILE(s) from each repository preserving other files that are not supposed to be edited. Default value is `src/main/*.java`.
 
 `-n`, `--dry-run`
        Only process option validation. Would not proceed with cloning repositories and evaluation.
 
 `-o`, `--output DIR`
-       TODO
+       Store collected repositories and results in DIR. Uses `mktemp` by default.
 
 `-p`, `--prefix PREFIX`
        From given NAMESPACE (below) add only projects with matching PREFIX (empty by default).
@@ -49,7 +49,7 @@ n/a
 
 ## BUGS
 
-TODO
+n/a
 
 ## AUTHOR
 
