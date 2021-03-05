@@ -7,14 +7,14 @@ evaluate() {
   curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
   curl -so "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
 
-  printf -- "%s\n" "failed" > "${COMPILE_TXT}"
-  printf -- "%s\n" "n/a" > "${CHECKSTYLE_TXT}"
-  printf -- "%s\n" "n/a" > "${TEST_TXT}"
+  printf -- "%s" "failed" > "${COMPILE_TXT}"
+  printf -- "%s" "n/a" > "${CHECKSTYLE_TXT}"
+  printf -- "%s" "n/a" > "${TEST_TXT}"
 
   mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
     || exit 0
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
-  printf -- "%s\n" "passed" > "${COMPILE_TXT}"
+  printf -- "%s" "passed" > "${COMPILE_TXT}"
 
   # shellcheck disable=SC2155
   declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
@@ -87,7 +87,7 @@ EOD
     && color='red'
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
-  printf -- "%s\n" "${perc}%" > "${CHECKSTYLE_TXT}"
+  printf -- "%s" "${perc}%" > "${CHECKSTYLE_TXT}"
 
   declare test_color='success'
   mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \
@@ -103,7 +103,7 @@ EOD
   declare -ri total=$((runs - skipped))
   declare -ri passed=$((total - failures))
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
-  printf -- "%s\n" "${summary}" > "${TEST_TXT}"
+  printf -- "%s" "${summary}" > "${TEST_TXT}"
 }
 
 declare -r POM="${WORKING_DIR}/pom.xml"

@@ -21,7 +21,7 @@ create_results() {
   test_txt="${user_projects_folder}/${user_project_ns}/.results/test.txt"
   results=("${compile_txt}" "${checkstyle_txt}" "${test_txt}")
   for result in "${results[@]}"; do
-    printf -- '%s %s\n' "$(basename -z "${result%.txt}")" "$(< "${result}")"
+    printf -- '%s%s\n' "$(basename "${result%.txt}" | tr $'\n' ' ')" "$(< "${result}")"
   done
   echo
   git_reset_hard "${user_projects_folder}/${user_project_ns}"
