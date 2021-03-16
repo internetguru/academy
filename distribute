@@ -158,6 +158,9 @@ distribute() {
   check_command git jq
   acquire_token
   read_project_info
+  [[ -d "${WORKING_DIR}/.git" ]] \
+    && ! git_status_empty "${WORKING_DIR}" \
+    && exception 'Git status is not empty'
   process_users
 }
 

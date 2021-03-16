@@ -57,9 +57,18 @@ end
 #######################################
 : $((i++))
 start "missing working dir"
-  debug "echo 'user1' | $ams -w '/foo' -s '$correct_ns'"
+  debug "echo 'user1' | $ams -w '/foo' distribute -s '$correct_ns'"
   assert_equal "$status" 1
   assert_startwith "${errlines[0]}" "WORKING_DIR not found in main() [ #1 ]"
+end
+: $((i++))
+start "status not empty"
+  tmpdir=$(mktemp -d)
+  git -C "$tmpdir" init -q
+  echo a > "$tmpdir/a"
+  debug "echo 'user1' | $ams -w '$tmpdir' distribute -s '$correct_ns'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[1]}" "Git status is not empty in distribute() [ #1 ]"
 end
 #######################################
 ## Requirements
