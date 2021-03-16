@@ -7,18 +7,17 @@
   # set git user
   git config --global user.email "${GITLAB_USER_EMAIL}"
   git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
-  export CA_DIR="$(mktemp -d)"
-  # install cad
+  export AMS_DIR="$(mktemp -d)"
   revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
-  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ca ${CA_DIR}
+  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/ams ${AMS_DIR}
   # e.g. /umiami/george/csc220
   declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
   declare -r project_name="$(basename "${PWD}")"
   # simplify project remote url
   git remote set-url --push origin "${namespace}/${project_name}.git"
   # set permissions
-  CA=${CA_DIR}/ca
-  chmod +x ${CA_DIR}/*
+  AMS=${AMS_DIR}/ams
+  chmod +x ${AMS_DIR}/*
 
 .before_script_token: &validate_token |
   # prepare acccess token for the distribution script
@@ -57,41 +56,41 @@ collect:
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # process files distributed from current branch
     - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
-    # checkout to CA_SOURCE branch
+    # checkout to AMS_SOURCE branch
     - |
-        if [[ -z "${CA_SOURCE}" ]]; then
-          CA_SOURCE='master'
+        if [[ -z "${AMS_SOURCE}" ]]; then
+          AMS_SOURCE='master'
         fi
         git fetch --all
-        git checkout "${CA_SOURCE}"
+        git checkout "${AMS_SOURCE}"
     # prepare deadline and editable options
     - declare deadline=''
     - declare editable=''
     - |
-        if [[ -n "${CA_DEADLINE}" ]]; then
-          deadline="--deadline '${CA_DEADLINE}'"
+        if [[ -n "${AMS_DEADLINE}" ]]; then
+          deadline="--deadline '${AMS_DEADLINE}'"
         fi
-        if [[ -n "${CA_EDITABLE}" ]]; then
-          editable="--editable '${CA_EDITABLE}'"
+        if [[ -n "${AMS_EDITABLE}" ]]; then
+          editable="--editable '${AMS_EDITABLE}'"
         fi
     # run collect for given or all branches
     - mkdir -p '.collect'
     - |
-        ${CA} collect ${deadline} ${editable} \
+        ${AMS} collect ${deadline} ${editable} \
         --namespace "${user_namespace}" --prefix "${project_name}-" \
         --output '.collect' | tee 'summary.txt'
     # output variables and summary
     - mv 'summary.txt' '.collect/'
     - |
       echo '#######################'
-      echo "CA_DEADLINE: '${CA_DEADLINE}'"
-      echo "CA_EDITABLE: '${CA_EDITABLE}'"
-      echo "CA_SOURCE: '${CA_SOURCE}'"
+      echo "AMS_DEADLINE: '${AMS_DEADLINE}'"
+      echo "AMS_EDITABLE: '${AMS_EDITABLE}'"
+      echo "AMS_SOURCE: '${AMS_SOURCE}'"
       echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
       echo '#######################'
   only:
     variables:
-      - $CA_COLLECT
+      - $AMS_COLLECT
   when: manual
   artifacts:
     paths:
@@ -107,10 +106,10 @@ evaluate:
     paths:
       - target/
   script:
-    - ${CA} evaluate
+    - ${AMS} evaluate
   only:
     variables:
-      - $CA_EVALUATE
+      - $AMS_EVALUATE
   artifacts:
     paths:
       - .results/
@@ -129,16 +128,16 @@ distribute:
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
-    - mv "CA_USERS" .. 2>/dev/null
+    - mv "AMS_USERS" .. 2>/dev/null
     # distribute current project among all users
     - |
-        ${CA} distribute --update-links --namespace "${namespace}/${branch}" \
-        --process-issues "${CA_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+        ${AMS} distribute --update-links --namespace "${namespace}/${branch}" \
+        --process-issues "${AMS_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${project_name}-" \
-        <<< "$({ echo "${CA_USERS}"; cat '../CA_USERS' 2>/dev/null; } | tr ',' ' ')"
+        <<< "$({ echo "${AMS_USERS}"; cat '../AMS_USERS' 2>/dev/null; } | tr ',' ' ')"
   only:
     variables:
-      - $CA_DISTRIBUTE
+      - $AMS_DISTRIBUTE
   when: manual
 
 measure:
@@ -154,17 +153,17 @@ measure:
     - declare ignore=''
     # prefix branches by namespace/
     - |
-        if [[ -n "${CA_BRANCHES}" ]]; then
-          namespaces="$(sed "s~^~${namespace}/~" <<< "$CA_BRANCHES")"
+        if [[ -n "${AMS_BRANCHES}" ]]; then
+          namespaces="$(sed "s~^~${namespace}/~" <<< "$AMS_BRANCHES")"
         else
           ignore='--ignore'
         fi
     # download moss script
-    - curl -o moss "${CA_MOSSURL}"
+    - curl -o moss "${AMS_MOSSURL}"
     - chmod +x moss
     # run measure for given or all branches
-    - ${CA} measure "${ignore}" --namespace "${namespaces}" --prefix "${project_name}-"
+    - ${AMS} measure "${ignore}" --namespace "${namespaces}" --prefix "${project_name}-"
   only:
     variables:
-      - $CA_MEASURE
+      - $AMS_MEASURE
   when: manual

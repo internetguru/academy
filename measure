@@ -44,11 +44,11 @@ measure() {
   # allow **/*
   shopt -s globstar
   # send projects into moss
-  ./moss -l "${CAM_LANG}" -d "${user_projects_folder}"/**/src/main/**/*."${CAM_LANG}" \
-    "${WORKING_DIR}"/src/main/**/*."${CAM_LANG}"
+  ./moss -l "${AMS_LANG}" -d "${user_projects_folder}"/**/src/main/**/*."${AMS_LANG}" \
+    "${WORKING_DIR}"/src/main/**/*."${AMS_LANG}"
 }
 
-declare -r CAM_LANG='java'
+declare -r AMS_LANG='java'
 declare IGNORE='false'
 declare DRY_RUN='false'
 declare PREFIX=''

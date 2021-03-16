@@ -2,7 +2,7 @@
 
 i=0
 status=
-ca=${CA_BIN:-ca}
+ams=${AMS_BIN:-ams}
 tmp_project=$(mktemp -d)
 
 #######################################
@@ -12,52 +12,52 @@ correct_ns="umiami/tests"
 #######################################
 : $((i++))
 start "help"
-  debug "$ca distribute --help"
+  debug "$ams distribute --help"
   assert_equal "$status" 0
-  assert_startwith "${outlines[0]}" "usage: ca distribute [-ahilnps]"
+  assert_startwith "${outlines[0]}" "usage: ams distribute [-ahilnps]"
 end
 #######################################
 : $((i++))
 start "invalid remote namespace dirname"
-  debug "echo 'user1' | $ca distribute -s '1/correct'"
+  debug "echo 'user1' | $ams distribute -s '1/correct'"
   assert_equal "$status" 2
   assert_startwith "${errlines[0]}" "Unsupported REMOTE_NAMESPACE dirname [ #2 ]"
 end
 #######################################
 : $((i++))
 start "invalid prefix"
-  debug "echo 'user1' | $ca distribute -p '1'"
+  debug "echo 'user1' | $ams distribute -p '1'"
   assert_equal "$status" 2
   assert_startwith "${errlines[0]}" "Unsupported PREFIX value [ #2 ]"
 end
 #######################################
 : $((i++))
 start "missing root namespace"
-  debug "echo 'user1' | $ca -w '$tmp_project' distribute -s 'xyz123xyz/abc'"
+  debug "echo 'user1' | $ams -w '$tmp_project' distribute -s 'xyz123xyz/abc'"
   assert_equal "$status" 1
   assert_startwith "${errlines[1]}" "xyz123xyz/abc/user1 ... Root group xyz123xyz does not exist in create_ns()"
 end
 # : $((i++))
 # skip "missing users: not working on gh actions"
-  # debug "$ca '$correct_ns'"
+  # debug "$ams '$correct_ns'"
   # assert_equal "$status" 2
   # assert_startwith "${errlines[0]}" "EXCEPTION: Missing stdin"
 # end
 #######################################
 : $((i++))
 start "invalid users"
-  debug "echo '-a' | $ca -w '$tmp_project' distribute -s '$correct_ns'"
+  debug "echo '-a' | $ams -w '$tmp_project' distribute -s '$correct_ns'"
   assert_equal "$status" 3
   assert_startwith "${errlines[2]}" "Invalid username occurred 1 time(s) [ #3 ]"
   debug "echo '-a
-  .b' | $ca -w '$tmp_project' distribute -s '$correct_ns'"
+  .b' | $ams -w '$tmp_project' distribute -s '$correct_ns'"
   assert_equal "$status" 3
   assert_startwith "${errlines[3]}" "Invalid username occurred 2 time(s) [ #3 ]"
 end
 #######################################
 : $((i++))
 start "missing working dir"
-  debug "echo 'user1' | $ca -w '/foo' -s '$correct_ns'"
+  debug "echo 'user1' | $ams -w '/foo' -s '$correct_ns'"
   assert_equal "$status" 1
   assert_startwith "${errlines[0]}" "WORKING_DIR not found in main() [ #1 ]"
 end

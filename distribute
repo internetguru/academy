@@ -162,7 +162,7 @@ distribute() {
 }
 
 # global constants
-declare -r CACHE_FOLDER="${HOME}/.ca_distribute_cache"
+declare -r CACHE_FOLDER="${HOME}/.ams_distribute_cache"
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'
 declare -r ALWAYS='always'

@@ -1,12 +1,12 @@
-# CA-MEASURE 1 2021-02-14 GNU "User Manuals"
+# AMS-MEASURE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-CA-Measure - measure software similarities using Moss script
+AMS-Measure - measure software similarities using Moss script
 
 ## SYNOPSIS
 
-`ca measure` [`-hinps`]
+`ams measure` [`-hinps`]
 
 ## DESCRIPTION
 
@@ -51,7 +51,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca`(1), `ca-collect`(1), `ca-distribute`(1), `ca-evaluate`(1)
+`ams`(1), `ams-collect`(1), `ams-distribute`(1), `ams-evaluate`(1)
 
 [Moss](https://theory.stanford.edu/~aiken/moss/)
 

@@ -1,12 +1,12 @@
-# CA-DISTRIBUTE 1 2021-02-14 GNU "User Manuals"
+# AMS-DISTRIBUTE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-CA-Distribute - distribute an assignment among users
+AMS-Distribute - distribute an assignment among users
 
 ## SYNOPSIS
 
-`ca distribute` [`-ahilnps`]
+`ams distribute` [`-ahilnps`]
 
 ## DESCRIPTION
 
@@ -46,7 +46,7 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 ## EXAMPLES
 
 ```
-echo "solver1 solver2 solver3" | ca distribute -l -p "lab01-" -s "umiami/george/csc220/spring21"
+echo "solver1 solver2 solver3" | ams distribute -l -p "lab01-" -s "umiami/george/csc220/spring21"
 ```
 
 Given example distributes current directory into the following locations. The `-l` option updates links in README files.
@@ -60,7 +60,7 @@ umiami/george/csc220/spring21/lab01-solver3
 The following example does the same job dynamically. Assuming you are in a `lab01` folder on branch `spring21`.
 
 ```
-echo "solver1 solver2 solver3" | ca distribute -l -p "$(basename $PWD)-" -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
+echo "solver1 solver2 solver3" | ams distribute -l -p "$(basename $PWD)-" -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
 ```
 
 Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all solvers. Different branch would create a separate namespace and different folder (lab) would distribute the assignment into appropriate lab repositories.
@@ -75,4 +75,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca`(1), `ca-collect`(1), `ca-evaluate`(1), `ca-measure`(1)
+`ams`(1), `ams-collect`(1), `ams-evaluate`(1), `ams-measure`(1)

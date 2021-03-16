@@ -1,12 +1,12 @@
-# CA-EVALUATE 1 2021-02-14 GNU "User Manuals"
+# AMS-EVALUATE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-CA-Evaluate - evaluate project and create status badges
+AMS-Evaluate - evaluate project and create status badges
 
 ## SYNOPSIS
 
-`ca evaluate`
+`ams evaluate`
 
 ## DESCRIPTION
 
@@ -34,7 +34,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca`(1), `ca-collect`(1), `ca-distribute`(1), `ca-measure`(1)
+`ams`(1), `ams-collect`(1), `ams-distribute`(1), `ams-measure`(1)
 
 
 [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)

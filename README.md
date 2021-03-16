@@ -1,8 +1,8 @@
 
-[![tests badge at master](https://github.com/InternetGuru/ca/workflows/tests/badge.svg?branch=master)](https://github.com/InternetGuru/ca/actions?query=branch%3Amaster)
-[![tests badge at dev](https://github.com/InternetGuru/ca/workflows/tests/badge.svg?branch=dev)](https://github.com/InternetGuru/ca/actions?query=branch%3Adev)
+[![tests badge at master](https://github.com/InternetGuru/ams/workflows/tests/badge.svg?branch=master)](https://github.com/InternetGuru/ams/actions?query=branch%3Amaster)
+[![tests badge at dev](https://github.com/InternetGuru/ams/workflows/tests/badge.svg?branch=dev)](https://github.com/InternetGuru/ams/actions?query=branch%3Adev)
 
-# Coding Assignment | CA
+# Assignment Management System | AMS
 
 > This script provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
 
@@ -17,16 +17,16 @@
 - To install locally, simply clone this project and set an alias.
 
    ```sh
-   git clone https://github.com/InternetGuru/ca.git
-   echo alias ca=\"$PWD/ca/ca\" >> ~/.bashrc
+   git clone https://github.com/InternetGuru/ams.git
+   echo alias ams=\"$PWD/ams/ams\" >> ~/.bashrc
    source ~/.bashrc
    ```
 
 - For global installation, clone this project into shared folder and create a symbolic link.
 
    ```sh
-   sudo git clone https://github.com/InternetGuru/ca.git /usr/local/src
-   sudo ln -s "/usr/local/src/ca/ca" /usr/local/share/ca
+   sudo git clone https://github.com/InternetGuru/ams.git /usr/local/src
+   sudo ln -s "/usr/local/src/ams/ams" /usr/local/share/ams
    ```
 
 - To install `man` documentation, run the following script. (optional)
@@ -49,41 +49,41 @@
    ```yaml
    include:
      # Mandatory include with variable branch name, e.g. "dev"
-     - 'https://raw.githubusercontent.com/InternetGuru/ca/dev/gitlab-stages.yml'
+     - 'https://raw.githubusercontent.com/InternetGuru/ams/dev/gitlab-stages.yml'
 
    variables:
      # To run distribute script
-     CA_DISTRIBUTE: "true"
+     AMS_DISTRIBUTE: "true"
      # Distribute issues only with "assignment" label
      # Default value is current branch, e.g. "spring21"
-     CA_ISSUES: "assignment"
+     AMS_ISSUES: "assignment"
      # List of users to distribute to separated by spaces or commas
-     # Note: you may also use CA_USERS file (won't be distributed)
-     CA_USERS: "solver1 solver2 solver3"
+     # Note: you may also use AMS_USERS file (won't be distributed)
+     AMS_USERS: "solver1 solver2 solver3"
 
      # To run evaluate script
-     CA_EVALUATE: "true"
+     AMS_EVALUATE: "true"
 
      # To run collect script
-     CA_COLLECT: "true"
+     AMS_COLLECT: "true"
      # To specify source project branch, master by default (optional)
-     CA_SOURCE: "master"
+     AMS_SOURCE: "master"
      # Checkout last commit pushed before deadline (optional)
      # Date is in ISO 8601 format, e.g. 2021-03-03T07:31:36+00:00
-     CA_DEADLINE: "2021-02-15"
+     AMS_DEADLINE: "2021-02-15"
      # Which user files and folders are evaluated, 'src/main/*.java' by default (optional)
-     CA_EDITABLE: "src/main/*.java"
+     AMS_EDITABLE: "src/main/*.java"
 
      # To run measure script
-     CA_MEASURE: "true"
+     AMS_MEASURE: "true"
      # Link to public moss script
-     CA_MOSSURL: "https://moss_url"
+     AMS_MOSSURL: "https://moss_url"
      # Which branches to measure (optional)
      # Measure all branches when this variable is missing
-     CA_BRANCHES: "branch1 branch2 branch3"
+     AMS_BRANCHES: "branch1 branch2 branch3"
    ```
 
-1. To run the CA script on demand, [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is triggered automatically after each commit.
+1. To run the ams script on demand, [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is triggered automatically after each commit.
 
 1. Display badges in `README.md` file with links to appropriate log files (evaluate process):
 

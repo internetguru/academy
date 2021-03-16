@@ -1,12 +1,12 @@
-# CA 1 2021-02-16 GNU "User Manuals"
+# AMS 1 2021-02-16 GNU "User Manuals"
 
 ## NAME
 
-CA - coding assignment handling
+AMS - coding assignment handling
 
 ## SYNOPSIS
 
-`ca` [`-w`] `<command>` [`<args>`]
+`ams` [`-w`] `<command>` [`<args>`]
 
 ## DESCRIPTION
 
@@ -19,7 +19,7 @@ Provides commands to _distribute_ coding assignments to solvers, _evaluate_ indi
 
 ## COMMANDS
 
-These are common ca commands used in various situations:
+These are common ams commands used in various situations:
 
 collect
        Download repositories and evaluate against source tests.
@@ -54,4 +54,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca-collect`(1), `ca-distribute`(1), `ca-evaluate`(1), `ca-measure`(1)
+`ams-collect`(1), `ams-distribute`(1), `ams-evaluate`(1), `ams-measure`(1)

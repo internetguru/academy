@@ -1,12 +1,12 @@
-# CA-COLLECT 1 2021-03-01 GNU "User Manuals"
+# AMS-COLLECT 1 2021-03-01 GNU "User Manuals"
 
 ## NAME
 
-CA-Collect - evaluate repositories against source tests
+AMS-Collect - evaluate repositories against source tests
 
 ## SYNOPSIS
 
-`ca collect` [`-hdenops`]
+`ams collect` [`-hdenops`]
 
 ## DESCRIPTION
 
@@ -57,4 +57,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ca`(1), `ca-distribute`(1), `ca-evaluate`(1), `ca-measure`(1)
+`ams`(1), `ams-distribute`(1), `ams-evaluate`(1), `ams-measure`(1)
