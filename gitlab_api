@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -x
-
-
 # shellcheck disable=SC2034
 declare -r GITLAB_URL='gitlab.com'
 declare -r TOKEN_FILE="${HOME}/.gitlab_access_token"
