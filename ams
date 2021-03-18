@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -o pipefail
-set -x
 
 declare -r SCRIPT='ams'
 # shellcheck disable=SC2155
