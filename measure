@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -x
+
 get_namespaces() {
   # shellcheck disable=SC2153
   [[ -n "${NAMESPACE// /}" ]] \
@@ -26,12 +29,10 @@ measure() {
   declare group_id
   # shellcheck disable=SC2034
   for group_id in $(get_groups); do
-    echo "$group_id"
     user_projects="$(get_group_projects)" \
       || exit 1
     # clone all user_projects from ns
     for user_project in ${user_projects}; do
-      echo "$user_project"
       user_project_ns="$(jq -r '.name_with_namespace' <<< "${user_project}")"
       [[ "$(basename "${user_project_ns}")" != "${PREFIX}"* ]] \
         && continue
