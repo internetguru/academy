@@ -140,4 +140,6 @@ acquire_token() {
   # shellcheck disable=SC2034
   ACCESS_TOKEN="$(cat "${TOKEN_FILE}")" \
     || exit 1
+  # test ACCESS_TOKEN
+  gitlab_api "api/v4/projects" >/dev/null
 }
