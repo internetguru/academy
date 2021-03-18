@@ -83,7 +83,7 @@
      AMS_BRANCHES: "branch1 branch2 branch3"
    ```
 
-1. To run the ams script on demand, [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on chosen branch. Note: evaluate process is triggered automatically after each commit.
+1. The `ams evaluate` command runs automatically after each push. To execute other commands (`ams collect`, `ams distribute`, `ams measure`), [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on a chosen branch.
 
 1. Display badges in `README.md` file with links to appropriate log files (evaluate process):
 
