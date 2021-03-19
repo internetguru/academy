@@ -21,8 +21,10 @@ get_groups() {
 }
 measure() {
   acquire_token
+  # create output directory if not
+  [[ -z "${OUTPUT_DIR}" ]] \
+    && OUTPUT_DIR="$(mktemp -d)"
   # shellcheck disable=SC2155
-  declare -r user_projects_folder="$(mktemp -d)"
   declare user_projects
   declare group_id
   # shellcheck disable=SC2034
@@ -36,16 +38,20 @@ measure() {
         && continue
       [[ "${DRY_RUN}" == 'true' ]] \
         && continue
-      mkdir -p "${user_projects_folder}/${user_project_ns}"
-      git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
+      mkdir -p "${OUTPUT_DIR}/${user_project_ns}"
+      git_clone "$(get_remote_url "${user_project_ns}")" "${OUTPUT_DIR}/${user_project_ns}"
     done
   done
   [[ "${DRY_RUN}" == 'true' ]] \
     && return
   # allow **/*
   shopt -s globstar
+  declare -a basefiles
+  for file in "${WORKING_DIR}"/src/main/**/*."${AMS_LANG}"; do
+    basefiles+=(-b "${file}")
+  done
   # send projects into moss
-  ./moss -l "${AMS_LANG}" -d "${user_projects_folder}"/**/src/main/**/*."${AMS_LANG}" \
+  ./moss -l "${AMS_LANG}" "${basefiles[@]}" -d "${OUTPUT_DIR}"/**/src/main/**/*."${AMS_LANG}" \
     "${WORKING_DIR}"/src/main/**/*."${AMS_LANG}"
 }
 
@@ -54,11 +60,12 @@ declare IGNORE='false'
 declare DRY_RUN='false'
 declare PREFIX=''
 declare NAMESPACE=''
+declare OUTPUT_DIR=''
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'hinp:s:' \
-  --longoptions 'ignore,dry-run,help,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'hinp:s:o:' \
+  --longoptions 'ignore,dry-run,help,prefix:,namespace:,output-dir:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -72,6 +79,14 @@ while (( $# > 0 )); do
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
     -s|--namespace) NAMESPACE="${NAMESPACE} ${2}"; shift; shift ;;
+    -o|--output-dir)
+      OUTPUT_DIR="${2}";
+      [[ -d "${OUTPUT_DIR}" ]] \
+        || mkdir -p "${OUTPUT_DIR}" \
+        || exception "Unable to crete '${OUTPUT_DIR}' directory"
+      [[ -z "$(ls "${OUTPUT_DIR}/")" ]] \
+        || exception "Output directory 'ls' is not empty"
+      shift; shift ;;
     --) shift; break ;;
      *) break ;;
   esac
