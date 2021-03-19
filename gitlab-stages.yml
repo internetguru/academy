@@ -29,7 +29,7 @@
 
 .before_script_apt_cache: &apt_cache |
   rm -f /etc/apt/apt.conf.d/docker-clean
-  mkdir .apt && mkdir /var/cache/apt/archives && mount --bind .apt /var/cache/apt/archives/
+  mkdir /tmp/.apt && mkdir /var/cache/apt/archives && mount --bind /tmp/.apt /var/cache/apt/archives/
 
 .before_script_apt: &apt_requirements |
   # install requirements
@@ -40,7 +40,7 @@
 
 cache:
   paths:
-    - .apt
+    - /tmp/.apt
 
 collect:
   image: debian:stretch
