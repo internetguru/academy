@@ -151,15 +151,8 @@ measure:
   script:
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
-    - declare namespaces=''
-    - declare ignore=''
-    # prefix branches by namespace/
-    - |
-        if [[ -n "${AMS_BRANCHES}" ]]; then
-          namespaces="$(sed "s~^~${namespace}/~" <<< "$AMS_BRANCHES")"
-        else
-          ignore='--ignore'
-        fi
+    # process files distributed from current branch
+    - declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # download moss script
     - curl -o moss "${AMS_MOSSURL}"
     - chmod +x moss
@@ -175,7 +168,7 @@ measure:
         git --work-tree="${measure_output}" checkout -f "origin/${AMS_SOURCE}" -- .
     # option --output .measure
     # run measure for given or all branches
-    - ${AMS} measure "${ignore}" --output-dir "${measure_output}" --namespace "${namespaces}" --prefix "${project_name}-"
+    - ${AMS} measure --output-dir "${measure_output}" --namespace "${user_namespace}" --prefix "${project_name}-"
   only:
     variables:
       - $AMS_MEASURE
