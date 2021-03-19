@@ -84,8 +84,6 @@ while (( $# > 0 )); do
       [[ -d "${OUTPUT_DIR}" ]] \
         || mkdir -p "${OUTPUT_DIR}" \
         || exception "Unable to crete '${OUTPUT_DIR}' directory"
-      [[ -z "$(ls "${OUTPUT_DIR}/")" ]] \
-        || exception "Output directory 'ls' is not empty"
       shift; shift ;;
     --) shift; break ;;
      *) break ;;
