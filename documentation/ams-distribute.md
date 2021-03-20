@@ -46,18 +46,18 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 ## EXAMPLES
 
 ```
-echo "solver1 solver2 solver3" | ams distribute -l -p "lab01-" -s "umiami/george/csc220/spring21"
+echo "solver1 solver2 solver3" | ams distribute -l -p "lab01-" -s "umiami/george/csc220/fall20"
 ```
 
 Given example distributes current directory into the following locations. The `-l` option updates links in README files.
 
 ```
-umiami/george/csc220/spring21/lab01-solver1
-umiami/george/csc220/spring21/lab01-solver2
-umiami/george/csc220/spring21/lab01-solver3
+umiami/george/csc220/fall20/lab01-solver1
+umiami/george/csc220/fall20/lab01-solver2
+umiami/george/csc220/fall20/lab01-solver3
 ```
 
-The following example does the same job dynamically. Assuming you are in a `lab01` folder on branch `spring21`.
+The following example does the same job dynamically. Assuming you are in a `lab01` folder on branch `fall20`.
 
 ```
 echo "solver1 solver2 solver3" | ams distribute -l -p "$(basename $PWD)-" -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
