@@ -76,11 +76,10 @@
 
      # To run measure script
      AMS_MEASURE: "true"
+     # To specify project branch with solution, master by default (optional)
+     AMS_SOURCE: "master"
      # Link to public moss script
      AMS_MOSSURL: "https://moss_url"
-     # Which branches to measure (optional)
-     # Measure all branches when this variable is missing
-     AMS_BRANCHES: "branch1 branch2 branch3"
    ```
 
 1. The `ams evaluate` command runs automatically after each push. To execute other commands (`ams collect`, `ams distribute`, `ams measure`), [trigger CI pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually) on a chosen branch.

@@ -29,6 +29,9 @@ Downloads all repositories from a NAMESPACE matching given PREFIX and measures s
 `-s`, `--namespace NAMESPACE`
        Add projects from given NAMESPACE. May contain multiple values separated by space. Process all branches in project's namespace if missing or empty.
 
+`-o`, `--output-dir DIR`
+       Store measured repositories in DIR. Uses `mktemp` by default.
+
 ## EXIT STATUS
 
 1      Other error.
