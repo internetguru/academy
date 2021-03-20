@@ -78,7 +78,7 @@ collect:
     - |
         ${AMS} collect ${deadline} ${editable} \
         --namespace "${user_namespace}" --prefix "${project_name}-" \
-        --output '.collect' | tee 'summary.txt'
+        --output-dir '.collect' | tee 'summary.txt'
     # output variables and summary
     - mv 'summary.txt' '.collect/'
     - |
@@ -166,7 +166,6 @@ measure:
         fi
         git fetch --all
         git --work-tree="${measure_output}" checkout -f "origin/${AMS_SOURCE}" -- .
-    # option --output .measure
     # run measure for given or all branches
     - ${AMS} measure --output-dir "${measure_output}" --namespace "${user_namespace}" --prefix "${project_name}-"
   only:

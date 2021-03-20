@@ -29,10 +29,10 @@ create_results() {
 }
 collect() {
   acquire_token
-  [[ -z "${OUTPUT}" ]] \
-    && OUTPUT="$(mktemp -d)"
+  [[ -z "${OUTPUT_DIR}" ]] \
+    && OUTPUT_DIR="$(mktemp -d)"
   # shellcheck disable=SC2155
-  declare -r user_projects_folder="${OUTPUT}"
+  declare -r user_projects_folder="${OUTPUT_DIR}"
   declare user_projects
   declare group_id
   declare user_project_ns
@@ -75,12 +75,12 @@ declare PREFIX=''
 declare NAMESPACE=''
 declare EDITABLE='src/main/*.java'
 declare DEADLINE=''
-declare OUTPUT=''
+declare OUTPUT_DIR=''
 
 # get options
 declare OPT
 OPT="$(getopt --name "${0}" --options 'hd:e:no:p:s:' \
-  --longoptions 'help,deadline:,editable:,dry-run,output:,prefix:,namespace:' \
+  --longoptions 'help,deadline:,editable:,dry-run,output-dir:,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -101,12 +101,12 @@ while (( $# > 0 )); do
         && exception "Invalid editable option, contains '..'"
       shift; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
-    -o|--output)
-      OUTPUT="${2}";
-      [[ -d "${OUTPUT}" ]] \
-        || mkdir -p "${OUTPUT}" \
-        || exception "Unable to crete '${OUTPUT}' directory"
-      [[ -z "$(ls "${OUTPUT}/")" ]] \
+    -o|--output-dir)
+      OUTPUT_DIR="${2}";
+      [[ -d "${OUTPUT_DIR}" ]] \
+        || mkdir -p "${OUTPUT_DIR}" \
+        || exception "Unable to crete '${OUTPUT_DIR}' directory"
+      [[ -z "$(ls "${OUTPUT_DIR}/")" ]] \
         || exception "Output directory 'ls' is not empty"
       shift; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;

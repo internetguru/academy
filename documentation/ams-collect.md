@@ -26,7 +26,7 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on
 `-n`, `--dry-run`
        Only process option validation. Would not proceed with cloning repositories and evaluation.
 
-`-o`, `--output DIR`
+`-o`, `--output-dir DIR`
        Store collected repositories and results in DIR. Uses `mktemp` by default.
 
 `-p`, `--prefix PREFIX`
