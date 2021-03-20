@@ -20,6 +20,7 @@ create_results() {
   checkstyle_txt="${user_projects_folder}/${user_project_ns}/.results/checkstyle.txt"
   test_txt="${user_projects_folder}/${user_project_ns}/.results/test.txt"
   results=("${compile_txt}" "${checkstyle_txt}" "${test_txt}")
+  declare result_name
   for result in "${results[@]}"; do
     result_name="${result##*/}"
     printf -- '%s %s\n' "${result_name%.txt}" "$(< "${result}")"
