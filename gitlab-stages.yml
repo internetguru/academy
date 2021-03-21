@@ -56,13 +56,13 @@ collect:
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # process files distributed from current branch
     - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
-    # checkout to AMS_SOURCE branch
+    # checkout to AMS_SOLUTION branch
     - |
-        if [[ -z "${AMS_SOURCE}" ]]; then
-          AMS_SOURCE='master'
+        if [[ -z "${AMS_SOLUTION}" ]]; then
+          AMS_SOLUTION='master'
         fi
         git fetch --all
-        git checkout "${AMS_SOURCE}"
+        git checkout "${AMS_SOLUTION}"
     # prepare deadline and editable options
     - declare deadline=''
     - declare editable=''
@@ -85,7 +85,7 @@ collect:
       echo '#######################'
       echo "AMS_DEADLINE: '${AMS_DEADLINE}'"
       echo "AMS_EDITABLE: '${AMS_EDITABLE}'"
-      echo "AMS_SOURCE: '${AMS_SOURCE}'"
+      echo "AMS_SOLUTION: '${AMS_SOLUTION}'"
       echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
       echo '#######################'
   only:
@@ -159,13 +159,13 @@ measure:
     # create output directory
     - declare -r measure_output=".measure/${project_name}"
     - mkdir -p "${measure_output}"
-    # copy files from AMS_SOURCE branch to measure
+    # copy files from AMS_SOLUTION branch to measure
     - |
-        if [[ -z "${AMS_SOURCE}" ]]; then
-          AMS_SOURCE='master'
+        if [[ -z "${AMS_SOLUTION}" ]]; then
+          AMS_SOLUTION='master'
         fi
         git fetch --all
-        git --work-tree="${measure_output}" checkout -f "origin/${AMS_SOURCE}" -- .
+        git --work-tree="${measure_output}" checkout -f "origin/${AMS_SOLUTION}" -- .
     # run measure for given or all branches
     - ${AMS} measure --output-dir "${measure_output}" --namespace "${user_namespace}" --prefix "${project_name}-"
   only:
