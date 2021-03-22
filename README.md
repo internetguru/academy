@@ -51,10 +51,7 @@
      - 'https://raw.githubusercontent.com/InternetGuru/ams/dev/gitlab-stages.yml'
 
    variables:
-     AMS_DISTRIBUTE: "true"
-     AMS_EVALUATE: "true"
-     AMS_COLLECT: "true"
-     AMS_MEASURE: "true"
+     AMS_AUTOEVAL: "true"
      AMS_USERS: "solver1 solver2 solver3"
      AMS_MOSSURL: "https://some.url/moss"
    ```
