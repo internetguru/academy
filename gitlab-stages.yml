@@ -116,7 +116,7 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
-    - if: '$AMS_AUTOEVAL != "true"'
+    - if: '$AMS_AUTOEVAL == ""'
       when: manual
       allow_failure: true
 
