@@ -100,7 +100,7 @@ collect:
       - .collect/
     expire_in: 1 year
 
-auto_evaluate:
+evaluate:
   image: maven:latest
   stage: build
   before_script:
@@ -111,33 +111,14 @@ auto_evaluate:
       - target/
   script:
     - ${AMS} evaluate
-  only:
-    variables:
-      - $AMS_AUTOEVAL
   artifacts:
     paths:
       - .results/
     expire_in: 1 year
-
-manual_evaluate:
-  image: maven:latest
-  stage: build
-  before_script:
-    - *global_init
-    - *pom_check
-  cache:
-    paths:
-      - target/
-  script:
-    - ${AMS} evaluate
-  except:
-    variables:
-      - $AMS_AUTOEVAL
-  artifacts:
-    paths:
-      - .results/
-    expire_in: 1 year
-  when: manual
+  rules:
+    if: $AMS_AUTOEVAL != "true"
+    when: manual
+    allow_failure: true
 
 distribute:
   image: debian:stretch
