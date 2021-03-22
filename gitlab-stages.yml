@@ -116,7 +116,7 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
-    - if: '$AMS_AUTOEVAL == "true"'
+    - if: '$AMS_EVALUATE == "always"'
       when: always
     - when: manual
 
@@ -139,7 +139,7 @@ distribute:
         ${AMS} distribute --update-links --namespace "${namespace}/${branch}" \
         --process-issues "${AMS_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${project_name}-" \
-        <<< "$({ echo "${AMS_USERS}"; cat '../AMS_USERS' 2>/dev/null; } | tr ',' ' ')"
+        <<< "$({ echo "${AMS_USERS:-${GITLAB_USER_NAME}}"; cat '../AMS_USERS' 2>/dev/null; } | tr ',' ' ')"
   when: manual
 
 measure:

@@ -10,7 +10,7 @@ AMS-Measure - measure software similarities using Moss script
 
 ## DESCRIPTION
 
-Downloads all repositories from a NAMESPACE matching given PREFIX and measures software similarities between each other. Includes the current project (supposedly the sample solution). The link with evaluation results appears at the end of the script.
+Downloads all repositories from a NAMESPACE matching given PREFIX and measures software similarities between each other. Uses an assignment project in `WORKING_DIR` as a base file (see Moss documentation). The link with evaluation results appears at the end of the script.
 
 ## OPTIONS
 
