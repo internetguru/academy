@@ -38,6 +38,12 @@
 .before_script_java: &apt_java |
   apt update && apt install -y default-jdk maven
 
+.pom_check: &pom_check |
+  if [[ ! -f "pom.xml" ]]; then
+    echo "Missing pom.xml"
+    exit 1
+  fi
+
 cache:
   paths:
     - /tmp/.apt
@@ -88,20 +94,18 @@ collect:
       echo "AMS_SOLUTION: '${AMS_SOLUTION}'"
       echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
       echo '#######################'
-  only:
-    variables:
-      - $AMS_COLLECT
   when: manual
   artifacts:
     paths:
       - .collect/
     expire_in: 1 year
 
-evaluate:
+auto_evaluate:
   image: maven:latest
   stage: build
   before_script:
     - *global_init
+    - *pom_check
   cache:
     paths:
       - target/
@@ -109,11 +113,31 @@ evaluate:
     - ${AMS} evaluate
   only:
     variables:
-      - $AMS_EVALUATE
+      - $AMS_AUTOEVAL
   artifacts:
     paths:
       - .results/
     expire_in: 1 year
+
+manual_evaluate:
+  image: maven:latest
+  stage: build
+  before_script:
+    - *global_init
+    - *pom_check
+  cache:
+    paths:
+      - target/
+  script:
+    - ${AMS} evaluate
+  except:
+    variables:
+      - $AMS_AUTOEVAL
+  artifacts:
+    paths:
+      - .results/
+    expire_in: 1 year
+  when: manual
 
 distribute:
   image: debian:stretch
@@ -135,9 +159,6 @@ distribute:
         --process-issues "${AMS_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${project_name}-" \
         <<< "$({ echo "${AMS_USERS}"; cat '../AMS_USERS' 2>/dev/null; } | tr ',' ' ')"
-  only:
-    variables:
-      - $AMS_DISTRIBUTE
   when: manual
 
 measure:
@@ -149,6 +170,11 @@ measure:
     - *apt_requirements
     - *global_init
   script:
+    - |
+        if [[ -z "${AMS_MOSSURL}" ]]; then
+          echo "Missing AMS_MOSSURL"
+          exit 1
+        fi
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # process files distributed from current branch
@@ -168,7 +194,4 @@ measure:
         git --work-tree="${measure_output}" checkout -f "origin/${AMS_SOLUTION}" -- .
     # run measure for given or all branches
     - ${AMS} measure --output-dir "${measure_output}" --namespace "${user_namespace}" --prefix "${project_name}-"
-  only:
-    variables:
-      - $AMS_MEASURE
   when: manual
