@@ -119,6 +119,7 @@ evaluate:
     - if: '$AMS_AUTOEVAL == ""'
       when: manual
       allow_failure: true
+    - if: '$AMS_AUTOEVAL != ""'
 
 distribute:
   image: debian:stretch
