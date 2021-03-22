@@ -10,7 +10,7 @@ AMS-Collect - evaluate repositories against source tests
 
 ## DESCRIPTION
 
-Downloads all repositories from a NAMESPACE matching given PREFIX. Runs tests on source project replacing only editable files from individual repositories.
+Downloads all repositories from a NAMESPACE matching given PREFIX. Runs `ams evaluate` on working project in `WORKING_DIR` replacing only editable files from individual solution repositories.
 
 ## OPTIONS
 
