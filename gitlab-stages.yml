@@ -116,9 +116,9 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
-    if: $AMS_AUTOEVAL != "true"
-    when: manual
-    allow_failure: true
+    - if: $AMS_AUTOEVAL != "true"
+      when: manual
+      allow_failure: true
 
 distribute:
   image: debian:stretch
