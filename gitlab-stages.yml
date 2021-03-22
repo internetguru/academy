@@ -100,7 +100,7 @@ collect:
       - .collect/
     expire_in: 1 year
 
-auto_evaluate:
+evaluate:
   image: maven:latest
   stage: build
   before_script:
@@ -119,7 +119,7 @@ auto_evaluate:
       - .results/
     expire_in: 1 year
 
-manual_evaluate:
+evaluate:
   image: maven:latest
   stage: build
   before_script:
