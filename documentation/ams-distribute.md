@@ -63,7 +63,7 @@ umiami/george/csc220/fall20/lab01-solver3
 The following example does the same job dynamically. Assuming you are in a `lab01` folder on branch `fall20`.
 
 ```
-echo "solver1 solver2 solver3" | ams distribute -l -p "$(basename $PWD)-" -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
+grep 'AMS_USERS:' .gitlab-ci.yml | cut -d'"' -f2 | ~/ams/ams distribute -l -p "$(basename $PWD)-" -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
 ```
 
 Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all solvers. Different branch would create a separate namespace and different folder (lab) would distribute the assignment into appropriate lab repositories.

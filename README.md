@@ -8,9 +8,9 @@
 
 ## Requirements
 
-* Installed `git` with defined user and email
-* Installed `jq`, see https://stedolan.github.io/jq/
-* Installed `go-md2man` (optional)
+- Installed `git` with defined user and email
+- Installed `jq`, see https://stedolan.github.io/jq/
+- Installed `go-md2man` (optional)
 
 ## Installation
 
@@ -51,7 +51,7 @@
      - 'https://raw.githubusercontent.com/InternetGuru/ams/dev/gitlab-stages.yml'
 
    variables:
-     AMS_AUTOEVAL: "true"
+     AMS_EVALUATE: "always"
      AMS_USERS: "solver1 solver2 solver3"
      AMS_MOSSURL: "https://some.url/moss"
    ```
@@ -70,6 +70,23 @@
 
    - Replace `${PROJECT}` with your actual project's link, e.g. `umiami/george/csc220/lab01`.
    - Replace `${BRANCH}` with an actual branch, e.g. `master`.
+
+## GitLab CI Variables
+
+- `AMS_SOLUTION: "BRANCH"`
+   - Runs `ams collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `ams measure` (default `master`).
+- `AMS_DEADLINE: "DATE"`
+   - See `--deadline` option in `ams collect` documentation.
+- `AMS_EDITABLE: "PATTERN"`
+   - See `--editable` option in `ams collect` documentation.
+- `AMS_EVALUATE: "WHEN"`
+   - Integrate `ams evaluate` as `always` or `manual` (default) job.
+- `AMS_USERS: "USERS"`
+   - See `ams distribution` documentation (default value is current user). Merges its values with `AMS_USERS` file if exists. Values can be separated by any white-spaces or commas.
+- `AMS_ISSUES: "LABEL"`
+   - See `--process-issues` option in `ams distribute` documentation (default current branch).
+- `AMS_MOSSURL: "URL"`
+   - CI accessible `URL` to download Moss script for `ams measure`.
 
 ## Licensing
 
