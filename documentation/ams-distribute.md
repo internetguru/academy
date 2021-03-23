@@ -29,6 +29,9 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 `-n`, `--dry-run`
        Only process options and stdin validation. Would not proceed with create or update user repositories.
 
+`-o`, `--output-dir DIR`
+       Store distributed repositories in DIR. Uses `mktemp` by default.
+
 `-p`, `--prefix PREFIX`
        Prepend PREFIX in front of created repositories names. PREFIX is empty by default.
 

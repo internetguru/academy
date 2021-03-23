@@ -66,7 +66,8 @@ init_user_repo() {
   git_push "${user_cache_folder}" '--all'
 }
 status_empty () {
-  update_cache
+  (update_cache) \
+    || exception "Unable to update cache, delete or verify output dir (see --output-dir option)"
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
@@ -119,6 +120,8 @@ process_users() {
   declare user_default_branch
   declare -i valid=0
   declare -i invalid=0
+  [[ -z "${CACHE_FOLDER}" ]] \
+    && CACHE_FOLDER="$(mktemp -d)"
   # shellcheck disable=SC2013
   for user_name in $(cat <&3); do
     user_project_name="${PREFIX}${user_name}"
@@ -165,7 +168,6 @@ distribute() {
 }
 
 # global constants
-declare -r CACHE_FOLDER="${HOME}/.ams_distribute_cache"
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'
 declare -r ALWAYS='always'
@@ -175,6 +177,7 @@ declare -ri DEV_ACCESS_LEVEL=30
 declare -ri MAINTAINER_ACCESS_LEVEL=40
 
 # default variables
+declare CACHE_FOLDER=''
 declare DRY_RUN='false'
 declare UPDATE_LINKS='false'
 declare ASSIGN="${AUTO}"
@@ -192,8 +195,8 @@ declare ACCESS_TOKEN
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:hi:lnp:s:' \
-  --longoptions 'assign:,help,process-issues:,update-links,dry-run,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'a:hi:lno:p:s:' \
+  --longoptions 'assign:,help,process-issues:,update-links,dry-run,output-dir:,prefix:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -227,6 +230,12 @@ while (( $# > 0 )); do
       NAMESPACE="${2}"
       [[ "${NAMESPACE}" =~ ^[a-z0-9]{2,}(/[a-z0-9]{2,})*$ ]] \
         || exception 'Unsupported REMOTE_NAMESPACE dirname' 2
+      shift; shift ;;
+    -o|--output-dir)
+      CACHE_FOLDER="${2}";
+      [[ -d "${CACHE_FOLDER}" ]] \
+        || mkdir -p "${CACHE_FOLDER}" \
+        || exception "Unable to create '${CACHE_FOLDER}' directory"
       shift; shift ;;
     --) shift; break ;;
      *) break ;;
