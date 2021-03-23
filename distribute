@@ -15,7 +15,7 @@ sync_cache() {
   [[ "${UPDATE_LINKS}" == 'true' ]] \
     && update_links
 }
-update_cache() {
+get_cache() {
   [[ ! -d "${user_cache_folder}" ]] \
     && init_cache "${user_cache_folder}" \
     && return
@@ -66,8 +66,7 @@ init_user_repo() {
   git_push "${user_cache_folder}" '--all'
 }
 status_empty () {
-  (update_cache) \
-    || exception "Unable to update cache, delete or verify output dir (see --output-dir option)"
+  get_cache
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
