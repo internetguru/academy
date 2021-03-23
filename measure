@@ -83,7 +83,7 @@ while (( $# > 0 )); do
       OUTPUT_DIR="${2}";
       [[ -d "${OUTPUT_DIR}" ]] \
         || mkdir -p "${OUTPUT_DIR}" \
-        || exception "Unable to crete '${OUTPUT_DIR}' directory"
+        || exception "Unable to create '${OUTPUT_DIR}' directory"
       shift; shift ;;
     --) shift; break ;;
      *) break ;;
