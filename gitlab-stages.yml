@@ -163,6 +163,7 @@ measure:
     # download moss script
     - curl -o /usr/local/bin/moss "${AMS_MOSSURL}"
     - chmod +x /usr/local/bin/moss
+    - export PATH="${PATH}:/usr/local/bin/"
     # create output directory
     - declare -r measure_output=".measure/${project_name}"
     - mkdir -p "${measure_output}"
