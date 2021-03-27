@@ -51,7 +51,7 @@ measure() {
     basefiles+=(-b "${file}")
   done
   # send projects into moss
-  ./moss -l "${AMS_LANG}" "${basefiles[@]}" -d "${OUTPUT_DIR}"/**/src/main/**/*."${AMS_LANG}" \
+  moss -l "${AMS_LANG}" "${basefiles[@]}" -d "${OUTPUT_DIR}"/**/src/main/**/*."${AMS_LANG}" \
     "${WORKING_DIR}"/src/main/**/*."${AMS_LANG}"
 }
 

@@ -161,8 +161,8 @@ measure:
     # process files distributed from current branch
     - declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # download moss script
-    - curl -o moss "${AMS_MOSSURL}"
-    - chmod +x moss
+    - curl -o /usr/local/bin/moss "${AMS_MOSSURL}"
+    - chmod +x /usr/local/bin/moss
     # create output directory
     - declare -r measure_output=".measure/${project_name}"
     - mkdir -p "${measure_output}"
