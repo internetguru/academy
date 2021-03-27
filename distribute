@@ -157,7 +157,6 @@ distribute() {
   [[ ! -t 0 ]] \
     || exception 'Missing stdin' 2
   exec 3<&0
-  check_command git jq
   acquire_token
   read_project_info
   [[ -d "${WORKING_DIR}/.git" ]] \
