@@ -14,7 +14,7 @@
   - On macOS install with Homebrew ([`gnu-getopt`](http://braumeister.org/formula/gnu-getopt)) or with [MacPorts](https://www.macports.org/) (`getopt`)
 - [GNU sed](https://www.gnu.org/software/sed/)
   - On macOS install with Homebrew [`gnu-sed`](http://braumeister.org/formula/gnu-sed)
-- [jq](https://stedolan.github.io/jq/), version 1.5 and later
+- [jq](https://stedolan.github.io/jq/)
   - On macOS install with Homebrew [`jq`](https://formulae.brew.sh/formula/jq)
 - [go-md2man](https://github.com/cpuguy83/go-md2man), optional
   - On macOS install with Homebrew [`go-md2man`](https://formulae.brew.sh/formula/go-md2man)
