@@ -8,9 +8,15 @@
 
 ## Requirements
 
-- Installed `git` with defined user and email
-- Installed `jq`, see https://stedolan.github.io/jq/
-- Installed `go-md2man` (optional)
+- [Bash](https://www.gnu.org/software/bash/), version 3.2 and later
+- [Git](https://git-scm.com/), version 1.8.0 and later
+- [GNU getopt](http://frodo.looijaard.name/project/getopt)
+  - On macOS install with Homebrew ([`gnu-getopt`](http://braumeister.org/formula/gnu-getopt)) or with [MacPorts](https://www.macports.org/) (`getopt`)
+- [GNU sed](https://www.gnu.org/software/sed/)
+  - On macOS install with Homebrew [`gnu-sed`](http://braumeister.org/formula/gnu-sed)
+- [jq](see https://stedolan.github.io/jq/), version 1.5 and later
+- [go-md2man](https://github.com/cpuguy83/go-md2man), optional
+  - On macOS install with Homebrew [`go-md2man`](https://formulae.brew.sh/formula/go-md2man)
 
 ## Installation
 
