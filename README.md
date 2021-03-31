@@ -1,6 +1,6 @@
 
 | branch  | status |
-| ------------- | ------------- |
+| :------------- | :------------- |
 | master | [![tests badge at master](https://github.com/InternetGuru/ams/workflows/tests/badge.svg?branch=master)](https://github.com/InternetGuru/ams/actions?query=branch%3Amaster)|
 | dev | [![tests badge at dev](https://github.com/InternetGuru/ams/workflows/tests/badge.svg?branch=dev)](https://github.com/InternetGuru/ams/actions?query=branch%3Adev)|
 
