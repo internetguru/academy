@@ -99,4 +99,4 @@
 
 ## Licensing
 
-TODO
+All rights reserved.
