@@ -7,7 +7,7 @@
 
 This license allows you to use and share this software for noncommercial purposes for free. Any other use is considered commercial.
 
-##Agreement
+## Agreement
 
 In order to receive this license, you have to agree to its rules. Those rules are both obligations under that agreement and conditions to your license. Don’t do anything with this software that triggers a rule you can’t or won’t follow.
 
