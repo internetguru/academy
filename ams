@@ -6,11 +6,11 @@ declare -r SCRIPT='ams'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-# shellcheck disable=SC1090
+# shellcheck source=commons
 . "${DIR}/commons"
-# shellcheck disable=SC1090
+# shellcheck source=git_functions
 . "${DIR}/git_functions"
-# shellcheck disable=SC1090
+# shellcheck source=gitlab_api
 . "${DIR}/gitlab_api"
 
 # check requirements
