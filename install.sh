@@ -7,6 +7,7 @@ declare -r USRMANPATH="${USRMANPATH:-${SHAREPATH}/man/man1}"
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # shellcheck disable=SC1090
+# shellcheck disable=SC1091
 . "${DIR}/commons"
 
 check_command go-md2man
