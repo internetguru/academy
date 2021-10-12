@@ -51,7 +51,7 @@
 
 1. Navigate into the project and switch to the branch with assignment. Make sure [the branch is protected](https://docs.gitlab.com/ee/user/project/protected_branches.html).
 
-   - E.g. [internetguru/academy/tutorial/lab01@group1](https://gitlab.com/internetguru/academy/tutorial/lab01/-/tree/group1)
+   - E.g. [internetguru/academy/tutorial/java01-introduction@group1](https://gitlab.com/internetguru/academy/tutorial/java01-introduction/-/tree/group1)
 
 1. To distribute the assignment to 3 test students, evaluate, collect and measure, add the following lines to your `.gitlab-ci.yml` file (create one if it doesn't exist).
 
@@ -80,7 +80,7 @@
    [![test](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/test.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/test.log?job=evaluate)
    ```
 
-   - Replace `${PROJECT}` with your actual project's link, e.g. `internetguru/academy/tutorial/lab01`.
+   - Replace `${PROJECT}` with your actual project's link, e.g. `internetguru/academy/tutorial/java01-introduction`.
    - Replace `${BRANCH}` with an actual branch, e.g. `master`.
 
 ## GitLab CI Variables
