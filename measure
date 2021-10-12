@@ -1,5 +1,9 @@
 #!/bin/bash
 measure() {
+  # shellcheck disable=SC2155
+  [[ ! -t 0 ]] \
+    || exception 'Missing stdin' 2
+  exec 3<&0
   acquire_token
   # create output directory if not
   [[ -z "${OUTPUT_DIR}" ]] \
