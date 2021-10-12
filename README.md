@@ -1,12 +1,12 @@
 
 | branch  | status |
 | :------------- | :------------- |
-| master | [![tests badge at master](https://github.com/InternetGuru/ams/workflows/tests/badge.svg?branch=master)](https://github.com/InternetGuru/ams/actions?query=branch%3Amaster)|
-| dev | [![tests badge at dev](https://github.com/InternetGuru/ams/workflows/tests/badge.svg?branch=dev)](https://github.com/InternetGuru/ams/actions?query=branch%3Adev)|
+| master | [![tests badge at master](https://github.com/internetguru/academy/workflows/tests/badge.svg?branch=master)](https://github.com/internetguru/academy/actions?query=branch%3Amaster)|
+| dev | [![tests badge at dev](https://github.com/internetguru/academy/workflows/tests/badge.svg?branch=dev)](https://github.com/internetguru/academy/actions?query=branch%3Adev)|
 
-# Assignment Management System | AMS
+# Internet Guru Academy
 
-> This script provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
+> This script provides commands to manage coding assignments: _distribute_ among students, _evaluate_ individually, _collect_ all results, and _measure_ similarities.
 
 ## Requirements
 
@@ -26,16 +26,16 @@
 - To install locally, simply clone this project and set an alias.
 
    ```sh
-   git clone https://github.com/InternetGuru/ams.git
-   echo alias ams=\"$PWD/ams/ams\" >> ~/.bashrc
+   git clone https://github.com/internetguru/academy.git
+   echo alias academy=\"$PWD/academy/academy\" >> ~/.bashrc
    source ~/.bashrc
    ```
 
 - For global installation, clone this project into shared folder and create a symbolic link.
 
    ```sh
-   sudo git clone https://github.com/InternetGuru/ams.git /usr/local/src
-   sudo ln -s "/usr/local/src/ams/ams" /usr/local/share/ams
+   sudo git clone https://github.com/internetguru/academy.git /usr/local/src
+   sudo ln -s "/usr/local/src/academy/academy" /usr/local/share/academy
    ```
 
 - To install `man` documentation, run the following script. (optional)
@@ -47,26 +47,29 @@
 
 1. Make sure you have your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token). On GitLab [set ACCESS_TOKEN variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) into your root namespace.
 
-   - E.g. into `umiami/george`
+   - E.g. into `internetguru/academy`
 
 1. Navigate into the project and switch to the branch with assignment. Make sure [the branch is protected](https://docs.gitlab.com/ee/user/project/protected_branches.html).
 
-   - E.g. [umiami/george/csc220/lab01@fall20](https://gitlab.com/umiami/george/csc220/lab01/-/tree/fall20)
+   - E.g. [internetguru/academy/tutorial/lab01@group1](https://gitlab.com/internetguru/academy/tutorial/lab01/-/tree/group1)
 
-1. To distribute the assignment to 3 test solvers, evaluate, collect and measure, add the following lines to your `.gitlab-ci.yml` file (create one if it doesn't exist).
+1. To distribute the assignment to 3 test students, evaluate, collect and measure, add the following lines to your `.gitlab-ci.yml` file (create one if it doesn't exist).
 
    ```yaml
    include:
-     - 'https://raw.githubusercontent.com/InternetGuru/ams/dev/gitlab-stages.yml'
+     - 'https://raw.githubusercontent.com/internetguru/academy/${REVISION}/gitlab-stages.yml'
 
    variables:
-     AMS_EVALUATE: "always"
-     AMS_USERS: "solver1 solver2 solver3"
-     AMS_MOSSURL: "https://some.url/moss"
+     ACADEMY_EVALUATE: "always"
+     ACADEMY_USERS: "student1 student2 student3"
+     ACADEMY_MOSSURL: "${MOSSURL}"
    ```
-   - For other variables refer to documentation section.
 
-1. The `ams evaluate` command runs automatically after each push. To execute other commands (`ams collect`, `ams distribute`, `ams measure`), [trigger their pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). Make sure you trigger the pipeline on desired branch.
+   - Replace `${REVISION}` with a version tag or a branch, e.g. `dev` or `master`.
+   - Replace `${MOSSURL}` with where your moss script is located, e.g. `https://mydomain.com/moss`.
+   - See more in GitLab CI Variables section (below).
+
+1. The `academy evaluate` command runs automatically after each push. To execute other commands (`academy collect`, `academy distribute`, `academy measure`), [trigger their pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). Make sure you trigger the pipeline on desired branch.
 
 1. Display badges in `README.md` file with links to appropriate log files (evaluate process):
 
@@ -77,25 +80,25 @@
    [![test](https://gitlab.com/${PROJECT}/builds/artifacts/${BRANCH}/raw/.results/test.svg?job=evaluate)](https://gitlab.com/${PROJECT}/-/jobs/artifacts/${BRANCH}/file/.results/test.log?job=evaluate)
    ```
 
-   - Replace `${PROJECT}` with your actual project's link, e.g. `umiami/george/csc220/lab01`.
+   - Replace `${PROJECT}` with your actual project's link, e.g. `internetguru/academy/tutorial/lab01`.
    - Replace `${BRANCH}` with an actual branch, e.g. `master`.
 
 ## GitLab CI Variables
 
-- `AMS_SOLUTION: "BRANCH"`
-   - Runs `ams collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `ams measure` (default `master`).
-- `AMS_DEADLINE: "DATE"`
-   - See `--deadline` option in `ams collect` documentation.
-- `AMS_EDITABLE: "PATTERN"`
-   - See `--editable` option in `ams collect` documentation.
-- `AMS_EVALUATE: "WHEN"`
-   - Integrate `ams evaluate` as `always` or `manual` (default) job.
-- `AMS_USERS: "USERS"`
-   - See `ams distribution` documentation (default value is current user). Merges its values with `AMS_USERS` file if exists. Values can be separated by any white-spaces or commas.
-- `AMS_ISSUES: "LABEL"`
-   - See `--process-issues` option in `ams distribute` documentation (default current branch).
-- `AMS_MOSSURL: "URL"`
-   - CI accessible `URL` to download Moss script for `ams measure`.
+- `ACADEMY_SOLUTION: "BRANCH"`
+   - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
+- `ACADEMY_DEADLINE: "DATE"`
+   - See `--deadline` option in `academy collect` documentation.
+- `ACADEMY_EDITABLE: "PATTERN"`
+   - See `--editable` option in `academy collect` documentation.
+- `ACADEMY_EVALUATE: "WHEN"`
+   - Integrate `academy evaluate` as `always` or `manual` (default) job.
+- `ACADEMY_USERS: "USERS"`
+   - See `academy distribution` documentation (default value is current user). Merges its values with `ACADEMY_USERS` file if exists. Values can be separated by any white-spaces or commas.
+- `ACADEMY_ISSUES: "LABEL"`
+   - See `--process-issues` option in `academy distribute` documentation (default current branch).
+- `ACADEMY_MOSSURL: "URL"`
+   - CI accessible `URL` to download Moss script for `academy measure`.
 
 ## Licensing
 
