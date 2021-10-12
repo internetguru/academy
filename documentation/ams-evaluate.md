@@ -1,12 +1,12 @@
-# AMS-EVALUATE 1 2021-02-14 GNU "User Manuals"
+# ACADEMY-EVALUATE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-AMS-Evaluate - evaluate project and create status badges
+ACADEMY-Evaluate - evaluate project and create status badges
 
 ## SYNOPSIS
 
-`ams evaluate`
+`academy evaluate`
 
 ## DESCRIPTION
 
@@ -34,7 +34,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ams`(1), `ams-collect`(1), `ams-distribute`(1), `ams-measure`(1)
+`academy`(1), `academy-collect`(1), `academy-distribute`(1), `academy-measure`(1)
 
 
 [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)

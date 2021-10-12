@@ -47,15 +47,15 @@ measure() {
   # allow **/*
   shopt -s globstar
   declare -a basefiles
-  for file in "${WORKING_DIR}"/src/main/**/*."${AMS_LANG}"; do
+  for file in "${WORKING_DIR}"/src/main/**/*."${ACADEMY_LANG}"; do
     basefiles+=(-b "${file}")
   done
   # send projects into moss
-  moss -l "${AMS_LANG}" "${basefiles[@]}" -d "${OUTPUT_DIR}"/**/src/main/**/*."${AMS_LANG}" \
-    "${WORKING_DIR}"/src/main/**/*."${AMS_LANG}"
+  moss -l "${ACADEMY_LANG}" "${basefiles[@]}" -d "${OUTPUT_DIR}"/**/src/main/**/*."${ACADEMY_LANG}" \
+    "${WORKING_DIR}"/src/main/**/*."${ACADEMY_LANG}"
 }
 
-declare -r AMS_LANG='java'
+declare -r ACADEMY_LANG='java'
 declare IGNORE='false'
 declare DRY_RUN='false'
 declare PREFIX=''

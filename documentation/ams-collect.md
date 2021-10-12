@@ -1,16 +1,16 @@
-# AMS-COLLECT 1 2021-03-01 GNU "User Manuals"
+# ACADEMY-COLLECT 1 2021-03-01 GNU "User Manuals"
 
 ## NAME
 
-AMS-Collect - evaluate repositories against source tests
+ACADEMY-Collect - evaluate repositories against source tests
 
 ## SYNOPSIS
 
-`ams collect` [`-hdenops`]
+`academy collect` [`-hdenops`]
 
 ## DESCRIPTION
 
-Downloads all repositories from a NAMESPACE matching given PREFIX. Runs `ams evaluate` on working project in `WORKING_DIR` replacing only editable files from individual solution repositories.
+Downloads all repositories from a NAMESPACE matching given PREFIX. Runs `academy evaluate` on working project in `WORKING_DIR` replacing only editable files from individual solution repositories.
 
 ## OPTIONS
 
@@ -57,4 +57,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ams`(1), `ams-distribute`(1), `ams-evaluate`(1), `ams-measure`(1)
+`academy`(1), `academy-distribute`(1), `academy-evaluate`(1), `academy-measure`(1)

@@ -1,7 +1,7 @@
-# AMS Source Available License (ASAL)
+# ACADEMY Source Available License (ASAL)
 
  - Author: George J. Pavelka george@internetguru.io
- - Source Code: https://github.com/InternetGuru/ams
+ - Source Code: https://github.com/InternetGuru/academy
 
 ## Purpose
 

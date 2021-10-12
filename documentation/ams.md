@@ -1,12 +1,12 @@
-# AMS 1 2021-02-16 GNU "User Manuals"
+# ACADEMY 1 2021-02-16 GNU "User Manuals"
 
 ## NAME
 
-AMS - coding assignment handling
+ACADEMY - coding assignment handling
 
 ## SYNOPSIS
 
-`ams` [`-w`] `<command>` [`<args>`]
+`academy` [`-w`] `<command>` [`<args>`]
 
 ## DESCRIPTION
 
@@ -19,7 +19,7 @@ Provides commands to _distribute_ coding assignments to solvers, _evaluate_ indi
 
 ## COMMANDS
 
-These are common ams commands used in various situations:
+These are common academy commands used in various situations:
 
 collect
        Download repositories and evaluate against source tests.
@@ -54,4 +54,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ams-collect`(1), `ams-distribute`(1), `ams-evaluate`(1), `ams-measure`(1)
+`academy-collect`(1), `academy-distribute`(1), `academy-evaluate`(1), `academy-measure`(1)

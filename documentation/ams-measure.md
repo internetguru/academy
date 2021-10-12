@@ -1,12 +1,12 @@
-# AMS-MEASURE 1 2021-02-14 GNU "User Manuals"
+# ACADEMY-MEASURE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-AMS-Measure - measure software similarities using Moss script
+ACADEMY-Measure - measure software similarities using Moss script
 
 ## SYNOPSIS
 
-`ams measure` [`-hinps`]
+`academy measure` [`-hinps`]
 
 ## DESCRIPTION
 
@@ -54,7 +54,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ams`(1), `ams-collect`(1), `ams-distribute`(1), `ams-evaluate`(1)
+`academy`(1), `academy-collect`(1), `academy-distribute`(1), `academy-evaluate`(1)
 
 [Moss](https://theory.stanford.edu/~aiken/moss/)
 
