@@ -94,10 +94,14 @@ collect:
         fi
     # run collect for given or all branches
     - mkdir -p '.collect'
+    - *get_users
     - |
         ${ACADEMY} collect ${deadline} ${editable} \
-        --namespace "${user_namespace}" --prefix "${project_name}-" \
-        --output-dir '.collect' | tee 'summary.txt'
+        --namespace "${user_namespace}" \
+        --prefix "${project_name}-" \
+        --output-dir '.collect' \
+        <<< "${users}" \
+        | tee 'summary.txt'
     # output variables and summary
     - mv 'summary.txt' '.collect/'
     - |

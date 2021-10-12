@@ -29,15 +29,17 @@ create_results() {
   git_reset_hard "${user_projects_folder}/${user_project_ns}"
 }
 collect() {
+  # shellcheck disable=SC2155
+  [[ ! -t 0 ]] \
+    || exception 'Missing stdin' 2
+  exec 3<&0
   acquire_token
   [[ -z "${OUTPUT_DIR}" ]] \
     && OUTPUT_DIR="$(mktemp -d)"
   # shellcheck disable=SC2155
   declare -r user_projects_folder="${OUTPUT_DIR}"
-  declare user_projects
   declare group_id
   declare user_project_ns
-  declare user_project_id
   declare last_commit
   declare compile_txt
   declare checkstyle_txt
@@ -47,15 +49,12 @@ collect() {
   group_id="$(get_group_id "${NAMESPACE}" 2>/dev/null)"
   [[ -z "${group_id}" ]] \
     && exception "Namespace '${NAMESPACE}' not found" 3
-  user_projects="$(get_group_projects)" \
-    || exit 1
-  # clone all user_projects from ns
-  for user_project in ${user_projects}; do
-    user_project_ns="$(jq -r '.name_with_namespace' <<< "${user_project}")"
-    # shellcheck disable=SC2034
-    user_project_id="$(jq -r '.id' <<< "${user_project}")"
-    [[ "$(basename "${user_project_ns}")" != "${PREFIX}"* ]] \
-      && continue
+  # shellcheck disable=SC2013
+  for user_name in $(cat <&3); do
+    user_project_name="${PREFIX}${user_name}"
+    user_project_ns="${NAMESPACE}/${user_project_name}"
+    get_project_id "${user_project_ns}" >/dev/null \
+      || continue
     echo "$user_project_ns"
     [[ "${DRY_RUN}" == 'true' ]] \
       && continue
