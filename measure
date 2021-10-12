@@ -12,7 +12,8 @@ measure() {
   for user_name in $(cat <&3); do
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
-    get_project_id "${user_project_ns}" >/dev/null \
+    # shellcheck disable=SC2034
+    user_project_id="$(get_project_id "${user_project_ns}")" \
       || continue
     [[ "${DRY_RUN}" == 'true' ]] \
       && continue
