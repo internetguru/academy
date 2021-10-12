@@ -2,7 +2,7 @@
 
 set -o pipefail
 
-declare -r SCRIPT='ams'
+declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 
@@ -32,7 +32,6 @@ while (( $# > 0 )); do
       # shellcheck disable=SC1091
       # shellcheck disable=SC1090
       . "${DIR}/gitlab_api"
-
       # check requirements
       check_command git jq
       ;&

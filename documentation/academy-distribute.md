@@ -1,12 +1,12 @@
-# AMS-DISTRIBUTE 1 2021-02-14 GNU "User Manuals"
+# ACADEMY-DISTRIBUTE 1 2021-02-14 GNU "User Manuals"
 
 ## NAME
 
-AMS-Distribute - distribute an assignment among users
+ACADEMY-Distribute - distribute an assignment among users
 
 ## SYNOPSIS
 
-`ams distribute` [`-ahilnps`]
+`academy distribute` [`-ahilnps`]
 
 ## DESCRIPTION
 
@@ -49,25 +49,25 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 ## EXAMPLES
 
 ```
-echo "solver1 solver2 solver3" | ams distribute -l -p "lab01-" -s "umiami/george/csc220/fall20"
+echo "student1 student2 student3" | academy distribute -l -p "lab01-" -s "umiami/george/csc220/fall20"
 ```
 
 Given example distributes current directory into the following locations. The `-l` option updates links in README files.
 
 ```
-umiami/george/csc220/fall20/lab01-solver1
-umiami/george/csc220/fall20/lab01-solver2
-umiami/george/csc220/fall20/lab01-solver3
+umiami/george/csc220/fall20/lab01-student1
+umiami/george/csc220/fall20/lab01-student2
+umiami/george/csc220/fall20/lab01-student3
 ```
 
 The following example does the same job dynamically. Assuming you are in a `lab01` folder on branch `fall20`.
 
 ```
-grep 'AMS_USERS:' .gitlab-ci.yml | cut -d'"' -f2 | ams distribute -l -p "$(basename $PWD)-" \
+grep 'ACADEMY_USERS:' .gitlab-ci.yml | cut -d'"' -f2 | academy distribute -l -p "$(basename $PWD)-" \
   -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
 ```
 
-Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all solvers. Different branch would create a separate namespace and different folder (lab) would distribute the assignment into appropriate lab repositories.
+Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all students. Different branch would create a separate namespace and different folder (lab) would distribute the assignment into appropriate lab repositories.
 
 ## BUGS
 
@@ -79,4 +79,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`ams`(1), `ams-collect`(1), `ams-evaluate`(1), `ams-measure`(1)
+`academy`(1), `academy-collect`(1), `academy-evaluate`(1), `academy-measure`(1)
