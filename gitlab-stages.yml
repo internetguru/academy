@@ -16,8 +16,14 @@
   # simplify project remote url
   git remote set-url --push origin "${namespace}/${project_name}.git"
   # set permissions
-  ACADEMY=${ACADEMY_DIR}/academy
+  declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
+  declare PREFIX
+  if [[ -n "${ACADEMY_PREFIX}" ]]; then
+    PREFIX="${ACADEMY_PREFIX}"
+  else
+    PREFIX="${project_name}-"
+  fi
 
 .before_script_token: &validate_token |
   # prepare acccess token for the distribution script
@@ -98,7 +104,7 @@ collect:
     - |
         ${ACADEMY} collect ${deadline} ${editable} \
         --namespace "${user_namespace}" \
-        --prefix "${project_name}-" \
+        --prefix "${PREFIX}" \
         --output-dir '.collect' \
         <<< "${users}" \
         | tee 'summary.txt'
@@ -155,7 +161,7 @@ distribute:
     - |
         ${ACADEMY} distribute --update-links --namespace "${namespace}/${branch}" \
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-        --prefix "${project_name}-" \
+        --prefix "${PREFIX}" \
         <<< "${users}"
   when: manual
 
@@ -196,6 +202,6 @@ measure:
     - |
       ${ACADEMY} measure --output-dir "${measure_output}" \
       --namespace "${user_namespace}" \
-      --prefix "${project_name}-" \
+      --prefix "${PREFIX}" \
       <<< "${users}"
   when: manual
