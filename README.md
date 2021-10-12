@@ -101,7 +101,7 @@
 - `ACADEMY_SOLUTION: "BRANCH"`
    - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
 - `ACADEMY_USERS: "USERS"`
-   - List of USERS, see `academy distribution` and `academy measure` STDIN documentation. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
+   - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 
 ## Licensing
 
