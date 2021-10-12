@@ -2,7 +2,7 @@
 
 ## NAME
 
-ACADEMY-Evaluate - evaluate project and create status badges
+Academy-Evaluate - evaluate project and create status badges
 
 ## SYNOPSIS
 

@@ -2,7 +2,7 @@
 
 ## NAME
 
-ACADEMY - coding assignment handling
+Academy - coding assignment handling
 
 ## SYNOPSIS
 

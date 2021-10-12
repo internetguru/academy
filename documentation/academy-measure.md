@@ -2,7 +2,7 @@
 
 ## NAME
 
-ACADEMY-Measure - measure software similarities using Moss script
+Academy-Measure - measure software similarities using Moss script
 
 ## SYNOPSIS
 

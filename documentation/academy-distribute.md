@@ -2,7 +2,7 @@
 
 ## NAME
 
-ACADEMY-Distribute - distribute an assignment among users
+Academy-Distribute - distribute an assignment among users
 
 ## SYNOPSIS
 

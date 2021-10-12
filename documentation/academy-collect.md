@@ -2,7 +2,7 @@
 
 ## NAME
 
-ACADEMY-Collect - evaluate repositories against source tests
+Academy-Collect - evaluate repositories against source tests
 
 ## SYNOPSIS
 
