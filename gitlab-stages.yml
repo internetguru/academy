@@ -104,6 +104,8 @@ evaluate:
   image: maven:latest
   stage: build
   before_script:
+    - *apt_cache
+    - *apt_requirements
     - *global_init
     - *pom_check
   cache:
