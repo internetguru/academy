@@ -43,36 +43,40 @@
    sudo ./install.sh
    ```
 
-## GitLab CI Usage
+## GitLab CI Integration
 
 1. Make sure you have your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token). On GitLab [set ACCESS_TOKEN variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) into your root namespace.
 
    - E.g. into `internetguru/academy`
 
-1. Navigate into the project and switch to the branch with assignment. Make sure [the branch is protected](https://docs.gitlab.com/ee/user/project/protected_branches.html).
+1. For the working solution on a master branch, add the following include statement to the `.gitlab-ci.yml` file. Create the file if it doesn't exist. 
 
-   - E.g. [internetguru/academy/tutorial/java01-introduction@group1](https://gitlab.com/internetguru/academy/tutorial/java01-introduction/-/tree/group1)
+   ```yaml
+   include:
+     - 'https://raw.githubusercontent.com/internetguru/academy/${REVISION}/gitlab-stages.yml'
+   ```
 
-1. To distribute the assignment to 3 test students, evaluate, collect and measure, add the following lines to your `.gitlab-ci.yml` file (create one if it doesn't exist).
+   - Replace `${REVISION}` with a version tag or a branch, e.g. `dev` or `master`.
+   - E.g. [internetguru/academy/tutorial/java01-introduction/.gitlab-ci.yml](https://gitlab.com/internetguru/academy/tutorial/java01-introduction/-/blob/master/.gitlab-ci.yml)
+   - E.g. [internetguru/academy/tutorial/java02-matrix/.gitlab-ci.yml](https://gitlab.com/internetguru/academy/tutorial/java02-matrix/-/blob/master/.gitlab-ci.yml)
+   - See more in GitLab CI Variables section (below).
+
+1. Similarly for the branch with the assignment. Add a list of students for distribute and collect commands.
 
    ```yaml
    include:
      - 'https://raw.githubusercontent.com/internetguru/academy/${REVISION}/gitlab-stages.yml'
 
    variables:
-     ACADEMY_EVALUATE: "always"
      ACADEMY_USERS: "student1 student2 student3"
-     ACADEMY_PREFIX: "java01-"
-     ACADEMY_MOSSURL: "${MOSSURL}"
    ```
 
    - Replace `${REVISION}` with a version tag or a branch, e.g. `dev` or `master`.
-   - Replace `${MOSSURL}` with where your moss script is located, e.g. `https://mydomain.com/moss`.
+   - E.g. [internetguru/academy/tutorial/java01-introduction/.gitlab-ci.yml@group1](https://gitlab.com/internetguru/academy/tutorial/java01-introduction/-/blob/group1/.gitlab-ci.yml)
+   - E.g. [internetguru/academy/tutorial/java02-matrix/.gitlab-ci.yml@group1](https://gitlab.com/internetguru/academy/tutorial/java02-matrix/-/blob/group1/.gitlab-ci.yml)
    - See more in GitLab CI Variables section (below).
 
-1. The `academy evaluate` command runs automatically after each push. To execute other commands (`academy collect`, `academy distribute`, `academy measure`), [trigger their pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). Make sure you trigger the pipeline on desired branch.
-
-1. Display badges in `README.md` file with links to appropriate log files (evaluate process):
+1. For either working solution and the assignment, display badges in `README.md` file with links to appropriate log files:
 
    ```markdown
    [![pipeline status](https://gitlab.com/${PROJECT}/badges/${BRANCH}/pipeline.svg)](https://gitlab.com/${PROJECT}/-/pipelines?ref=${BRANCH})
@@ -83,6 +87,12 @@
 
    - Replace `${PROJECT}` with your actual project's link, e.g. `internetguru/academy/tutorial/java01-introduction`.
    - Replace `${BRANCH}` with an actual branch, e.g. `master`.
+   - E.g. [internetguru/academy/tutorial/java01-introduction/README.md](https://gitlab.com/internetguru/academy/tutorial/java01-introduction/-/blob/master/README.md)
+   - E.g. [internetguru/academy/tutorial/java01-introduction/README.md@group1](https://gitlab.com/internetguru/academy/tutorial/java01-introduction/-/blob/group1/README.md)
+   - E.g. [internetguru/academy/tutorial/java02-matrix/README.md](https://gitlab.com/internetguru/academy/tutorial/java02-matrix/-/blob/master/README.md)
+   - E.g. [internetguru/academy/tutorial/java02-matrix/README.md@group1](https://gitlab.com/internetguru/academy/tutorial/java02-matrix/-/blob/group1/README.md)
+
+Note: To execute individual commands manually, [trigger their pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). Make sure you trigger the pipeline on desired branch.
 
 ## GitLab CI Variables
 
