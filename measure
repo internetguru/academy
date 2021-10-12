@@ -55,7 +55,7 @@ while (( $# > 0 )); do
     -i|--ignore) IGNORE='true'; shift ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
-    -s|--namespace) NAMESPACE="${NAMESPACE} ${2}"; shift; shift ;;
+    -s|--namespace) NAMESPACE="${2}"; shift; shift ;;
     -o|--output-dir)
       OUTPUT_DIR="${2}";
       [[ -d "${OUTPUT_DIR}" ]] \
