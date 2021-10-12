@@ -62,6 +62,7 @@
    variables:
      ACADEMY_EVALUATE: "always"
      ACADEMY_USERS: "student1 student2 student3"
+     ACADEMY_PREFIX: "java01-"
      ACADEMY_MOSSURL: "${MOSSURL}"
    ```
 
@@ -85,20 +86,22 @@
 
 ## GitLab CI Variables
 
-- `ACADEMY_SOLUTION: "BRANCH"`
-   - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
 - `ACADEMY_DEADLINE: "DATE"`
    - See `--deadline` option in `academy collect` documentation.
 - `ACADEMY_EDITABLE: "PATTERN"`
    - See `--editable` option in `academy collect` documentation.
 - `ACADEMY_EVALUATE: "WHEN"`
    - Integrate `academy evaluate` as `always` or `manual` (default) job.
-- `ACADEMY_USERS: "USERS"`
-   - List of USERS, see `academy distribution` and `academy measure` STDIN documentation. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 - `ACADEMY_ISSUES: "LABEL"`
    - See `--process-issues` option in `academy distribute` documentation (default current branch).
 - `ACADEMY_MOSSURL: "URL"`
    - CI accessible `URL` to download Moss script for `academy measure`.
+- `ACADEMY_PREFIX: "PREFIX"`
+   - Prepend PREFIX in front of each repository name. PREFIX is empty by default.
+- `ACADEMY_SOLUTION: "BRANCH"`
+   - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
+- `ACADEMY_USERS: "USERS"`
+   - List of USERS, see `academy distribution` and `academy measure` STDIN documentation. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 
 ## Licensing
 
