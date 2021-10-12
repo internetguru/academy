@@ -94,7 +94,7 @@
 - `ACADEMY_EVALUATE: "WHEN"`
    - Integrate `academy evaluate` as `always` or `manual` (default) job.
 - `ACADEMY_USERS: "USERS"`
-   - See `academy distribution` documentation (default value is current user). Merges its values with `ACADEMY_USERS` file if exists. Values can be separated by any white-spaces or commas.
+   - List of USERS, see `academy distribution` and `academy measure` STDIN documentation. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 - `ACADEMY_ISSUES: "LABEL"`
    - See `--process-issues` option in `academy distribute` documentation (default current branch).
 - `ACADEMY_MOSSURL: "URL"`
