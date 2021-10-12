@@ -44,6 +44,19 @@
     exit 1
   fi
 
+.get_users: &get_users |
+  # do not distribute ACADEMY_USERS file
+  mv "ACADEMY_USERS" .. 2>/dev/null || true
+  declare users
+  if [[ -n "${ACADEMY_USERS}" ]]; then
+    users="${ACADEMY_USERS}"
+  elif [[ -f '../ACADEMY_USERS' ]]; then
+    users="$(<../ACADEMY_USERS)"
+  else
+    users="${GITLAB_USER_NAME}"
+  fi
+  users="$(tr ',' ' ' <<< "${users}")"
+
 cache:
   paths:
     - /tmp/.apt
@@ -133,13 +146,13 @@ distribute:
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set token file (will be deprecated)
     - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
-    - mv "ACADEMY_USERS" .. 2>/dev/null || true
+    - *get_users
     # distribute current project among all users
     - |
         ${ACADEMY} distribute --update-links --namespace "${namespace}/${branch}" \
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${project_name}-" \
-        <<< "$({ echo "${ACADEMY_USERS:-${GITLAB_USER_NAME}}"; cat '../ACADEMY_USERS' 2>/dev/null; } | tr ',' ' ')"
+        <<< "${users}"
   when: manual
 
 measure:
@@ -175,5 +188,10 @@ measure:
         git fetch --all
         git --work-tree="${measure_output}" checkout -f "origin/${ACADEMY_SOLUTION}" -- .
     # run measure for given or all branches
-    - ${ACADEMY} measure --output-dir "${measure_output}" --namespace "${user_namespace}" --prefix "${project_name}-"
+    - *get_users
+    - |
+      ${ACADEMY} measure --output-dir "${measure_output}" \
+      --namespace "${user_namespace}" \
+      --prefix "${project_name}-" \
+      <<< "${users}"
   when: manual
