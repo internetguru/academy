@@ -9,15 +9,6 @@ declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 . "${DIR}/commons"
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-. "${DIR}/git_functions"
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-. "${DIR}/gitlab_api"
-
-# check requirements
-check_command git jq
 
 # shellcheck disable=SC2155
 declare WORKING_DIR="$(readlink -f ".")"
@@ -34,7 +25,18 @@ while (( $# > 0 )); do
       print_usage
       exit
       ;;
-    collect|distribute|evaluate|measure)
+    collect|distribute|measure)
+      # shellcheck disable=SC1091
+      # shellcheck disable=SC1090
+      . "${DIR}/git_functions"
+      # shellcheck disable=SC1091
+      # shellcheck disable=SC1090
+      . "${DIR}/gitlab_api"
+
+      # check requirements
+      check_command git jq
+      ;&
+    evaluate)
       declare -r CMD="${1}"
       shift
       # shellcheck disable=SC1090
