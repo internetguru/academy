@@ -10,7 +10,7 @@ ACADEMY - coding assignment handling
 
 ## DESCRIPTION
 
-Provides commands to _distribute_ coding assignments to solvers, _evaluate_ individual solutions and _measure_ similarities between each other.
+Provides commands to _distribute_ coding assignments to students, _evaluate_ individual solutions and _measure_ similarities between each other.
 
 ## OPTIONS
 
