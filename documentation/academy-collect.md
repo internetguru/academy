@@ -9,8 +9,7 @@ Academy-Collect - evaluate repositories against source tests
 `academy collect` [`-hdenops`]
 
 ## DESCRIPTION
-
-Downloads all repositories from a NAMESPACE matching given PREFIX. Runs `academy evaluate` on working project in `WORKING_DIR` replacing only editable files from individual solution repositories.
+Downloads repositories from a NAMESPACE/[PREFIX]USERNAME for each USERNAME from stdin. Runs `academy evaluate` on working project in `WORKING_DIR` replacing only editable files from downloaded repositories.
 
 ## OPTIONS
 
@@ -30,7 +29,7 @@ Downloads all repositories from a NAMESPACE matching given PREFIX. Runs `academy
        Store collected repositories and results in DIR. Uses `mktemp` by default.
 
 `-p`, `--prefix PREFIX`
-       From given NAMESPACE (below) add only projects with matching PREFIX (empty by default).
+       Prepend PREFIX in front of each repository name. PREFIX is empty by default.
 
 `-s`, `--namespace NAMESPACE`
        Add projects from given NAMESPACE.

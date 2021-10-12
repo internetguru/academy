@@ -33,7 +33,7 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
        Store distributed repositories in DIR. Uses `mktemp` by default.
 
 `-p`, `--prefix PREFIX`
-       Prepend PREFIX in front of created repositories names. PREFIX is empty by default.
+       Prepend PREFIX in front of each repository name. PREFIX is empty by default.
 
 `-s`, `--namespace NAMESPACE`
        Distribute repositories into NAMESPACE instead of the current project's namespace.
@@ -49,25 +49,25 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 ## EXAMPLES
 
 ```
-echo "student1 student2 student3" | academy distribute -l -p "lab01-" -s "umiami/george/csc220/fall20"
+echo "student1 student2 student3" | academy distribute -l -p "java01-" -s "internetguru/academy/tutorial/group1"
 ```
 
 Given example distributes current directory into the following locations. The `-l` option updates links in README files.
 
 ```
-umiami/george/csc220/fall20/lab01-student1
-umiami/george/csc220/fall20/lab01-student2
-umiami/george/csc220/fall20/lab01-student3
+internetguru/academy/tutorial/group1/java01-student1
+internetguru/academy/tutorial/group1/java01-student2
+internetguru/academy/tutorial/group1/java01-student3
 ```
 
-The following example does the same job dynamically. Assuming you are in a `lab01` folder on branch `fall20`.
+The following example does the same job dynamically. Assuming you are in a `java01` folder on branch `group1`.
 
 ```
 grep 'ACADEMY_USERS:' .gitlab-ci.yml | cut -d'"' -f2 | academy distribute -l -p "$(basename $PWD)-" \
-  -s "umiami/george/csc220/$(git rev-parse --abbrev-ref HEAD)"
+  -s "internetguru/academy/tutorial/$(git rev-parse --abbrev-ref HEAD)"
 ```
 
-Calling the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all students. Different branch would create a separate namespace and different folder (lab) would distribute the assignment into appropriate lab repositories.
+Note: Running the command dynamically is a number one prevention from accidentally distributing a different lab or even a working solution to all students. Different branch would create a separate namespace and different folder would distribute the assignment into appropriate lab repositories.
 
 ## BUGS
 

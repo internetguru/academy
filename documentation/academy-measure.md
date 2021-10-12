@@ -10,7 +10,7 @@ Academy-Measure - measure software similarities using Moss script
 
 ## DESCRIPTION
 
-Downloads all repositories from a NAMESPACE matching given PREFIX and measures software similarities between each other. Uses an assignment project in `WORKING_DIR` as a base file (see Moss documentation). The link with evaluation results appears at the end of the script.
+Downloads repositories from a NAMESPACE/[PREFIX]USERNAME for each USERNAME from stdin and measures software similarities between each other. Uses an assignment project in `WORKING_DIR` as a base file (see Moss documentation). Displays link with evaluation results at the end of the output.
 
 ## OPTIONS
 
@@ -24,7 +24,7 @@ Downloads all repositories from a NAMESPACE matching given PREFIX and measures s
        Only process option validation. Would not proceed with cloning repositories and Moss execution.
 
 `-p`, `--prefix PREFIX`
-       From given NAMESPACE (below) add only projects with matching PREFIX (empty by default).
+       Prepend PREFIX in front of each repository name. PREFIX is empty by default.
 
 `-s`, `--namespace NAMESPACE`
        Add projects from given NAMESPACE. May contain multiple values separated by space. Process all branches in project's namespace if missing or empty.
