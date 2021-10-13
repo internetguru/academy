@@ -45,9 +45,7 @@
 
 ## GitLab CI Integration
 
-1. Make sure you have your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token). On GitLab [set ACCESS_TOKEN variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) into your root namespace.
-
-   - E.g. into `internetguru/academy`
+> **Important:** Make sure you have a [custom variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) `ACCESS_TOKEN` with your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) in your root namespace, e.g. in `internetguru/academy`.
 
 1. For the working solution on a master branch, add the following include statement to the `.gitlab-ci.yml` file. Create the file if it doesn't exist. 
 
@@ -92,7 +90,7 @@
    - E.g. [internetguru/academy/tutorial/java02-matrix/README.md](https://gitlab.com/internetguru/academy/tutorial/java02-matrix/-/blob/master/README.md)
    - E.g. [internetguru/academy/tutorial/java02-matrix/README.md@group1](https://gitlab.com/internetguru/academy/tutorial/java02-matrix/-/blob/group1/README.md)
 
-Note: To execute individual commands manually, [trigger their pipeline manually](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). Make sure you trigger the pipeline on desired branch.
+Note: To execute individual commands, [trigger their pipeline](https://docs.gitlab.com/ee/ci/pipelines/#run-a-pipeline-manually). Make sure you trigger the pipeline on desired branch.
 
 ## GitLab CI Variables
 
