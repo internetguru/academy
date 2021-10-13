@@ -45,7 +45,7 @@
 
 ## GitLab CI Integration
 
-> **Important:** Make sure you have a [custom variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) `ACCESS_TOKEN` with your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) in your root namespace, e.g. in `internetguru/academy`.
+> **Important:** Make sure you have a [custom variable](https://docs.gitlab.com/ee/ci/variables/#create-a-custom-variable-in-the-ui) `GITLAB_ACCESS_TOKEN` with your [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) in your root namespace, e.g. in `internetguru/academy`.
 
 1. For the working solution on a master branch, add the following include statement to the `.gitlab-ci.yml` file. Create the file if it doesn't exist. 
 

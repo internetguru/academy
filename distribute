@@ -189,7 +189,7 @@ declare PROJECT_BRANCH=''
 declare ISSUES=''
 declare -i ISSUES_COUNT=0
 # shellcheck disable=SC2034
-declare ACCESS_TOKEN
+declare GITLAB_ACCESS_TOKEN
 
 # get options
 declare OPT

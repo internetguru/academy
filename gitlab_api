@@ -15,7 +15,7 @@ gitlab_api() {
     && data="{}"
   # shellcheck disable=SC2155
   declare response="$(curl --silent --write-out '\n%{http_code}\n' \
-    --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+    --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" \
     --header 'Content-Type: application/json' \
     --request ${req} --data "${data:-{\}}" "https://${GITLAB_URL}/${url}")"
   # shellcheck disable=SC2155
@@ -122,7 +122,7 @@ get_remote_namespace() {
 }
 get_remote_url() {
   declare -r project="${1}"
-  printf -- "https://oauth2:%s@%s/%s.git" "${ACCESS_TOKEN}" "${GITLAB_URL}" "${project}"
+  printf -- "https://oauth2:%s@%s/%s.git" "${GITLAB_ACCESS_TOKEN}" "${GITLAB_URL}" "${project}"
 }
 get_group_projects() {
   # shellcheck disable=SC2154
@@ -138,8 +138,8 @@ acquire_token() {
   [[ -s "${TOKEN_FILE}" ]] \
     || get_token
   # shellcheck disable=SC2034
-  ACCESS_TOKEN="$(cat "${TOKEN_FILE}")" \
+  GITLAB_ACCESS_TOKEN="$(cat "${TOKEN_FILE}")" \
     || exit 1
-  # test ACCESS_TOKEN
+  # test GITLAB_ACCESS_TOKEN
   gitlab_api "api/v4/projects" >/dev/null
 }

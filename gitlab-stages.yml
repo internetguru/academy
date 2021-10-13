@@ -27,8 +27,8 @@
 
 .before_script_token: &validate_token |
   # prepare acccess token for the distribution script
-  if [[ -z "${ACCESS_TOKEN}" ]]; then
-    echo "Undefined variable {ACCESS_TOKEN}"
+  if [[ -z "${GITLAB_ACCESS_TOKEN}" ]]; then
+    echo "Undefined variable {GITLAB_ACCESS_TOKEN}"
     echo "Refer to README and make sure the current branch is protected."
     exit 1
   fi
@@ -78,7 +78,7 @@ collect:
     - *global_init
   script:
     # set token file (will be deprecated)
-    - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - echo "${GITLAB_ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # process files distributed from current branch
     - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # checkout to ACADEMY_SOLUTION branch
@@ -155,7 +155,7 @@ distribute:
     # e.g. fall20
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set token file (will be deprecated)
-    - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - echo "${GITLAB_ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     - *get_users
     # distribute current project among all users
     - |
@@ -180,7 +180,7 @@ measure:
           exit 1
         fi
     # set token file (will be deprecated)
-    - echo "${ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - echo "${GITLAB_ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
     # process files distributed from current branch
     - declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # download moss script
