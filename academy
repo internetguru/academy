@@ -39,7 +39,7 @@ while (( $# > 0 )); do
       declare -r CMD="${1}"
       shift
       # shellcheck disable=SC1090
-      . "${DIR}/${CMD}"
+      . "${DIR}/${CMD}" "$@"
       exit $?
       ;;
     *)

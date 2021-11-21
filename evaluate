@@ -6,10 +6,12 @@ evaluate() {
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
   curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
   curl -so "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
+  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests%20Passed-0/0-gray'
 
   printf -- 'failed' > "${COMPILE_TXT}"
   printf -- 'n/a' > "${CHECKSTYLE_TXT}"
   printf -- 'n/a' > "${TEST_TXT}"
+  printf -- 'n/a' > "${IOTEST_TXT}"
 
   mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
     || exit 0
@@ -104,18 +106,47 @@ EOD
   declare -ri passed=$((total - failures))
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
+
+  declare infolder class outfolder infile iofname outfile testClasses
+  testClasses="*"
+  [[ -n "${1}" ]] \
+    && testClasses="${1}"
+  for infolder in "${IOTEST_FOLDER}/"${testClasses}.stdin; do
+    [[ ! -d "${infolder}" ]] \
+      && echo "TODO log warning no stdin folder" \
+      && continue
+    class="$(basename "${infolder}")"
+    class="${class%.*}"
+    outfolder="${IOTEST_FOLDER}/${class}.stdout"
+    # TODO info output (processing)
+    for infile in "${infolder}/"*; do
+      iofname="$(basename "${infile}")"
+      outfile="${outfolder}/${iofname}"
+      [[ ! -f "${outfile}" ]] \
+        && echo "TODO log warning no stdout folder" \
+        && continue
+      # shellcheck disable=SC2086
+      mvn -q -f "${POM}" exec:java@${class} <<< "${infile}" \
+        | tee "${IOTEST_LOG}" \
+        | diff - "${outfile}"
+    done
+  done
 }
 
+declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 declare -r POM="${WORKING_DIR}/pom.xml"
 declare -r RESULTS="${WORKING_DIR}/.results"
 declare -r COMPILE_LOG="${RESULTS}/compile.log"
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r TEST_LOG="${RESULTS}/test.log"
+declare -r IOTEST_LOG="${RESULTS}/iotest.log"
 declare -r COMPILE_TXT="${RESULTS}/compile.txt"
 declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
 declare -r TEST_TXT="${RESULTS}/test.txt"
+declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
 declare -r COMPILE_SVG="${RESULTS}/compile.svg"
 declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
 declare -r TEST_SVG="${RESULTS}/test.svg"
+declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
 
-evaluate
+evaluate "$@"
