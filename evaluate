@@ -135,7 +135,6 @@ EOD
       iocount+=1
       # shellcheck disable=SC2086
       testdiff="$(mvn -q -f "${POM}" exec:java@${class} < "${infile}" \
-        | tee "${IOTEST_LOG}" \
         | diff - "${outfile}")"
       [[ -n "${testdiff}" ]] \
         && echo "${testdiff}" >> "${IOTEST_LOG}" \
