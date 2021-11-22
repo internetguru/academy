@@ -114,6 +114,7 @@ EOD
 
   declare infolder class outfolder infile iofname outfile testclasses testdiff
   declare -i iocount=0 iopassed=0
+  touch "${IOTEST_LOG}"
   testclasses="*"
   [[ -n "${1}" ]] \
     && testclasses="${1}"
