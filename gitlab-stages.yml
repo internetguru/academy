@@ -127,11 +127,11 @@ evaluate:
   image: debian:stretch
   stage: build
   before_script:
-    - *global_init
-    - *pom_check
     - *apt_cache
     - *apt_requirements
     - *apt_java
+    - *global_init
+    - *pom_check
   cache:
     paths:
       - target/
