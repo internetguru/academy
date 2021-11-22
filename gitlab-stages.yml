@@ -124,11 +124,14 @@ collect:
     expire_in: 1 year
 
 evaluate:
-  image: maven:latest
+  image: debian:stretch
   stage: build
   before_script:
     - *global_init
     - *pom_check
+    - *apt_cache
+    - *apt_requirements
+    - *apt_java
   cache:
     paths:
       - target/
