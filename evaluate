@@ -137,7 +137,7 @@ EOD
         | tee "${IOTEST_LOG}" \
         | diff - "${outfile}")"
       [[ -n "${testdiff}" ]] \
-        && echo "TODO log diff" \
+        && echo "${testdiff}" >> "${IOTEST_LOG}" \
         && continue
       iopassed+=1
     done
