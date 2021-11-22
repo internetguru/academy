@@ -1,5 +1,18 @@
 #!/bin/bash
 
+getTestColor() {
+  declare color='brightgreen'
+  (( perc < 85 )) \
+    && color='green'
+  (( perc < 70 )) \
+    && color='yellow'
+  (( perc < 55 )) \
+    && color='orange'
+  (( perc < 45 )) \
+    && color='red'
+  echo "${color}"
+}
+
 evaluate() {
 
   mkdir -p "${RESULTS}"
@@ -78,15 +91,7 @@ EOD
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
 
-  declare color='brightgreen'
-  (( perc < 85 )) \
-    && color='green'
-  (( perc < 70 )) \
-    && color='yellow'
-  (( perc < 55 )) \
-    && color='orange'
-  (( perc < 45 )) \
-    && color='red'
+  color="$(getTestColor "${perc}")"
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
   printf -- "%d%%" "${perc}" > "${CHECKSTYLE_TXT}"
@@ -107,11 +112,12 @@ EOD
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
 
-  declare infolder class outfolder infile iofname outfile testClasses
-  testClasses="*"
+  declare infolder class outfolder infile iofname outfile testclasses testdiff
+  declare -i iocount=0 iopassed=0
+  testclasses="*"
   [[ -n "${1}" ]] \
-    && testClasses="${1}"
-  for infolder in "${IOTEST_FOLDER}/"${testClasses}.stdin; do
+    && testclasses="${1}"
+  for infolder in "${IOTEST_FOLDER}/"${testclasses}.stdin; do
     [[ ! -d "${infolder}" ]] \
       && echo "TODO log warning no stdin folder" \
       && continue
@@ -125,12 +131,21 @@ EOD
       [[ ! -f "${outfile}" ]] \
         && echo "TODO log warning no stdout folder" \
         && continue
+      iocount+=1
       # shellcheck disable=SC2086
-      mvn -q -f "${POM}" exec:java@${class} <<< "${infile}" \
+      testdiff="$(mvn -q -f "${POM}" exec:java@${class} < "${infile}" \
         | tee "${IOTEST_LOG}" \
-        | diff - "${outfile}"
+        | diff - "${outfile}")"
+      [[ -n "${testdiff}" ]] \
+        && echo "TODO log diff" \
+        && continue
+      iopassed+=1
     done
   done
+  test_color='success'
+  [[ ${iopassed} < ${iocount} ]] \
+    && test_color='critical'
+  curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests%20Passed-${iopassed}/${iocount}-${test_color}"
 }
 
 declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
