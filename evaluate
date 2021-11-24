@@ -18,8 +18,8 @@ evaluate() {
   mkdir -p "${RESULTS}"
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
   curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
-  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
-  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests%20Passed-0/0-gray'
+  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/CI%20Tests-0/0-gray'
+  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
 
   printf -- 'failed' > "${COMPILE_TXT}"
   printf -- 'n/a' > "${CHECKSTYLE_TXT}"
@@ -109,7 +109,7 @@ EOD
   declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
   declare -ri total=$((runs - skipped))
   declare -ri passed=$((total - failures))
-  curl -so "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
+  curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
 
   declare infolder class outfolder infile iofname outfile testclasses testdiff
@@ -145,7 +145,7 @@ EOD
   test_color='success'
   [[ ${iopassed} < ${iocount} ]] \
     && test_color='critical'
-  curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests%20Passed-${iopassed}/${iocount}-${test_color}"
+  curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${iopassed}/${iocount}-${test_color}"
 }
 
 declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
