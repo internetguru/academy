@@ -112,39 +112,39 @@ EOD
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
 
-  declare infolder class outfolder infile iofname outfile testclasses testdiff
+  declare infolder class outfolder infile iofname outfile testdiff
   declare -i iocount=0 iopassed=0
-  touch "${IOTEST_LOG}"
-  testclasses="*"
-  [[ -n "${1}" ]] \
-    && testclasses="${1}"
-  for infolder in "${IOTEST_FOLDER}/"${testclasses}.stdin; do
+  printf -- '' > "${IOTEST_LOG}"
+  for infolder in "${IOTEST_FOLDER}/"*.stdin; do
     [[ ! -d "${infolder}" ]] \
-      && echo "TODO log warning no stdin folder" \
       && continue
     class="$(basename "${infolder}")"
     class="${class%.*}"
     outfolder="${IOTEST_FOLDER}/${class}.stdout"
-    # TODO info output (processing)
+    printf -- "# Processing IO tests for %s\n" "${class}" >> "${IOTEST_LOG}"
     for infile in "${infolder}/"*; do
       iofname="$(basename "${infile}")"
       outfile="${outfolder}/${iofname}"
       [[ ! -f "${outfile}" ]] \
-        && echo "TODO log warning no stdout folder" \
+        && printf -- "Stdout test file %s not found\n" "${outfile}" >> "${IOTEST_LOG}" \
         && continue
       iocount+=1
+      printf -- "IO test #%s " "${iocount}" >> "${IOTEST_LOG}"
       # shellcheck disable=SC2086
       testdiff="$(mvn -q -f "${POM}" exec:java@${class} < "${infile}" \
-        | diff - "${outfile}")"
+        | diff - "${outfile}" | tail -n+2 | sed 's/^</received output:/;s/^>/expected output:/;/^---/d')"
       [[ -n "${testdiff}" ]] \
-        && echo "${testdiff}" >> "${IOTEST_LOG}" \
+        && printf -- " [failed]\n%s\n" "${testdiff}" >> "${IOTEST_LOG}" \
         && continue
+      printf -- "[passed]\n" >> "${IOTEST_LOG}"
       iopassed+=1
     done
   done
+  printf -- "Summary: %s/%s\n" "${iopassed}" "${iocount}" >> "${IOTEST_LOG}"
   test_color='success'
   [[ ${iopassed} < ${iocount} ]] \
     && test_color='critical'
+  printf -- '%s/%s' "${iopassed}" "${iocount}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${iopassed}/${iocount}-${test_color}"
 }
 
