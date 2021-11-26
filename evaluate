@@ -1,15 +1,30 @@
 #!/bin/bash
 
+getTestColor() {
+  declare color='brightgreen'
+  (( perc < 85 )) \
+    && color='green'
+  (( perc < 70 )) \
+    && color='yellow'
+  (( perc < 55 )) \
+    && color='orange'
+  (( perc < 45 )) \
+    && color='red'
+  echo "${color}"
+}
+
 evaluate() {
 
   mkdir -p "${RESULTS}"
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
   curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
-  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/Tests%20Passed-0/0-gray'
+  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/CI%20Tests-0/0-gray'
+  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
 
   printf -- 'failed' > "${COMPILE_TXT}"
   printf -- 'n/a' > "${CHECKSTYLE_TXT}"
   printf -- 'n/a' > "${TEST_TXT}"
+  printf -- 'n/a' > "${IOTEST_TXT}"
 
   mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
     || exit 0
@@ -76,15 +91,7 @@ EOD
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
 
-  declare color='brightgreen'
-  (( perc < 85 )) \
-    && color='green'
-  (( perc < 70 )) \
-    && color='yellow'
-  (( perc < 55 )) \
-    && color='orange'
-  (( perc < 45 )) \
-    && color='red'
+  color="$(getTestColor "${perc}")"
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
   printf -- "%d%%" "${perc}" > "${CHECKSTYLE_TXT}"
@@ -102,20 +109,59 @@ EOD
   declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
   declare -ri total=$((runs - skipped))
   declare -ri passed=$((total - failures))
-  curl -so "${TEST_SVG}" "https://img.shields.io/badge/Tests%20Passed-${passed}/${total}-${test_color}"
+  curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
+
+  declare infolder class outfolder infile iofname outfile testdiff
+  declare -i iocount=0 iopassed=0
+  printf -- '' > "${IOTEST_LOG}"
+  for infolder in "${IOTEST_FOLDER}/"*.stdin; do
+    [[ ! -d "${infolder}" ]] \
+      && continue
+    class="$(basename "${infolder}")"
+    class="${class%.*}"
+    outfolder="${IOTEST_FOLDER}/${class}.stdout"
+    printf -- "# Processing IO tests for %s\n" "${class}" >> "${IOTEST_LOG}"
+    for infile in "${infolder}/"*; do
+      iofname="$(basename "${infile}")"
+      outfile="${outfolder}/${iofname}"
+      [[ ! -f "${outfile}" ]] \
+        && printf -- "Stdout test file %s not found\n" "${outfile}" >> "${IOTEST_LOG}" \
+        && continue
+      iocount+=1
+      printf -- "IO test #%s " "${iocount}" >> "${IOTEST_LOG}"
+      # shellcheck disable=SC2086
+      testdiff="$(mvn -q -f "${POM}" exec:java@${class} < "${infile}" \
+        | diff - "${outfile}" | tail -n+2 | sed 's/^</received output:/;s/^>/expected output:/;/^---/d')"
+      [[ -n "${testdiff}" ]] \
+        && printf -- " [failed]\n%s\n" "${testdiff}" >> "${IOTEST_LOG}" \
+        && continue
+      printf -- "[passed]\n" >> "${IOTEST_LOG}"
+      iopassed+=1
+    done
+  done
+  printf -- "Summary: %s/%s\n" "${iopassed}" "${iocount}" >> "${IOTEST_LOG}"
+  test_color='success'
+  [[ ${iopassed} < ${iocount} ]] \
+    && test_color='critical'
+  printf -- '%s/%s' "${iopassed}" "${iocount}" > "${IOTEST_TXT}"
+  curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${iopassed}/${iocount}-${test_color}"
 }
 
+declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 declare -r POM="${WORKING_DIR}/pom.xml"
 declare -r RESULTS="${WORKING_DIR}/.results"
 declare -r COMPILE_LOG="${RESULTS}/compile.log"
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r TEST_LOG="${RESULTS}/test.log"
+declare -r IOTEST_LOG="${RESULTS}/iotest.log"
 declare -r COMPILE_TXT="${RESULTS}/compile.txt"
 declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
 declare -r TEST_TXT="${RESULTS}/test.txt"
+declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
 declare -r COMPILE_SVG="${RESULTS}/compile.svg"
 declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
 declare -r TEST_SVG="${RESULTS}/test.svg"
+declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
 
-evaluate
+evaluate "$@"
