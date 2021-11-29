@@ -22,7 +22,24 @@ n/a
 
 ## EXAMPLES
 
-n/a
+### IO Test example
+
+Directory structure for `Main.java` class IO tests:
+
+```
+/
+├── iotest
+│  ├── Main.stdin
+│  │   ├── 1.txt
+│  │   ├── 2.txt
+│  │   ├── 3.txt
+│  │   ├── …
+│  ├── Main.stdout
+│  │   ├── 1.txt
+│  │   ├── 2.txt
+│  │   ├── 3.txt
+│  │   ├── …
+```
 
 ## BUGS
 
