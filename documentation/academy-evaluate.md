@@ -10,7 +10,9 @@ Academy-Evaluate - evaluate project and create status badges
 
 ## DESCRIPTION
 
-Evaluates current project on compilation, coding style, CI tests and IO tests. Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
+Evaluates current project on compilation, coding style, standard CI tests (Maven) and IO tests (see below). Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
+
+Note: IO test for individual source files `${FILE}` are applied from `iotest/${FILE}.stdin/*` and `iotest/${FILE}.stdout/*` respectively. See IO test example below.
 
 ## OPTIONS
 
