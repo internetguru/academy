@@ -10,7 +10,7 @@ Academy-Evaluate - evaluate project and create status badges
 
 ## DESCRIPTION
 
-Evaluates current project on compilation, coding style and automatic tests. Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
+Evaluates current project on compilation, coding style, CI tests and IO tests. Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
 
 ## OPTIONS
 
