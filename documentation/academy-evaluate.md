@@ -30,14 +30,12 @@ Directory structure for `SumClass.java` class IO tests:
 /
 └── iotest
    ├── SumClass.stdin
-   │   ├── 1.txt
-   │   ├── 2.txt
-   │   ├── 3.txt
+   │   ├── sum.csv
+   │   ├── hello.txt
    │   └── …
    └── SumClass.stdout
-       ├── 1.txt
-       ├── 2.txt
-       ├── 3.txt
+       ├── sum.csv
+       ├── hello.txt
        └── …
 ```
 
