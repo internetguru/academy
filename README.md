@@ -6,7 +6,7 @@
 
 # Internet Guru Academy
 
-> This script provides commands to manage coding assignments: _distribute_ among students, _evaluate_ individually, _collect_ all results, and _measure_ similarities.
+> This [script](documentation/academy.md) provides commands to manage coding assignments: [distribute](documentation/academy-distribute.md) among students, [evaluate](documentation/academy-evaluate.md) individually, [collect](documentation/academy-collect.md) all results, and [measure](documentation/academy-measure.md) similarities.
 
 ## Requirements
 
