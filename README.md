@@ -114,6 +114,8 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
 
 ## Technical Documentation
 
+The following documentation files are available after installation using `man` command.
+
 - [academy](documentation/academy.md)
 - [academy distribute](documentation/academy-distribute.md)
 - [academy evaluate](documentation/academy-evaluate.md)
