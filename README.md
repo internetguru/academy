@@ -112,6 +112,16 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
 - `ACADEMY_USERS: "USERS"`
    - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 
+## Technical Documentation
+
+The following documentation files are available after installation using `man` command.
+
+- [academy](documentation/academy.md)
+- [academy distribute](documentation/academy-distribute.md)
+- [academy evaluate](documentation/academy-evaluate.md)
+- [academy collect](documentation/academy-collect.md)
+- [academy measure](documentation/academy-measure.md)
+
 ## Licensing
 
 All rights reserved.
