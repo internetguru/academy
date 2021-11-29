@@ -6,7 +6,7 @@
 
 # Internet Guru Academy
 
-> This [script](documentation/academy.md) provides commands to manage coding assignments: [distribute](documentation/academy-distribute.md) among students, [evaluate](documentation/academy-evaluate.md) individually, [collect](documentation/academy-collect.md) all results, and [measure](documentation/academy-measure.md) similarities.
+> This script provides commands to manage coding assignments: _distribute_ among students, _evaluate_ individually, _collect_ all results, and _measure_ similarities.
 
 ## Requirements
 
@@ -111,6 +111,14 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
    - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
 - `ACADEMY_USERS: "USERS"`
    - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
+
+## Technical Documentation
+
+- [academy](documentation/academy.md)
+- [academy distribute](documentation/academy-distribute.md)
+- [academy evaluate](documentation/academy-evaluate.md)
+- [academy collect](documentation/academy-collect.md)
+- [academy measure](documentation/academy-measure.md)
 
 ## Licensing
 
