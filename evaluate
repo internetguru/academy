@@ -79,7 +79,7 @@ evaluate() {
 EOD
 
   # run checkstyle and save warnings and errors into log
-  mvn -f "${tmppom}" install
+  mvn -f "${tmppom}" -T 1C clean install -Dmaven.test.skip -DskipTests
   mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}" 2>&1
   [[ ${PIPESTATUS[0]} != 0 ]] \
     && exit 1
