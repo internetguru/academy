@@ -1,4 +1,23 @@
 
+variables:
+  ACADEMY_LANG: "java"
+  BASE_RUNNER_TAG: "java"
+
+workflow:
+  rules:
+    - if: $ACADEMY_LANG == "java"
+      variables:
+        RUNNER_TAG: "java"
+        MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+    - if: $ACADEMY_LANG == "oracle"
+      variables:
+        RUNNER_TAG: "oracle"
+
+cache:
+  key: mvn
+  paths:
+    - .m2/repository
+
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
@@ -33,23 +52,6 @@
     exit 1
   fi
 
-.before_script_apt_cache: &apt_cache |
-  rm -f /etc/apt/apt.conf.d/docker-clean
-  mkdir /tmp/.apt && mkdir /var/cache/apt/archives && mount --bind /tmp/.apt /var/cache/apt/archives/
-
-.before_script_apt: &apt_requirements |
-  # install requirements
-  apt update && apt install -y curl jq git rsync
-
-.before_script_java: &apt_java |
-  apt update && apt install -y default-jdk maven
-
-.pom_check: &pom_check |
-  if [[ ! -f "pom.xml" ]]; then
-    echo "Missing pom.xml"
-    exit 1
-  fi
-
 .get_users: &get_users |
   # do not distribute ACADEMY_USERS file
   mv "ACADEMY_USERS" .. 2>/dev/null || true
@@ -63,18 +65,12 @@
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
-cache:
-  paths:
-    - /tmp/.apt
-
 collect:
-  image: debian:stretch
+  tags:
+    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
-    - *apt_cache
-    - *apt_requirements
-    - *apt_java
     - *global_init
   script:
     # set token file (will be deprecated)
@@ -124,14 +120,11 @@ collect:
     expire_in: 1 year
 
 evaluate:
-  image: debian:stretch
+  tags:
+    - ${RUNNER_TAG}
   stage: build
   before_script:
-    - *apt_cache
-    - *apt_requirements
-    - *apt_java
     - *global_init
-    - *pom_check
   cache:
     paths:
       - target/
@@ -147,12 +140,11 @@ evaluate:
     - when: manual
 
 distribute:
-  image: debian:stretch
+  tags:
+    - ${BASE_RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
-    - *apt_cache
-    - *apt_requirements
     - *global_init
   script:
     # e.g. fall20
@@ -169,12 +161,11 @@ distribute:
   when: manual
 
 measure:
-  image: debian:stretch
+  tags:
+    - ${BASE_RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
-    - *apt_cache
-    - *apt_requirements
     - *global_init
   script:
     - |
