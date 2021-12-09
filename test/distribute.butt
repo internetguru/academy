@@ -4,6 +4,7 @@ i=0
 status=
 academy=${ACADEMY_BIN:-academy}
 tmp_project=$(mktemp -d)
+export ACADEMY_LANG='java'
 
 #######################################
 ## Param validation
@@ -19,9 +20,9 @@ end
 #######################################
 : $((i++))
 start "invalid remote namespace dirname"
-  debug "echo 'user1' | $academy distribute -s '1/correct'"
+  debug "echo 'user1' | $academy distribute -s 'ů1/correct'"
   assert_equal "$status" 2
-  assert_startwith "${errlines[0]}" "Unsupported REMOTE_NAMESPACE dirname [ #2 ]"
+  assert_startwith "${errlines[1]}" "Unsupported REMOTE_NAMESPACE dirname [ #2 ]"
 end
 #######################################
 : $((i++))
@@ -35,7 +36,7 @@ end
 start "missing root namespace"
   debug "echo 'user1' | $academy -w '$tmp_project' distribute -s 'xyz123xyz/abc'"
   assert_equal "$status" 1
-  assert_startwith "${errlines[1]}" "xyz123xyz/abc/user1 ... Root group xyz123xyz does not exist in create_ns()"
+  assert_startwith "${errlines[0]}" "xyz123xyz/abc/user1 ... Root group xyz123xyz does not exist in create_ns()"
 end
 # : $((i++))
 # skip "missing users: not working on gh actions"
