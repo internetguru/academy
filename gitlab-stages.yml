@@ -155,6 +155,7 @@ distribute:
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${PREFIX}" \
         <<< "${users}"
+  cache: []
   when: manual
 
 measure:
@@ -195,4 +196,5 @@ measure:
       --namespace "${user_namespace}" \
       --prefix "${PREFIX}" \
       <<< "${users}"
+  cache: []
   when: manual
