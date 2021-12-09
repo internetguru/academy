@@ -5,10 +5,15 @@ set -o pipefail
 declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
-
+# shellcheck disable=SC2034
+declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
+# shellcheck disable=SC2034
+declare -rA SRC_DIR='src'
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 . "${DIR}/commons"
+
+checkLang "${ACADEMY_LANG}"
 
 # shellcheck disable=SC2155
 declare WORKING_DIR="$(readlink -f ".")"
