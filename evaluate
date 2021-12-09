@@ -19,7 +19,6 @@ iotest() {
   declare -r testFolder="${1}"
   # shellcheck disable=SC2155
   declare -r testFolderName="$(basename "${testFolder}")"
-  checkLangExtension "${testFolderName##*.}"
   declare -r testName="${2}"
   declare -r testPath="${testFolder}/${testName}"
   declare cmd="${3}"
