@@ -125,9 +125,6 @@ evaluate:
   stage: build
   before_script:
     - *global_init
-  cache:
-    paths:
-      - target/
   script:
     - ${ACADEMY} evaluate
   artifacts:
