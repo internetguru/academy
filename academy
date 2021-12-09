@@ -8,7 +8,7 @@ declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 # shellcheck disable=SC2034
 declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
 # shellcheck disable=SC2034
-declare -rA SRC_DIR='src'
+declare -r SRC_DIR='src'
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 . "${DIR}/commons"
