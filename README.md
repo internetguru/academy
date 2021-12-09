@@ -115,7 +115,7 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
 - `ACADEMY_USERS: "USERS"`
    - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 
-\* **Security note**: private variables should be defined as [masked environmental CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project). Consider defining them globally for the whole group e.g. in `internetguru/academy`.
+\* **Security note**: private variables should be defined as [masked environmental CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project). Consider defining them globally for the whole group, e.g. in `internetguru/academy`.
 
 ## Technical Documentation
 
