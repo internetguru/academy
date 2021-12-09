@@ -12,7 +12,7 @@ Academy-Evaluate - evaluate project and create status badges
 
 Evaluates current project on compilation, coding style, standard CI tests (Maven) and IO tests (see below). Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
 
-Note: IO test for individual source files `${FILE}` are applied from `iotest/${FILE}.stdin/*` and `iotest/${FILE}.stdout/*` respectively. See IO test example below.
+Note: IO tests for individual source files `${FILEPATH}` are applied from `iotest/${FILEPATH}/` folder. Allowed extensions are `stdin`, `stdout`, `errout`, `sc` and `optarg`. All extensions are optional. See IO test example below.
 
 ## OPTIONS
 
@@ -26,19 +26,19 @@ n/a
 
 ### IO Test example
 
-Directory structure for `SumClass.java` class IO tests:
+Directory structure for `/src/main/SumClass.java` class IO tests:
 
 ```
 /
-└── iotest
-   ├── SumClass.stdin
-   │   ├── sum.csv
-   │   ├── hello.txt
-   │   └── …
-   └── SumClass.stdout
-       ├── sum.csv
-       ├── hello.txt
-       └── …
+└── iotest/src/main/SumClass.java
+    ├── foo.stdin
+    ├── foo.stdout
+    ├── foo.errout
+    ├── bar.stdout
+    ├── hello.optarg
+    ├── hello.sc
+    ├── world.errout
+    └── …
 ```
 
 ## BUGS
