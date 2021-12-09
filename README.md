@@ -46,7 +46,7 @@
 ## GitLab CI Integration
 
 
-1. Set or verify `ACADEMY_GITLAB_ACCESS_TOKEN`, see CI variables section bellow.
+1. Make sure you have a personal access token available for the script, see `ACADEMY_GITLAB_ACCESS_TOKEN` in CI variables section below.
 
 1. For the working solution on a master branch, add the following include statement to the `.gitlab-ci.yml` file. Create the file if it doesn't exist. 
 
@@ -102,11 +102,11 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
    - See `--editable` option in `academy collect` documentation.
 - `ACADEMY_EVALUATE: "WHEN"`
    - Integrate `academy evaluate` as `always` or `manual` (default) job.
-- \* `ACADEMY_GITLAB_ACCESS_TOKEN`
+- `ACADEMY_GITLAB_ACCESS_TOKEN: "ACCESS_TOKEN"` (\*secret)
    - See [how to generate your personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token).
 - `ACADEMY_ISSUES: "LABEL"`
    - See `--process-issues` option in `academy distribute` documentation (default current branch).
-- \* `ACADEMY_MOSSURL: "URL"`
+- `ACADEMY_MOSSURL: "URL"` (\*secret)
    - CI accessible `URL` to download Moss script for `academy measure`.
 - `ACADEMY_PREFIX: "PREFIX"`
    - Prepend PREFIX in front of each repository name. PREFIX is empty by default.
@@ -115,7 +115,7 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
 - `ACADEMY_USERS: "USERS"`
    - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 
-\* **Security note**: private variables should be defined as [masked environmental CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project). Consider defining them globally for the whole group, e.g. in `internetguru/academy`.
+\* **Secret variables** should be defined as [masked environmental CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project). Consider defining them globally for the whole group, e.g. in `internetguru/academy`.
 
 ## Technical Documentation
 
