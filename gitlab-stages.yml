@@ -1,4 +1,23 @@
 
+variables:
+  ACADEMY_LANG: "java"
+  BASE_RUNNER_TAG: "java"
+
+workflow:
+  rules:
+    - if: $ACADEMY_LANG == "java"
+      variables:
+        RUNNER_TAG: "java"
+        MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+    - if: $ACADEMY_LANG == "oracle"
+      variables:
+        RUNNER_TAG: "oracle"
+
+cache:
+  key: mvn
+  paths:
+    - .m2/repository
+
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
@@ -27,26 +46,9 @@
 
 .before_script_token: &validate_token |
   # prepare acccess token for the distribution script
-  if [[ -z "${GITLAB_ACCESS_TOKEN}" ]]; then
-    echo "Undefined variable {GITLAB_ACCESS_TOKEN}"
+  if [[ -z "${ACADEMY_GITLAB_ACCESS_TOKEN}" ]]; then
+    echo "Undefined variable {ACADEMY_GITLAB_ACCESS_TOKEN}"
     echo "Refer to README and make sure the current branch is protected."
-    exit 1
-  fi
-
-.before_script_apt_cache: &apt_cache |
-  rm -f /etc/apt/apt.conf.d/docker-clean
-  mkdir /tmp/.apt && mkdir /var/cache/apt/archives && mount --bind /tmp/.apt /var/cache/apt/archives/
-
-.before_script_apt: &apt_requirements |
-  # install requirements
-  apt update && apt install -y curl jq git rsync
-
-.before_script_java: &apt_java |
-  apt update && apt install -y default-jdk maven
-
-.pom_check: &pom_check |
-  if [[ ! -f "pom.xml" ]]; then
-    echo "Missing pom.xml"
     exit 1
   fi
 
@@ -63,22 +65,16 @@
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
-cache:
-  paths:
-    - /tmp/.apt
-
 collect:
-  image: debian:stretch
+  tags:
+    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
-    - *apt_cache
-    - *apt_requirements
-    - *apt_java
     - *global_init
   script:
     # set token file (will be deprecated)
-    - echo "${GITLAB_ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
     # process files distributed from current branch
     - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # checkout to ACADEMY_SOLUTION branch
@@ -124,17 +120,11 @@ collect:
     expire_in: 1 year
 
 evaluate:
-  image: debian:stretch
+  tags:
+    - ${RUNNER_TAG}
   stage: build
   before_script:
-    - *apt_cache
-    - *apt_requirements
-    - *apt_java
     - *global_init
-    - *pom_check
-  cache:
-    paths:
-      - target/
   script:
     - ${ACADEMY} evaluate
   artifacts:
@@ -147,18 +137,17 @@ evaluate:
     - when: manual
 
 distribute:
-  image: debian:stretch
+  tags:
+    - ${BASE_RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
-    - *apt_cache
-    - *apt_requirements
     - *global_init
   script:
     # e.g. fall20
     - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set token file (will be deprecated)
-    - echo "${GITLAB_ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
     - *get_users
     # distribute current project among all users
     - |
@@ -166,15 +155,15 @@ distribute:
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${PREFIX}" \
         <<< "${users}"
+  cache: []
   when: manual
 
 measure:
-  image: debian:stretch
+  tags:
+    - ${BASE_RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
-    - *apt_cache
-    - *apt_requirements
     - *global_init
   script:
     - |
@@ -183,7 +172,7 @@ measure:
           exit 1
         fi
     # set token file (will be deprecated)
-    - echo "${GITLAB_ACCESS_TOKEN}" > ${HOME}/.gitlab_access_token
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
     # process files distributed from current branch
     - declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # download moss script
@@ -207,4 +196,5 @@ measure:
       --namespace "${user_namespace}" \
       --prefix "${PREFIX}" \
       <<< "${users}"
+  cache: []
   when: manual

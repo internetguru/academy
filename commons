@@ -96,3 +96,7 @@ get_md_section() {
     }' \
     | sed 's/`//g'
 }
+checkLang() {
+  [[ " ${!LANG_TO_EXTENSION[*]} " == *" ${1} "* ]] \
+    || exception "Unsupported language ${1}"
+}

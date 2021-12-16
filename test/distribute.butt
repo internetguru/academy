@@ -4,6 +4,7 @@ i=0
 status=
 academy=${ACADEMY_BIN:-academy}
 tmp_project=$(mktemp -d)
+export ACADEMY_LANG='java'
 
 #######################################
 ## Param validation
@@ -19,7 +20,7 @@ end
 #######################################
 : $((i++))
 start "invalid remote namespace dirname"
-  debug "echo 'user1' | $academy distribute -s '1/correct'"
+  debug "echo 'user1' | $academy distribute -s '=/correct'"
   assert_equal "$status" 2
   assert_startwith "${errlines[0]}" "Unsupported REMOTE_NAMESPACE dirname [ #2 ]"
 end
