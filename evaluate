@@ -1,6 +1,6 @@
 #!/bin/bash
 
-getTestColor() {
+get_test_color() {
   declare color='brightgreen'
   (( perc < 85 )) \
     && color='green'
@@ -12,60 +12,60 @@ getTestColor() {
     && color='red'
   echo "${color}"
 }
-prettyDiff() {
+pretty_diff() {
   diff --old-line-format=$'- %l\n' --new-line-format=$'+ %l\n' --unchanged-line-format='' "$@"
 }
-iotest() {
-  declare -r testFolder="${1}"
+io_test() {
+  declare -r test_folder="${1}"
   # shellcheck disable=SC2155
-  declare -r testFolderName="$(basename "${testFolder}")"
-  declare -r testName="${2}"
-  declare -r testPath="${testFolder}/${testName}"
+  declare -r test_folder_name="$(basename "${test_folder}")"
+  declare -r test_name="${2}"
+  declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${3}"
   # explicit declare test extension variables to disable shellcheck SC2154
   declare stdin='' stdout='' stderr='' sc='' optarg=''
   # dynamically declare test extension variables
   for ext in "${IOTEST_EXTENSTIONS[@]}"; do
-    [[ -f "${testPath}.${ext}" ]] \
-      && declare "${ext}"="$(<"${testPath}.${ext}")"
+    [[ -f "${test_path}.${ext}" ]] \
+      && declare "${ext}"="$(<"${test_path}.${ext}")"
   done
   # TODO check unsupported test extensions (how?)
-  echo -e "\nTest ${testFolderName}/${testName}"
+  echo -e "\nTest ${test_folder_name}/${test_name}"
   # create cmd from template
   # TODO how about full path (e.g. running shell script)?
   # ^ maybe run every script in its folder?
   # shellcheck disable=SC2059
-  cmd="$(printf -- "${cmd}" "${testFolderName%.*}") ${optarg}"
-  declare outFile errFile statusCode
-  outFile="$(mktemp)"
-  errFile="$(mktemp)"
+  cmd="$(printf -- "${cmd}" "${test_folder_name%.*}") ${optarg}"
+  declare out_file err_file status_code
+  out_file="$(mktemp)"
+  err_file="$(mktemp)"
   # run cmd once
-  echo "${stdin}" | ${cmd} >"${outFile}" 2>"${errFile}"
-  statusCode=$?
-  declare retrunCode=0
+  echo "${stdin}" | ${cmd} >"${out_file}" 2>"${err_file}"
+  status_code=$?
+  declare retrun_code=0
   # test status code
   if [[ -n "${sc}" ]]; then
     echo 'Status code diff'
-    prettyDiff <(echo "${statusCode}") <(echo "${sc}") \
-      || retrunCode=1
+    pretty_diff <(echo "${status_code}") <(echo "${sc}") \
+      || retrun_code=1
   fi
   # test stdout
   if [[ -n "${stdout}" ]]; then
     echo "Stdout diff"
-    prettyDiff "${outFile}" <(echo "${stdout}") \
-      || retrunCode=1
+    pretty_diff "${out_file}" <(echo "${stdout}") \
+      || retrun_code=1
   fi
   # test stderr
   if [[ -n "${stderr}" ]]; then
     echo "Stderr diff"
-    prettyDiff "${errFile}" <(echo "${stderr}") \
-      || retrunCode=1
+    pretty_diff "${err_file}" <(echo "${stderr}") \
+      || retrun_code=1
   fi
-  rm "${outFile}"
-  rm "${errFile}"
-  return ${retrunCode}
+  rm "${out_file}"
+  rm "${err_file}"
+  return ${retrun_code}
 }
-runIotests() {
+run_io_tests() {
   # defaults
   curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
   printf -- 'n/a' > "${IOTEST_TXT}"
@@ -78,7 +78,7 @@ runIotests() {
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       count+=1
-      iotest "${folder}" "${name}" "${cmd}" >> "${IOTEST_LOG}" \
+      io_test "${folder}" "${name}" "${cmd}" >> "${IOTEST_LOG}" \
         && passed+=1
     done
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
@@ -90,7 +90,7 @@ runIotests() {
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
-evaluateJava() {
+evaluate_java() {
 
   mkdir -p "${RESULTS}"
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
@@ -167,7 +167,7 @@ EOD
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
 
-  color="$(getTestColor "${perc}")"
+  color="$(get_test_color "${perc}")"
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
   printf -- "%d%%" "${perc}" > "${CHECKSTYLE_TXT}"
@@ -188,18 +188,18 @@ EOD
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
 
-  runIotests "mvn -q -f ${POM} exec:java@%s"
+  run_io_tests "mvn -q -f ${POM} exec:java@%s"
 }
-evaluateOracle() {
+evaluate_oracle() {
   :
 }
 evaluate() {
   case ${ACADEMY_LANG} in
     java)
-      evaluateJava
+      evaluate_java
     ;;
     oracle)
-      evaluateOracle
+      evaluate_oracle
     ;;
     *)
     exception "Unexpected exception: academy lang should be checked before"
