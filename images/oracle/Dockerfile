@@ -1,2 +1,2 @@
-FROM sflyr/sqlplus:latest
-RUN apt update && apt install -y curl jq git rsync
+FROM krisrice/sqlcl:latest
+RUN apk update && apk add curl jq git rsync

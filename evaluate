@@ -92,7 +92,6 @@ run_io_tests() {
 }
 evaluate_java() {
 
-  mkdir -p "${RESULTS}"
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
   curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
   curl -so "${TEST_SVG}" 'https://img.shields.io/badge/CI%20Tests-0/0-gray'
@@ -194,6 +193,7 @@ evaluate_oracle() {
   :
 }
 evaluate() {
+  mkdir -p "${RESULTS}"
   case ${ACADEMY_LANG} in
     java)
       evaluate_java
