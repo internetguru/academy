@@ -35,12 +35,14 @@ io_test() {
   # TODO how about full path (e.g. running shell script)?
   # ^ maybe run every script in its folder?
   # shellcheck disable=SC2059
-  cmd="$(printf -- "${cmd}" "${test_folder_name%.*}") ${optarg}"
+  [[ ${use_fullpath} == 0 ]] \
+    && cmd="$(printf -- "${cmd}" "${test_folder_name%.*}") ${optarg}" \
+    || cmd="$(printf -- "${cmd}" "${test_folder#"${IOTEST_FOLDER}/"}") ${optarg}"
   declare out_file err_file status_code
   out_file="$(mktemp)"
   err_file="$(mktemp)"
   # run cmd once
-  echo "${stdin}" | ${cmd} >"${out_file}" 2>"${err_file}"
+  eval "echo '${stdin}' | ${cmd} >'${out_file}' 2>'${err_file}'"
   status_code=$?
   declare retrun_code=0
   # test status code
@@ -66,12 +68,15 @@ io_test() {
   return ${retrun_code}
 }
 run_io_tests() {
+  [[ ! -d "${IOTEST_FOLDER}" ]] \
+    && return
   # defaults
   curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
   printf -- 'n/a' > "${IOTEST_TXT}"
   printf -- '' > "${IOTEST_LOG}"
   # run iotests
   declare -r cmd="${1}"
+  declare -r use_fullpath=${2:-0}
   declare -i passed=0 count=0
   # search deepest folders only by -links 2 (folder with 2 hardlinks)
   while read -r -d '' folder; do
@@ -190,7 +195,18 @@ EOD
   run_io_tests "mvn -q -f ${POM} exec:java@%s"
 }
 evaluate_oracle() {
-  :
+  [[ -n "${ORACLE_LOGON}" ]] \
+    || exception 'Missing ORACLE_LOGON variable'
+    declare sql_cmd
+  read -r -d '' sql_cmd << EOM
+SET HEADING OFF
+SET PAGESIZE 0
+spool on
+@${WORKING_DIR}/%s
+spool off
+exit
+EOM
+  run_io_tests "sql -S ${ORACLE_LOGON} <<< \"${sql_cmd}\"" 1
 }
 evaluate() {
   mkdir -p "${RESULTS}"
