@@ -33,12 +33,19 @@ io_test() {
   # TODO check unsupported test extensions (how?)
   echo -e "\nTest ${test_folder_name}/${test_name}"
   # create cmd from template
+  # TODO: add reference to README
   declare -A variables
+  # script varaibles
   variables=( \
    ['FOLDER_NAME']="${test_folder_name%.*}"\
    ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"\
    ['WORKING_DIR']="${WORKING_DIR}" \
   )
+  # add filtered env variables
+  while read -r line; do
+    variables["$(cut -d= -f1 <<< "${line}")"]="$(cut -d= -f2- <<< "${line}")"
+  done <<< "$(printenv | grep '^\(ACADEMY_\|CI_\)')"
+  # replace variables in cmd
   for key in "${!variables[@]}"; do
     cmd="${cmd/@${key}@/${variables[${key}]}}"
   done
