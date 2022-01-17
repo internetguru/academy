@@ -107,5 +107,5 @@ EOD
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
   printf -- "%s" "${summary}" > "${TEST_TXT}"
 
-  run_io_tests "mvn -q -f ${POM} exec:java@%s"
+  run_io_tests "mvn -q -f ${POM} exec:java@@FOLDER_NAME@"
 }

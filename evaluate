@@ -33,8 +33,15 @@ io_test() {
   # TODO check unsupported test extensions (how?)
   echo -e "\nTest ${test_folder_name}/${test_name}"
   # create cmd from template
-  # TODO how about full path (e.g. running shell script)?
-  # ^ maybe run every script in its folder?
+  declare -A variables
+  variables=( \
+   ['FOLDER_NAME']="${test_folder_name%.*}"\
+   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"\
+   ['WORKING_DIR']="${WORKING_DIR}" \
+  )
+  for key in "${!variables[@]}"; do
+    cmd="${cmd/@${key}@/${variables[${key}]}}"
+  done
   # shellcheck disable=SC2059
   [[ ${use_fullpath} == 0 ]] \
     && cmd="$(printf -- "${cmd}" "${test_folder_name%.*}") ${optarg}" \

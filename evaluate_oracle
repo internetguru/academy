@@ -8,7 +8,7 @@ evaluate() {
 SET HEADING OFF
 SET PAGESIZE 0
 spool on
-@${WORKING_DIR}/%s
+@WORKING_DIR@/@RELATIVE_PATH@
 spool off
 exit
 EOM
