@@ -122,10 +122,12 @@ main() {
   case ${ACADEMY_LANG} in
     java)
       # shellcheck disable=SC1090
+      # shellcheck disable=SC1091
       . "${DIR}/evaluate_java"
     ;;
     oracle)
       # shellcheck disable=SC1090
+      # shellcheck disable=SC1091
       . "${DIR}/evaluate_oracle"
     ;;
     *)
