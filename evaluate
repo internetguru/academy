@@ -49,10 +49,7 @@ io_test() {
   for key in "${!variables[@]}"; do
     cmd="${cmd/@${key}@/${variables[${key}]}}"
   done
-  # shellcheck disable=SC2059
-  [[ ${use_fullpath} == 0 ]] \
-    && cmd="$(printf -- "${cmd}" "${test_folder_name%.*}") ${optarg}" \
-    || cmd="$(printf -- "${cmd}" "${test_folder#"${IOTEST_FOLDER}/"}") ${optarg}"
+  cmd="${cmd} ${optarg}"
   declare out_file err_file status_code
   out_file="$(mktemp)"
   err_file="$(mktemp)"
@@ -91,7 +88,6 @@ run_io_tests() {
   printf -- '' > "${IOTEST_LOG}"
   # run iotests
   declare -r cmd="${1}"
-  declare -r use_fullpath=${2:-0}
   declare -i passed=0 count=0
   # search deepest folders only by -links 2 (folder with 2 hardlinks)
   while read -r -d '' folder; do
