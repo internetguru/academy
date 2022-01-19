@@ -1,0 +1,111 @@
+#!/bin/bash
+
+evaluate() {
+  declare -r POM="${WORKING_DIR}/pom.xml"
+  declare -r COMPILE_LOG="${RESULTS}/compile.log"
+  declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
+  declare -r TEST_LOG="${RESULTS}/test.log"
+  declare -r COMPILE_TXT="${RESULTS}/compile.txt"
+  declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
+  declare -r TEST_TXT="${RESULTS}/test.txt"
+  declare -r COMPILE_SVG="${RESULTS}/compile.svg"
+  declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
+  declare -r TEST_SVG="${RESULTS}/test.svg"
+
+  curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
+  curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
+  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/CI%20Tests-0/0-gray'
+
+  printf -- 'failed' > "${COMPILE_TXT}"
+  printf -- 'n/a' > "${CHECKSTYLE_TXT}"
+  printf -- 'n/a' > "${TEST_TXT}"
+
+  mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
+    || exit 0
+  curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
+  printf -- 'passed' > "${COMPILE_TXT}"
+
+  # shellcheck disable=SC2155
+  declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
+  declare -r src='src/main'
+
+  cat << EOD > "${tmppom}"
+  <project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>InternetGuru</groupId>
+    <artifactId>java-checkstyle</artifactId>
+    <version>1</version>
+    <properties>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <build>
+      <sourceDirectory>${WORKING_DIR}/${src}</sourceDirectory>
+      <testSourceDirectory>${WORKING_DIR}/src/test</testSourceDirectory>
+      <pluginManagement>
+        <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-checkstyle-plugin</artifactId>
+             <version>3.1.1</version>
+             <configuration>
+               <configLocation>google_checks.xml</configLocation>
+               <encoding>UTF-8</encoding>
+               <consoleOutput>true</consoleOutput>
+               <failsOnError>true</failsOnError>
+               <linkXRef>false</linkXRef>
+             </configuration>
+             <executions>
+               <execution>
+                 <id>validate</id>
+                 <phase>validate</phase>
+                 <goals>
+                   <goal>check</goal>
+                 </goals>
+               </execution>
+             </executions>
+           </plugin>
+        </plugins>
+      </pluginManagement>
+    </build>
+  </project>
+EOD
+
+  # run checkstyle and save warnings and errors into log
+  mvn -f "${tmppom}" -T 1C clean install -Dmaven.test.skip -DskipTests
+  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}" 2>&1
+  [[ ${PIPESTATUS[0]} != 0 ]] \
+    && exit 1
+
+  # shellcheck disable=SC2155
+  declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
+  # shellcheck disable=SC2155
+  declare -ri lines=$(find ${src} -name '*.java' -exec cat {} + | wc -l)
+  declare -i perc=100
+  (( errs > 0 )) \
+    && (( perc = 99 - errs * 100 / lines ))
+
+  color="$(get_test_color "${perc}")"
+
+  curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
+  printf -- "%d%%" "${perc}" > "${CHECKSTYLE_TXT}"
+
+  declare test_color='success'
+  mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \
+    || test_color='critical'
+  # shellcheck disable=SC2155
+  declare -r summary=$(grep 'Tests run:' "${TEST_LOG}" | head -n1)
+  # shellcheck disable=SC2155
+  declare -ri runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
+  # shellcheck disable=SC2155
+  declare -ri failures=$(tr -d ',' <<< "${summary}" | cut -d' ' -f6)
+  # shellcheck disable=SC2155
+  declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
+  declare -ri total=$((runs - skipped))
+  declare -ri passed=$((total - failures))
+  curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
+  printf -- "%s" "${summary}" > "${TEST_TXT}"
+
+  run_io_tests "mvn -q -f ${POM} exec:java@@FOLDER_NAME@"
+}

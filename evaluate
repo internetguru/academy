@@ -2,6 +2,7 @@
 
 get_test_color() {
   declare color='brightgreen'
+  declare perc="${1}"
   (( perc < 85 )) \
     && color='green'
   (( perc < 70 )) \
@@ -32,15 +33,28 @@ io_test() {
   # TODO check unsupported test extensions (how?)
   echo -e "\nTest ${test_folder_name}/${test_name}"
   # create cmd from template
-  # TODO how about full path (e.g. running shell script)?
-  # ^ maybe run every script in its folder?
-  # shellcheck disable=SC2059
-  cmd="$(printf -- "${cmd}" "${test_folder_name%.*}") ${optarg}"
+  # TODO: add reference to README
+  declare -A variables
+  # script varaibles
+  variables=( \
+   ['FOLDER_NAME']="${test_folder_name%.*}"\
+   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"\
+   ['WORKING_DIR']="${WORKING_DIR}" \
+  )
+  # add filtered env variables
+  while read -r line; do
+    variables["$(cut -d= -f1 <<< "${line}")"]="$(cut -d= -f2- <<< "${line}")"
+  done <<< "$(printenv | grep '^\(ACADEMY_\|CI_\)')"
+  # replace variables in cmd
+  for key in "${!variables[@]}"; do
+    cmd="${cmd/@${key}@/${variables[${key}]}}"
+  done
+  cmd="${cmd} ${optarg}"
   declare out_file err_file status_code
   out_file="$(mktemp)"
   err_file="$(mktemp)"
   # run cmd once
-  echo "${stdin}" | ${cmd} >"${out_file}" 2>"${err_file}"
+  eval "echo '${stdin}' | ${cmd} >'${out_file}' 2>'${err_file}'"
   status_code=$?
   declare retrun_code=0
   # test status code
@@ -66,6 +80,8 @@ io_test() {
   return ${retrun_code}
 }
 run_io_tests() {
+  [[ ! -d "${IOTEST_FOLDER}" ]] \
+    && return
   # defaults
   curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
   printf -- 'n/a' > "${IOTEST_TXT}"
@@ -90,137 +106,31 @@ run_io_tests() {
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
-evaluate_java() {
+main() {
+  declare -ra IOTEST_EXTENSTIONS=( stdin stdout stderr sc optarg )
+  declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
+  declare -r RESULTS="${WORKING_DIR}/.results"
+  declare -r IOTEST_LOG="${RESULTS}/iotest.log"
+  declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
+  declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
 
   mkdir -p "${RESULTS}"
-  curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-failed-critical'
-  curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
-  curl -so "${TEST_SVG}" 'https://img.shields.io/badge/CI%20Tests-0/0-gray'
-
-  printf -- 'failed' > "${COMPILE_TXT}"
-  printf -- 'n/a' > "${CHECKSTYLE_TXT}"
-  printf -- 'n/a' > "${TEST_TXT}"
-
-  mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
-    || exit 0
-  curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
-  printf -- 'passed' > "${COMPILE_TXT}"
-
-  # shellcheck disable=SC2155
-  declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
-  declare -r src='src/main'
-
-  cat << EOD > "${tmppom}"
-  <project>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>InternetGuru</groupId>
-    <artifactId>java-checkstyle</artifactId>
-    <version>1</version>
-    <properties>
-      <maven.compiler.source>1.8</maven.compiler.source>
-      <maven.compiler.target>1.8</maven.compiler.target>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <build>
-      <sourceDirectory>${WORKING_DIR}/${src}</sourceDirectory>
-      <testSourceDirectory>${WORKING_DIR}/src/test</testSourceDirectory>
-      <pluginManagement>
-        <plugins>
-           <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-checkstyle-plugin</artifactId>
-             <version>3.1.1</version>
-             <configuration>
-               <configLocation>google_checks.xml</configLocation>
-               <encoding>UTF-8</encoding>
-               <consoleOutput>true</consoleOutput>
-               <failsOnError>true</failsOnError>
-               <linkXRef>false</linkXRef>
-             </configuration>
-             <executions>
-               <execution>
-                 <id>validate</id>
-                 <phase>validate</phase>
-                 <goals>
-                   <goal>check</goal>
-                 </goals>
-               </execution>
-             </executions>
-           </plugin>
-        </plugins>
-      </pluginManagement>
-    </build>
-  </project>
-EOD
-
-  # run checkstyle and save warnings and errors into log
-  mvn -f "${tmppom}" -T 1C clean install -Dmaven.test.skip -DskipTests
-  mvn -f "${tmppom}" checkstyle:check | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}" 2>&1
-  [[ ${PIPESTATUS[0]} != 0 ]] \
-    && exit 1
-
-  # shellcheck disable=SC2155
-  declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
-  # shellcheck disable=SC2155
-  declare -ri lines=$(find ${src} -name '*.java' -exec cat {} + | wc -l)
-  declare -i perc=100
-  (( errs > 0 )) \
-    && (( perc = 99 - errs * 100 / lines ))
-
-  color="$(get_test_color "${perc}")"
-
-  curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
-  printf -- "%d%%" "${perc}" > "${CHECKSTYLE_TXT}"
-
-  declare test_color='success'
-  mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \
-    || test_color='critical'
-  # shellcheck disable=SC2155
-  declare -r summary=$(grep 'Tests run:' "${TEST_LOG}" | head -n1)
-  # shellcheck disable=SC2155
-  declare -ri runs=$(tr -d ',' <<< "${summary}" | cut -d' ' -f4)
-  # shellcheck disable=SC2155
-  declare -ri failures=$(tr -d ',' <<< "${summary}" | cut -d' ' -f6)
-  # shellcheck disable=SC2155
-  declare -ri skipped=$(tr -d ',' <<< "${summary}" | cut -d' ' -f10)
-  declare -ri total=$((runs - skipped))
-  declare -ri passed=$((total - failures))
-  curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
-  printf -- "%s" "${summary}" > "${TEST_TXT}"
-
-  run_io_tests "mvn -q -f ${POM} exec:java@%s"
-}
-evaluate_oracle() {
-  :
-}
-evaluate() {
   case ${ACADEMY_LANG} in
     java)
-      evaluate_java
+      # shellcheck disable=SC1090
+      # shellcheck disable=SC1091
+      . "${DIR}/evaluate_java"
     ;;
     oracle)
-      evaluate_oracle
+      # shellcheck disable=SC1090
+      # shellcheck disable=SC1091
+      . "${DIR}/evaluate_oracle"
     ;;
     *)
     exception "Unexpected exception: academy lang should be checked before"
   esac
+  # run lang specific evaulate
+  evaluate
 }
 
-declare -ra IOTEST_EXTENSTIONS=( stdin stdout stderr sc optarg )
-declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
-declare -r POM="${WORKING_DIR}/pom.xml"
-declare -r RESULTS="${WORKING_DIR}/.results"
-declare -r COMPILE_LOG="${RESULTS}/compile.log"
-declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
-declare -r TEST_LOG="${RESULTS}/test.log"
-declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-declare -r COMPILE_TXT="${RESULTS}/compile.txt"
-declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
-declare -r TEST_TXT="${RESULTS}/test.txt"
-declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
-declare -r COMPILE_SVG="${RESULTS}/compile.svg"
-declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
-declare -r TEST_SVG="${RESULTS}/test.svg"
-declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
-
-evaluate "$@"
+main "$@"
