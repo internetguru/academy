@@ -67,6 +67,8 @@ io_test() {
   if [[ -n "${stdout}" ]]; then
     echo "Stdout diff"
     echo "-------"
+    cat $stdout
+    echo "-------"
     hexdump -C "$out_file"
     echo "-------"
     hexdump -C <(echo "$stdout")
