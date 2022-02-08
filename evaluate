@@ -64,7 +64,7 @@ io_test() {
       || retrun_code=1
   fi
   # test stdout
-  if [[ ! -s "${test_path}.stdout" ]]; then
+  if [[ -f "${test_path}.stdout" ]]; then
     echo "Stdout diff"
     echo "-------"
     cat "$out_file"
@@ -103,7 +103,7 @@ run_io_tests() {
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       count+=1
-      io_test "${folder}" "${name}" "${cmd}" >> "${IOTEST_LOG}" 2>&1 \
+      io_test "${folder}" "${name}" "${cmd}" >> "${IOTEST_LOG}" \
         && passed+=1
     done
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
