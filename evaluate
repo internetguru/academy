@@ -23,13 +23,6 @@ io_test() {
   declare -r test_name="${2}"
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${3}"
-  # explicit declare test extension variables to disable shellcheck SC2154
-  declare stdin='' stdout='' stderr='' sc='' optarg=''
-  # dynamically declare test extension variables
-  for ext in "${IOTEST_EXTENSTIONS[@]}"; do
-    [[ -f "${test_path}.${ext}" ]] \
-      && declare "${ext}"="$(<"${test_path}.${ext}")"
-  done
   # TODO check unsupported test extensions (how?)
   echo -e "\nTest ${test_folder_name}/${test_name}"
   # create cmd from template
@@ -49,37 +42,30 @@ io_test() {
   for key in "${!variables[@]}"; do
     cmd="${cmd/@${key}@/${variables[${key}]}}"
   done
-  cmd="${cmd} ${optarg}"
+  # TODO use optarg file
+  cmd="${cmd}"
   declare out_file err_file status_code
   out_file="$(mktemp)"
   err_file="$(mktemp)"
   # run cmd once
-  eval "echo '${stdin}' | ${cmd} >'${out_file}' 2>'${err_file}'"
+  eval "cat '${test_path}.stdin' | ${cmd} >'${out_file}' 2>'${err_file}'"
   status_code=$?
   declare retrun_code=0
   # test status code
-  if [[ -n "${sc}" ]]; then
+  if [[ -f "${test_path}.sc" ]]; then
     echo 'Status code diff'
-    pretty_diff <(echo "${status_code}") <(echo "${sc}") \
+    pretty_diff <(echo "${status_code}") "${test_path}.sc" \
       || retrun_code=1
   fi
   # test stdout
-  if [[ -n "${stdout}" ]]; then
-    echo "Stdout diff"
-    echo "-------"
-    hexdump -C "$out_file"
-    echo "-------"
-    hexdump -C <(echo "$stdout")
-    echo '-------'
-    hexdump -C "${test_path}.stdout"
-    echo "-------"
+  if [[ -f "${test_path}.stdout" ]]; then
     pretty_diff "${out_file}" "${test_path}.stdout" \
       || retrun_code=1
   fi
   # test stderr
-  if [[ -n "${stderr}" ]]; then
+  if [[ -f "${test_path}.stderr" ]]; then
     echo "Stderr diff"
-    pretty_diff "${err_file}" <(echo "${stderr}") \
+    pretty_diff "${err_file}" "${test_path}.stderr" \
       || retrun_code=1
   fi
   rm "${out_file}"
@@ -114,7 +100,6 @@ run_io_tests() {
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
 main() {
-  declare -ra IOTEST_EXTENSTIONS=( stdin stdout stderr sc optarg )
   declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
   declare -r RESULTS="${WORKING_DIR}/.results"
   declare -r IOTEST_LOG="${RESULTS}/iotest.log"
