@@ -64,18 +64,16 @@ io_test() {
       || retrun_code=1
   fi
   # test stdout
-  if [[ -f "${test_path}.stdout" ]]; then
+  if [[ -n "${stdout}" ]]; then
     echo "Stdout diff"
-    echo "-------"
-    cat "$out_file"
-    echo "-------"
-    cat "${test_path}.stdout"
     echo "-------"
     hexdump -C "$out_file"
     echo "-------"
+    hexdump -C <(echo "$stdout")
+    echo '-------'
     hexdump -C "${test_path}.stdout"
     echo "-------"
-    pretty_diff "${out_file}" "${test_path}.stdout" \
+    pretty_diff "${out_file}" <(echo "${stdout}") \
       || retrun_code=1
   fi
   # test stderr
