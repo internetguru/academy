@@ -64,7 +64,7 @@ io_test() {
       || retrun_code=1
   fi
   # test stdout
-  if [[ -n "${stdout}" ]]; then
+  if [[ ! -s "${test_path}.stdout" ]]; then
     echo "Stdout diff"
     echo "-------"
     cat "$out_file"
@@ -75,7 +75,7 @@ io_test() {
     echo "-------"
     hexdump -C <(echo "$stdout")
     echo "-------"
-    pretty_diff "${out_file}" <(echo "${stdout}") \
+    pretty_diff "${out_file}" "${test_path}.stdout" \
       || retrun_code=1
   fi
   # test stderr
