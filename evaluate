@@ -69,7 +69,7 @@ io_test() {
     echo "-------"
     hexdump -C "$out_file"
     echo "-------"
-    hexdump -C "$stdout"
+    hexdump -C <(echo "$stdout")
     echo "-------"
     pretty_diff "${out_file}" <(echo "${stdout}") \
       || retrun_code=1
