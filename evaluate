@@ -69,14 +69,15 @@ io_test() {
     echo "-------"
     cat "$out_file"
     echo "-------"
-    echo "$stdout"
+    cat "${test_path}.stdout"
     echo "-------"
     hexdump -C "$out_file"
     echo "-------"
-    hexdump -C <(echo "$stdout")
+    hexdump -C "${test_path}.stdout"
     echo "-------"
     pretty_diff "${out_file}" "${test_path}.stdout" \
       || retrun_code=1
+    retrun_code=1
   fi
   # test stderr
   if [[ -n "${stderr}" ]]; then
