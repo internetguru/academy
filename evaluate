@@ -94,7 +94,7 @@ run_io_tests() {
   # generate summary and badge
   printf -- "Summary: %s/%s\n" "${passed}" "${count}" >> "${IOTEST_LOG}"
   declare test_color='success'
-  [[ ${passed} < ${count} ]] \
+  [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
