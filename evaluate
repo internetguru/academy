@@ -43,7 +43,6 @@ io_test() {
     cmd="${cmd/@${key}@/${variables[${key}]}}"
   done
   # TODO use optarg file
-  cmd="${cmd}"
   declare out_file err_file status_code
   out_file="$(mktemp)"
   err_file="$(mktemp)"
