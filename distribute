@@ -186,6 +186,7 @@ declare PREFIX=''
 declare GROUP_ID=''
 declare PROJECT_LINK=''
 declare PROJECT_ID=''
+# shellcheck disable=SC2034
 declare PROJECT_NAME=''
 declare PROJECT_BRANCH=''
 declare ISSUES=''
