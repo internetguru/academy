@@ -39,6 +39,11 @@ get_project_id() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id'
 }
+get_project_name() {
+  declare -r ns="${1}"
+  # shellcheck disable=SC2154
+  gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.name'
+}
 get_default_branch() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/projects/${user_project_ns//\//%2F}" | jq -r '.default_branch'
@@ -68,7 +73,7 @@ create_user_project() {
     && visibility='private'
   # shellcheck disable=SC2154
   gitlab_api 'api/v4/projects' \
-    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
+    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${PROJECT_NAME} ${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
     | jq -r '.id'
 }
 get_role() {

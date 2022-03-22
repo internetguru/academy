@@ -104,6 +104,7 @@ read_project_info() {
     || exception 'GitLab project not found in WORKING_DIR'
   PROJECT_LINK="$(get_remote_namespace "${WORKING_DIR}")" \
     && PROJECT_ID="$(get_project_id "${PROJECT_LINK}")" \
+    && PROJECT_NAME="$(get_project_name "${PROJECT_LINK}")" \
     && PROJECT_BRANCH="$(git_current_branch "${WORKING_DIR}")" \
     || exit 1
   [[ -z "${NAMESPACE}" ]] \
@@ -185,6 +186,7 @@ declare PREFIX=''
 declare GROUP_ID=''
 declare PROJECT_LINK=''
 declare PROJECT_ID=''
+declare PROJECT_NAME=''
 declare PROJECT_BRANCH=''
 declare ISSUES=''
 declare -i ISSUES_COUNT=0
