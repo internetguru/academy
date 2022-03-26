@@ -98,9 +98,6 @@ run_io_tests() {
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
-create_generated() {
-  date +%s > "${GENERATED_TXT}"
-}
 main() {
   declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
   declare -r RESULTS="${WORKING_DIR}/.results"
@@ -124,8 +121,7 @@ main() {
     *)
     exception "Unexpected exception: academy lang should be checked before"
   esac
-  # run lang specific evaulate
-  evaluate
+  date +%s > "${GENERATED_TXT}"
 }
 
 main "$@"
