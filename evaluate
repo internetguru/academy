@@ -98,12 +98,16 @@ run_io_tests() {
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
+create_generated() {
+  date +%s > "${GENERATED_TXT}"
+}
 main() {
   declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
   declare -r RESULTS="${WORKING_DIR}/.results"
   declare -r IOTEST_LOG="${RESULTS}/iotest.log"
   declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
   declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
 
   mkdir -p "${RESULTS}"
   case ${ACADEMY_LANG} in

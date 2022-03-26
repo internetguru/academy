@@ -108,4 +108,5 @@ EOD
   printf -- "%s" "${summary}" > "${TEST_TXT}"
 
   run_io_tests "mvn -q -f ${POM} exec:java@@FOLDER_NAME@"
+  create_generated
 }

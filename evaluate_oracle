@@ -13,4 +13,5 @@ spool off
 exit
 EOM
   run_io_tests "sql -S ${ORACLE_LOGON} <<< \"${sql_cmd}\""
+  create_generated
 }
