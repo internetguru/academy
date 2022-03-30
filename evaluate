@@ -104,6 +104,7 @@ main() {
   declare -r IOTEST_LOG="${RESULTS}/iotest.log"
   declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
   declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
 
   mkdir -p "${RESULTS}"
   case ${ACADEMY_LANG} in
@@ -120,8 +121,7 @@ main() {
     *)
     exception "Unexpected exception: academy lang should be checked before"
   esac
-  # run lang specific evaulate
-  evaluate
+  date +%s > "${GENERATED_TXT}"
 }
 
 main "$@"

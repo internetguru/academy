@@ -1,6 +1,6 @@
 #!/bin/bash
 
-evaluate() {
+main() {
   declare -r POM="${WORKING_DIR}/pom.xml"
   declare -r COMPILE_LOG="${RESULTS}/compile.log"
   declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
@@ -109,3 +109,5 @@ EOD
 
   run_io_tests "mvn -q -f ${POM} exec:java@@FOLDER_NAME@"
 }
+
+main "$@"
