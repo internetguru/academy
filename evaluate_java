@@ -24,6 +24,7 @@ main() {
     printf -- 'compile: failed\n' >> "${BADGES_TXT}"
     exit 0
   fi
+  printf -- 'success' > "${COMPILE_TXT}"
   printf -- 'compile: success\n' >> "${BADGES_TXT}"
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
 
