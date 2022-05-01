@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+ - Generate badges.txt artifact with all badges text representation
  - Create generated.txt file with timestamp
  - Set name of distributed project as `original_project_name user_name`
 
