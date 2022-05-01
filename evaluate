@@ -96,7 +96,7 @@ run_io_tests() {
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
-  printf -- 'iotest: %s' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
+  printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
 main() {
@@ -125,6 +125,7 @@ main() {
     exception "Unexpected exception: academy lang should be checked before"
   esac
   date +%s > "${GENERATED_TXT}"
+  printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
 }
 
 main "$@"
