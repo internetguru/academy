@@ -20,10 +20,13 @@ main() {
   printf -- 'n/a' > "${CHECKSTYLE_TXT}"
   printf -- 'n/a' > "${TEST_TXT}"
 
-  mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1 \
-    || exit 0
+  if ! mvn -f "${POM}" compile > "${COMPILE_LOG}" 2>&1; then
+    printf -- 'compile: failed\n' >> "${BADGES_TXT}"
+    exit 0
+  fi
+  printf -- 'success' > "${COMPILE_TXT}"
+  printf -- 'compile: success\n' >> "${BADGES_TXT}"
   curl -so "${COMPILE_SVG}" 'https://img.shields.io/badge/Compile-passed-success'
-  printf -- 'passed' > "${COMPILE_TXT}"
 
   # shellcheck disable=SC2155
   declare -r tmppom="$(mktemp -d)/checkstyle-pom.xml"
@@ -90,6 +93,7 @@ EOD
 
   curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
   printf -- "%d%%" "${perc}" > "${CHECKSTYLE_TXT}"
+  printf -- 'checkstyle: %s\n' "$(<"${CHECKSTYLE_TXT}")" >> "${BADGES_TXT}"
 
   declare test_color='success'
   mvn -Dstyle.color=never -f "${POM}" test > "${TEST_LOG}" 2>&1 \
@@ -106,6 +110,7 @@ EOD
   declare -ri passed=$((total - failures))
   curl -so "${TEST_SVG}" "https://img.shields.io/badge/CI%20Tests-${passed}/${total}-${test_color}"
   printf -- "%s/%s" "${passed}" "${total}" > "${TEST_TXT}"
+  printf -- 'test: %s\n' "$(<"${TEST_TXT}")" >> "${BADGES_TXT}"
 
   run_io_tests "mvn -q -f ${POM} exec:java@@FOLDER_NAME@"
 }
