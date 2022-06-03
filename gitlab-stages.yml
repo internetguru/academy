@@ -156,7 +156,10 @@ distribute:
         --prefix "${PREFIX}" \
         <<< "${users}"
   cache: []
-  when: manual
+  rules:
+    - if: '$ACADEMY_DISTRIBUTE == "always"'
+      when: always
+    - when: manual
 
 measure:
   tags:
