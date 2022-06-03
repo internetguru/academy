@@ -54,7 +54,11 @@ cache:
 
 .get_users: &get_users |
   # do not distribute ACADEMY_USERS file
-  mv "ACADEMY_USERS" .. 2>/dev/null || true
+  if [[ -f "ACADEMY_USERS" ]]; then
+    mv "ACADEMY_USERS" ..
+    # commit move to keep git status empty (do not push)
+    git commit -m "move users file" -- "ACADEMY_USERS"
+  fi
   declare users
   if [[ -n "${ACADEMY_USERS}" ]]; then
     users="${ACADEMY_USERS}"
