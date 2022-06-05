@@ -122,6 +122,7 @@ collect:
     paths:
       - .collect/
     expire_in: 1 year
+  allow_failure: true
 
 evaluate:
   tags:
@@ -139,7 +140,8 @@ evaluate:
     - if: '$ACADEMY_EVALUATE == "always"'
       when: always
     - when: manual
-
+  allow_failure: true
+  
 distribute:
   tags:
     - ${BASE_RUNNER_TAG}
@@ -164,6 +166,7 @@ distribute:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
     - when: manual
+  allow_failure: true
 
 measure:
   tags:
@@ -205,3 +208,4 @@ measure:
       <<< "${users}"
   cache: []
   when: manual
+  allow_failure: true
