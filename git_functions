@@ -1,0 +1,111 @@
+#!/bin/bash
+
+git_repo_exists() {
+  declare -r dir="${1:-.}"
+  [[ -d "${dir}/.git" ]]
+}
+git_local_branch_exists() {
+  declare -r git_dir="${2:-.}"
+  declare -r branch="${branch}"
+  git -C "${git_dir}" rev-parse --verify "${branch}" >/dev/null 2>&1
+}
+git_current_branch() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" rev-parse --abbrev-ref HEAD)" \
+    || exception "${out}"
+  printf -- '%s\n' "${out}"
+}
+git_same_commit() {
+  declare -r rev1="${1}"
+  declare -r rev2="${2}"
+  declare -r git_dir="${3:-.}"
+  [[ "$( git -C "${git_dir}" rev-parse "${rev1}" )" == "$( git -C "${git_dir}" rev-parse "${rev2}" )" ]]
+}
+git_init() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" init 2>&1)" \
+    || exception "${out}"
+}
+git_add_all() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" add -A 2>&1)" \
+    || exception "${out}"
+}
+git_checkout() {
+  declare -r git_dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${git_dir}" checkout "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_status_empty() {
+  declare -r git_dir="${1:-.}"
+  [[ -z "$(git -C "${git_dir}" status --porcelain)" ]]
+}
+git_remote_exists() {
+  declare -r remote_name="${1:-origin}"
+  declare -r git_dir="${2:-.}"
+  [[ -n "$(git -C "${git_dir}" config remote."${remote_name}".url 2>/dev/null)" ]]
+}
+git_pull() {
+  declare -r git_dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${git_dir}" pull "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_clone() {
+  declare out
+  out="$(git clone -q "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_merge() {
+  declare -r git_dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${git_dir}" merge "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_push() {
+  declare -r git_dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${git_dir}" push "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_commit() {
+  declare -r git_dir="${1}"
+  shift
+  declare out
+  out="$(git -C "${git_dir}" commit "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_fetch() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" fetch "${@}" 2>&1)" \
+    || exception "${out}"
+}
+git_reset_hard() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" reset --hard 2>&1)" \
+    || exception "${out}"
+}
+git_remote_branches() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" ls-remote -h --refs origin 2>&1 | sed 's~.*refs/heads/~~')" \
+    || exception "${out}"
+  printf -- '%s\n' "${out}"
+}
+git_last_commit() {
+  declare -r git_dir="${1:-.}"
+  declare out
+  out="$(git -C "${git_dir}" rev-parse --short HEAD)" \
+    || exception "${out}"
+  printf -- '%s\n' "${out}"
+}

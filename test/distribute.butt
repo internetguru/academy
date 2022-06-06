@@ -1,0 +1,83 @@
+#!/bin/bash
+
+i=0
+status=
+academy=${ACADEMY_BIN:-academy}
+tmp_project=$(mktemp -d)
+export ACADEMY_LANG='java'
+
+#######################################
+## Param validation
+#######################################
+correct_ns="umiami/tests"
+#######################################
+: $((i++))
+start "help"
+  debug "$academy distribute --help"
+  assert_equal "$status" 0
+  assert_startwith "${outlines[0]}" "usage: academy distribute [-ahilnps]"
+end
+#######################################
+: $((i++))
+start "invalid remote namespace dirname"
+  debug "echo 'user1' | $academy distribute -s '=/correct'"
+  assert_equal "$status" 2
+  assert_startwith "${errlines[0]}" "Unsupported REMOTE_NAMESPACE dirname [ #2 ]"
+end
+#######################################
+: $((i++))
+start "invalid prefix"
+  debug "echo 'user1' | $academy distribute -p '1'"
+  assert_equal "$status" 2
+  assert_startwith "${errlines[0]}" "Unsupported PREFIX value [ #2 ]"
+end
+#######################################
+: $((i++))
+start "missing root namespace"
+  debug "echo 'user1' | $academy -w '$tmp_project' distribute -s 'xyz123xyz/abc'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[1]}" "xyz123xyz/abc/user1 ... Root group xyz123xyz does not exist in create_ns()"
+end
+# : $((i++))
+# skip "missing users: not working on gh actions"
+  # debug "$academy '$correct_ns'"
+  # assert_equal "$status" 2
+  # assert_startwith "${errlines[0]}" "EXCEPTION: Missing stdin"
+# end
+#######################################
+: $((i++))
+start "invalid users"
+  debug "echo '-a' | $academy -w '$tmp_project' distribute -s '$correct_ns'"
+  assert_equal "$status" 3
+  assert_startwith "${errlines[2]}" "Invalid username occurred 1 time(s) [ #3 ]"
+  debug "echo '-a
+  .b' | $academy -w '$tmp_project' distribute -s '$correct_ns'"
+  assert_equal "$status" 3
+  assert_startwith "${errlines[3]}" "Invalid username occurred 2 time(s) [ #3 ]"
+end
+#######################################
+: $((i++))
+start "missing working dir"
+  debug "echo 'user1' | $academy -w '/foo' distribute -s '$correct_ns'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[0]}" "WORKING_DIR not found in main() [ #1 ]"
+end
+: $((i++))
+start "status not empty"
+  tmpdir=$(mktemp -d)
+  git -C "$tmpdir" init -q
+  echo a > "$tmpdir/a"
+  debug "echo 'user1' | $academy -w '$tmpdir' distribute -s '$correct_ns'"
+  assert_equal "$status" 1
+  assert_startwith "${errlines[1]}" "Git status is not empty in distribute() [ #1 ]"
+end
+#######################################
+## Requirements
+#######################################
+: $((i++))
+skip "missing jq"
+: $((i++))
+skip "missing git"
+#######################################
+
+rmdir "$tmp_project"

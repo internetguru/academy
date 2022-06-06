@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -o pipefail
+
+declare -r SCRIPT='academy'
+# shellcheck disable=SC2155
+declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
+# shellcheck disable=SC2034
+declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
+# shellcheck disable=SC2034
+declare -r SRC_DIR='src'
+# shellcheck disable=SC1091
+# shellcheck disable=SC1090
+. "${DIR}/commons"
+
+check_lang "${ACADEMY_LANG}"
+
+# shellcheck disable=SC2155
+declare WORKING_DIR="$(readlink -f ".")"
+(( $# == 0 )) \
+  && exception "Missing command, enter '${SCRIPT} help' to display usage" 2
+while (( $# > 0 )); do
+  case "${1}" in
+    -w|--working-dir)
+      WORKING_DIR="$(readlink -f "${2}")"
+      [[ -d "${WORKING_DIR}" ]] \
+        || exception 'WORKING_DIR not found'
+      shift; shift ;;
+    help)
+      print_usage
+      exit
+      ;;
+    collect|distribute|measure)
+      # shellcheck disable=SC1091
+      # shellcheck disable=SC1090
+      . "${DIR}/git_functions"
+      # shellcheck disable=SC1091
+      # shellcheck disable=SC1090
+      . "${DIR}/gitlab_api"
+      # check requirements
+      check_command git jq
+      ;&
+    evaluate)
+      declare -r CMD="${1}"
+      shift
+      # shellcheck disable=SC1090
+      . "${DIR}/${CMD}" "$@"
+      exit $?
+      ;;
+    *)
+      exception "Invalid command '${1}', enter '${SCRIPT} help' to display usage" 2
+      ;;
+  esac
+done

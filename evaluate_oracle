@@ -1,0 +1,18 @@
+#!/bin/bash
+
+main() {
+  [[ -n "${ORACLE_LOGON}" ]] \
+    || exception 'Missing ORACLE_LOGON variable'
+    declare sql_cmd
+  read -r -d '' sql_cmd << EOM
+SET HEADING OFF
+SET PAGESIZE 0
+spool on
+@@WORKING_DIR@/@RELATIVE_PATH@
+spool off
+exit
+EOM
+  run_io_tests "sql -S ${ORACLE_LOGON} <<< \"${sql_cmd}\""
+}
+
+main "$@"

@@ -1,0 +1,211 @@
+
+variables:
+  ACADEMY_LANG: "java"
+  BASE_RUNNER_TAG: "java"
+
+workflow:
+  rules:
+    - if: $ACADEMY_LANG == "java"
+      variables:
+        RUNNER_TAG: "java"
+        MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+    - if: $ACADEMY_LANG == "oracle"
+      variables:
+        RUNNER_TAG: "oracle"
+
+cache:
+  key: mvn
+  paths:
+    - .m2/repository
+
+.before_script_global: &global_init |
+  # fix TERM
+  export TERM=xterm
+  # checkout to current branch
+  git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
+  # set git user
+  git config --global user.email "${GITLAB_USER_EMAIL}"
+  git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  export ACADEMY_DIR="$(mktemp -d)"
+  revision=$(grep -oP "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
+  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  # e.g. /umiami/george/csc220
+  declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
+  declare -r project_name="$(basename "${PWD}")"
+  # simplify project remote url
+  git remote set-url --push origin "${namespace}/${project_name}.git"
+  # set permissions
+  declare ACADEMY=${ACADEMY_DIR}/academy
+  chmod +x ${ACADEMY_DIR}/*
+  declare PREFIX
+  if [[ -n "${ACADEMY_PREFIX}" ]]; then
+    PREFIX="${ACADEMY_PREFIX}"
+  else
+    PREFIX="${project_name}-"
+  fi
+
+.before_script_token: &validate_token |
+  # prepare acccess token for the distribution script
+  if [[ -z "${ACADEMY_GITLAB_ACCESS_TOKEN}" ]]; then
+    echo "Undefined variable {ACADEMY_GITLAB_ACCESS_TOKEN}"
+    echo "Refer to README and make sure the current branch is protected."
+    exit 1
+  fi
+
+.get_users: &get_users |
+  # do not distribute ACADEMY_USERS file
+  if [[ -f "ACADEMY_USERS" ]]; then
+    mv "ACADEMY_USERS" ..
+    # commit move to keep git status empty (do not push)
+    git commit -m "move users file" -- "ACADEMY_USERS"
+  fi
+  declare users
+  if [[ -n "${ACADEMY_USERS}" ]]; then
+    users="${ACADEMY_USERS}"
+  elif [[ -f '../ACADEMY_USERS' ]]; then
+    users="$(<../ACADEMY_USERS)"
+  else
+    users="${GITLAB_USER_NAME}"
+  fi
+  users="$(tr ',' ' ' <<< "${users}")"
+
+collect:
+  tags:
+    - ${RUNNER_TAG}
+  stage: build
+  before_script:
+    - *validate_token
+    - *global_init
+  script:
+    # set token file (will be deprecated)
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
+    # process files distributed from current branch
+    - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
+    # checkout to ACADEMY_SOLUTION branch
+    - |
+        if [[ -z "${ACADEMY_SOLUTION}" ]]; then
+          ACADEMY_SOLUTION='master'
+        fi
+        git fetch --all
+        git checkout "${ACADEMY_SOLUTION}"
+    # prepare deadline and editable options
+    - declare deadline=''
+    - declare editable=''
+    - |
+        if [[ -n "${ACADEMY_DEADLINE}" ]]; then
+          deadline="--deadline '${ACADEMY_DEADLINE}'"
+        fi
+        if [[ -n "${ACADEMY_EDITABLE}" ]]; then
+          editable="--editable '${ACADEMY_EDITABLE}'"
+        fi
+    # run collect for given or all branches
+    - mkdir -p '.collect'
+    - *get_users
+    - |
+        ${ACADEMY} collect ${deadline} ${editable} \
+        --namespace "${user_namespace}" \
+        --prefix "${PREFIX}" \
+        --output-dir '.collect' \
+        <<< "${users}" \
+        | tee 'summary.txt'
+    # output variables and summary
+    - mv 'summary.txt' '.collect/'
+    - |
+      echo '#######################'
+      echo "ACADEMY_DEADLINE: '${ACADEMY_DEADLINE}'"
+      echo "ACADEMY_EDITABLE: '${ACADEMY_EDITABLE}'"
+      echo "ACADEMY_SOLUTION: '${ACADEMY_SOLUTION}'"
+      echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
+      echo '#######################'
+  when: manual
+  artifacts:
+    paths:
+      - .collect/
+    expire_in: 1 year
+  allow_failure: true
+
+evaluate:
+  tags:
+    - ${RUNNER_TAG}
+  stage: build
+  before_script:
+    - *global_init
+  script:
+    - ${ACADEMY} evaluate
+  artifacts:
+    paths:
+      - .results/
+    expire_in: 1 year
+  rules:
+    - if: '$ACADEMY_EVALUATE == "always"'
+      when: always
+    - when: manual
+  allow_failure: true
+  
+distribute:
+  tags:
+    - ${BASE_RUNNER_TAG}
+  stage: build
+  before_script:
+    - *validate_token
+    - *global_init
+  script:
+    # e.g. fall20
+    - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
+    # set token file (will be deprecated)
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
+    - *get_users
+    # distribute current project among all users
+    - |
+        ${ACADEMY} distribute --update-links --namespace "${namespace}/${branch}" \
+        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+        --prefix "${PREFIX}" \
+        <<< "${users}"
+  cache: []
+  rules:
+    - if: '$ACADEMY_DISTRIBUTE == "always"'
+      when: always
+    - when: manual
+  allow_failure: true
+
+measure:
+  tags:
+    - ${BASE_RUNNER_TAG}
+  stage: build
+  before_script:
+    - *validate_token
+    - *global_init
+  script:
+    - |
+        if [[ -z "${ACADEMY_MOSSURL}" ]]; then
+          echo "Missing ACADEMY_MOSSURL"
+          exit 1
+        fi
+    # set token file (will be deprecated)
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
+    # process files distributed from current branch
+    - declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
+    # download moss script
+    - curl -o /usr/local/bin/moss "${ACADEMY_MOSSURL}"
+    - chmod +x /usr/local/bin/moss
+    - export PATH="${PATH}:/usr/local/bin/"
+    # create output directory
+    - declare -r measure_output=".measure/${project_name}"
+    - mkdir -p "${measure_output}"
+    # copy files from ACADEMY_SOLUTION branch to measure
+    - |
+        if [[ -z "${ACADEMY_SOLUTION}" ]]; then
+          ACADEMY_SOLUTION='master'
+        fi
+        git fetch --all
+        git --work-tree="${measure_output}" checkout -f "origin/${ACADEMY_SOLUTION}" -- .
+    # run measure for given or all branches
+    - *get_users
+    - |
+      ${ACADEMY} measure --output-dir "${measure_output}" \
+      --namespace "${user_namespace}" \
+      --prefix "${PREFIX}" \
+      <<< "${users}"
+  cache: []
+  when: manual
+  allow_failure: true
