@@ -130,6 +130,10 @@ evaluate:
   stage: build
   before_script:
     - *global_init
+    - |
+      if [[ $(git rev-list --all --count) -le 2 ]]; then
+        exit 0
+      fi
   script:
     - ${ACADEMY} evaluate
   artifacts:
