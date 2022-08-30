@@ -137,7 +137,8 @@ evaluate:
       fi
       # do not evaluate ACADEMY_USERS changes only
       if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_USERS" ]]; then
-        exit 0
+        echo "Project evaluation stoped due to changes in ACADEMY_USERS only"
+        exit 1
       fi
   script:
     - ${ACADEMY} evaluate
