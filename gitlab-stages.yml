@@ -143,7 +143,6 @@ evaluate:
   script:
     - ${ACADEMY} evaluate
   artifacts:
-    when: on_success
     paths:
       - .results/
     expire_in: 1 year
@@ -151,8 +150,7 @@ evaluate:
     - if: '$ACADEMY_EVALUATE == "always"'
       when: always
     - when: manual
-  allow_failure: false
-  
+
 distribute:
   tags:
     - ${BASE_RUNNER_TAG}
