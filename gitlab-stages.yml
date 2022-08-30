@@ -131,7 +131,12 @@ evaluate:
   before_script:
     - *global_init
     - |
+      # skip initial commits
       if [[ $(git rev-list --all --count) -le 2 ]]; then
+        exit 0
+      fi
+      # do not evaluate ACADEMY_USERS changes only
+      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_USERS" ]]; then
         exit 0
       fi
   script:
