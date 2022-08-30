@@ -143,6 +143,7 @@ evaluate:
   script:
     - ${ACADEMY} evaluate
   artifacts:
+    when: on_success
     paths:
       - .results/
     expire_in: 1 year
