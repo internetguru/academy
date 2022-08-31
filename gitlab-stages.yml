@@ -130,6 +130,16 @@ evaluate:
   stage: build
   before_script:
     - *global_init
+    - |
+      # skip initial commits
+      if [[ $(git rev-list --all --count) -le 2 ]]; then
+        exit 0
+      fi
+      # do not evaluate ACADEMY_USERS changes only
+      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_USERS" ]]; then
+        echo "Project evaluation stoped due to changes in ACADEMY_USERS only"
+        exit 1
+      fi
   script:
     - ${ACADEMY} evaluate
   artifacts:
@@ -140,8 +150,7 @@ evaluate:
     - if: '$ACADEMY_EVALUATE == "always"'
       when: always
     - when: manual
-  allow_failure: true
-  
+
 distribute:
   tags:
     - ${BASE_RUNNER_TAG}
