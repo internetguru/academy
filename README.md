@@ -67,7 +67,7 @@
      - 'https://raw.githubusercontent.com/internetguru/academy/${REVISION}/gitlab-stages.yml'
 
    variables:
-     ACADEMY_USERS: "student1 student2 student3"
+     ACADEMY_ASSIGN: "student1 student2 student3"
    ```
 
    - Replace `${REVISION}` with a version tag or a branch, e.g. `dev` or `master`.
@@ -112,8 +112,8 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
    - Prepend PREFIX in front of each repository name. PREFIX is empty by default.
 - `ACADEMY_SOLUTION: "BRANCH"`
    - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
-- `ACADEMY_USERS: "USERS"`
-   - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_USERS` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
+- `ACADEMY_ASSIGN: "USERS"`
+   - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_ASSIGN` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
 
 \* **Secret variables** should be defined as [masked environmental CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project). Consider defining them globally for the whole group, e.g. in `internetguru/academy`.
 
