@@ -53,17 +53,17 @@ cache:
   fi
 
 .get_users: &get_users |
-  # do not distribute ACADEMY_USERS file
-  if [[ -f "ACADEMY_USERS" ]]; then
-    mv "ACADEMY_USERS" ..
+  # do not distribute ACADEMY_ASSIGN file
+  if [[ -f "ACADEMY_ASSIGN" ]]; then
+    mv "ACADEMY_ASSIGN" ..
     # commit move to keep git status empty (do not push)
-    git commit -m "move users file" -- "ACADEMY_USERS"
+    git commit -m "move users file" -- "ACADEMY_ASSIGN"
   fi
   declare users
-  if [[ -n "${ACADEMY_USERS}" ]]; then
-    users="${ACADEMY_USERS}"
-  elif [[ -f '../ACADEMY_USERS' ]]; then
-    users="$(<../ACADEMY_USERS)"
+  if [[ -n "${ACADEMY_ASSIGN}" ]]; then
+    users="${ACADEMY_ASSIGN}"
+  elif [[ -f '../ACADEMY_ASSIGN' ]]; then
+    users="$(<../ACADEMY_ASSIGN)"
   else
     users="${GITLAB_USER_NAME}"
   fi
@@ -135,9 +135,9 @@ evaluate:
       if [[ $(git rev-list --all --count) -le 2 ]]; then
         exit 0
       fi
-      # do not evaluate ACADEMY_USERS changes only
-      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_USERS" ]]; then
-        echo "Project evaluation stoped due to changes in ACADEMY_USERS only"
+      # do not evaluate ACADEMY_ASSIGN changes only
+      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
+        echo "Project evaluation stoped due to changes in ACADEMY_ASSIGN only"
         exit 1
       fi
   script:

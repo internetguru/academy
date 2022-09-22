@@ -63,7 +63,7 @@ internetguru/academy/tutorial/group1/java01-student3
 The following example does the same job dynamically. Assuming you are in a `java01` folder on branch `group1`.
 
 ```
-grep 'ACADEMY_USERS:' .gitlab-ci.yml | cut -d'"' -f2 | academy distribute -l -p "$(basename $PWD)-" \
+grep 'ACADEMY_ASSIGN:' .gitlab-ci.yml | cut -d'"' -f2 | academy distribute -l -p "$(basename $PWD)-" \
   -s "internetguru/academy/tutorial/$(git rev-parse --abbrev-ref HEAD)"
 ```
 
