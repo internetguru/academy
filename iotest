@@ -42,10 +42,11 @@ io_test() {
   # run cmd once
   if [[ -f "${test_path}.stdin" ]]; then
     eval "cat '${test_path}.stdin' | ${cmd} >'${out_file}' 2>'${err_file}'"
+    status_code=$?
   else
     eval "${cmd} >'${out_file}' 2>'${err_file}'"
+    status_code=$?
   fi
-  status_code=$?
   declare retrun_code=0
   # test status code
   if [[ -f "${test_path}.sc" ]]; then
@@ -64,6 +65,8 @@ io_test() {
     pretty_diff "${err_file}" "${test_path}.stderr" \
       || retrun_code=1
   fi
+  [[ "${status_code}" == 0 ]] \
+    || cat "${err_file}" >&2
   rm "${out_file}"
   rm "${err_file}"
   return ${retrun_code}
@@ -72,15 +75,22 @@ run_io_tests() {
   [[ ! -d "${IOTEST_FOLDER}" ]] \
     && return
   # run iotests
-  declare -i passed=0 count=0
+  declare -i passed=0 count=0 local_passed local_count
   # search deepest folders only by -links 2 (folder with 2 hardlinks)
   while read -r -d '' folder; do
+    local_passed=0
+    local_count=0
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       count+=1
+      local_count+=1
       io_test "${folder}" "${name}" \
-        && passed+=1
+        && passed+=1 \
+        && local_passed+=1
     done
+    printf -- "\n%s summary: %s/%s\n" "$(basename "${folder}")" \
+      "${local_passed}" "${local_count}"
+    printf -- "------------\n"
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
   # generate summary and badge
   printf -- "Summary: %s/%s\n" "${passed}" "${count}"
