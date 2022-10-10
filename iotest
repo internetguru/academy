@@ -10,10 +10,10 @@ assert() {
   output="${1}"
   expected="${2}"
   [[ -n "${input}" ]] \
-    && printf -- "Input: %s\n" "${input}"
-  printf -- "${3}\n" "${output}"
-  printf -- "${4}\n" "${expected}"
-  printf -- 'Status: '
+    && printf -- "- Input: %s\n" "${input}"
+  printf -- "- ${3}\n" "${output}"
+  printf -- "- ${4}\n" "${expected}"
+  printf -- '- Status: '
   status=1
   [[ "${output}" == "${expected}" ]] \
     && printf -- 'success' \
@@ -39,7 +39,7 @@ io_test() {
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${IOTEST_CMD}"
   # TODO check unsupported test extensions (how?)
-  echo -e "\nTest ${test_folder_name}/${test_name}"
+  echo -e "\n## Test ${test_folder_name}/${test_name}"
   # create cmd from template
   # TODO: add reference to README
   declare -A variables
