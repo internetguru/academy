@@ -12,7 +12,7 @@ assert() {
   input="${stdin}"
   output="${1}"
   expected="${2}"
-  if [[ -n "${stdin_file}" ]];
+  if [[ -n "${stdin_file}" ]]; then
     is_long "${stdin_file}" \
       && printf -- "Input file: %s\n" "${stdin_file}" \
       || printf -- "Input: %s\n" "${input}"
