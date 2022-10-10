@@ -5,7 +5,7 @@ io_test_exit() {
   exit 1
 }
 assert() {
-  declare input output expected
+  declare input output expected status
   input="${stdin}"
   output="${1}"
   expected="${2}"
@@ -14,10 +14,13 @@ assert() {
   printf -- "${3}\n" "${output}"
   printf -- "${4}\n" "${expected}"
   printf -- 'Status: '
-  [[ "${output}" == "${expected}" ]] \
+  status=1
+  [[ "${output}" == "${expected}" ]]
     && printf -- 'success' \
+    && status=0 \
     || printf -- 'failed'
   printf -- "\n"
+  return $status
 }
 assert_status() {
   assert "${1}" "$(< "${2}")" 'Status code: %s' 'Expected: %s'
