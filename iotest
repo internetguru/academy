@@ -8,7 +8,7 @@ assert() {
   declare input output expected
   input="${stdin}"
   output="${1}"
-  expected="$(< "${2}")"
+  expected="${2}"
   [[ -n "${input}" ]] \
     && printf -- "Input: %s\n" "${input}"
   printf -- "${3}\n" "${output}"
@@ -17,15 +17,16 @@ assert() {
   [[ "${output}" == "${expected}" ]] \
     && printf -- 'success' \
     || printf -- 'failed'
+  printf -- "\n"
 }
 assert_status() {
-  assert "${1}" "${2}" 'Status code: %s' 'Expected: %s'
+  assert "${1}" "$(< "${2}")" 'Status code: %s' 'Expected: %s'
 }
 assert_stdout() {
-  assert "${1}" "${2}" 'Output: %s' 'Expected: %s'
+  assert "$(< "${1}")" "$(< "${2}")" 'Output: %s' 'Expected: %s'
 }
 assert_stderr() {
-  assert "${1}" "${2}" 'Error output: %s' 'Expected: %s'
+  assert "$(< "${1}")" "$(< "${2}")" 'Error output: %s' 'Expected: %s'
 }
 io_test() {
   declare -r test_folder="${1}"
