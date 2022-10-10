@@ -4,8 +4,28 @@ io_test_exit() {
   printf -- '%s' "${1}" >&2
   exit 1
 }
-pretty_diff() {
-  diff --old-line-format=$'- %l\n' --new-line-format=$'+ %l\n' --unchanged-line-format='' "$@"
+assert() {
+  declare input output expected
+  input="${stdin}"
+  output="${1}"
+  expected="$(< "${2}")"
+  [[ -n "${input}" ]] \
+    && printf -- "Input: %s\n" "${input}"
+  printf -- "${3}\n" "${output}"
+  printf -- "${4}\n" "${expected}"
+  printf -- 'Status: '
+  [[ "${output}" == "${expected}" ]] \
+    && printf -- 'success' \
+    || printf -- 'failed'
+}
+assert_status() {
+  assert "${1}" "${2}" 'Status code: %s' 'Expected: %s'
+}
+assert_stdout() {
+  assert "${1}" "${2}" 'Output: %s' 'Expected: %s'
+}
+assert_stderr() {
+  assert "${1}" "${2}" 'Error output: %s' 'Expected: %s'
 }
 io_test() {
   declare -r test_folder="${1}"
@@ -36,33 +56,34 @@ io_test() {
     cmd="${cmd/@${key}@/${variables[${key}]}}"
   done
   # TODO use optarg file
-  declare out_file err_file status_code
+  declare out_file err_file status_code stdin
   out_file="$(mktemp)"
   err_file="$(mktemp)"
   # run cmd once
   if [[ -f "${test_path}.stdin" ]]; then
+    stdin="$(< "${test_path}.stdin")"
     eval "cat '${test_path}.stdin' | ${cmd} >'${out_file}' 2>'${err_file}'"
     status_code=$?
   else
+    stdin=''
     eval "${cmd} >'${out_file}' 2>'${err_file}'"
     status_code=$?
   fi
   declare retrun_code=0
   # test status code
   if [[ -f "${test_path}.sc" ]]; then
-    echo 'Status code diff'
-    pretty_diff <(echo "${status_code}") "${test_path}.sc" \
+    assert_status "${status_code}" "${test_path}.sc" \
       || retrun_code=1
   fi
   # test stdout
   if [[ -f "${test_path}.stdout" ]]; then
-    pretty_diff "${out_file}" "${test_path}.stdout" \
+    assert_stdout "${out_file}" "${test_path}.stdout" \
       || retrun_code=1
   fi
   # test stderr
   if [[ -f "${test_path}.stderr" ]]; then
     echo "Stderr diff"
-    pretty_diff "${err_file}" "${test_path}.stderr" \
+    assert_stderr "${err_file}" "${test_path}.stderr" \
       || retrun_code=1
   fi
   [[ "${status_code}" == 0 ]] \
