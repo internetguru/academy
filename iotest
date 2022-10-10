@@ -13,8 +13,9 @@ assert() {
   output="${1}"
   expected="${2}"
   if [[ -n "${stdin_file}" ]]; then
+    iotest_folder_path="$(dirname "${IOTEST_FOLDER}")"
     is_long "${stdin_file}" \
-      && printf -- "Input file: %s\n" "${stdin_file#"${IOTEST_FOLDER}/"}" \
+      && printf -- "Input file: %s\n" "${stdin_file#"${iotest_folder_path}/"}" \
       || printf -- "Input: %s\n" "${input}"
   fi
   printf -- "${3}\n" "${output}"
