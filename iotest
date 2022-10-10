@@ -15,7 +15,7 @@ assert() {
   printf -- "${4}\n" "${expected}"
   printf -- 'Status: '
   status=1
-  [[ "${output}" == "${expected}" ]]
+  [[ "${output}" == "${expected}" ]] \
     && printf -- 'success' \
     && status=0 \
     || printf -- 'failed'
