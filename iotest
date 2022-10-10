@@ -17,7 +17,6 @@ assert() {
       && printf -- "Input file: %s\n" "${stdin_file}" \
       || printf -- "Input: %s\n" "${input}"
   fi
-  [[ -n "${input}" ]] \
   printf -- "${3}\n" "${output}"
   printf -- "${4}\n" "${expected}"
   printf -- 'Status: '
