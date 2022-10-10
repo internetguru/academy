@@ -115,7 +115,6 @@ run_io_tests() {
     done
     printf -- "\n%s summary: %s/%s\n" "$(basename "${folder}")" \
       "${local_passed}" "${local_count}"
-    printf -- "------------\n"
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
   # generate summary and badge
   printf -- "Summary: %s/%s\n" "${passed}" "${count}"
