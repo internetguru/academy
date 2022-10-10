@@ -23,13 +23,13 @@ assert() {
   return $status
 }
 assert_status() {
-  assert "${1}" "$(< "${2}")" 'Status code: %s' 'Expected: %s'
+  assert "${1}" "$(< "${2}")" 'Status code: %s' 'Expected status code: %s'
 }
 assert_stdout() {
-  assert "$(< "${1}")" "$(< "${2}")" 'Output: %s' 'Expected: %s'
+  assert "$(< "${1}")" "$(< "${2}")" 'Output: %s' 'Expected output: %s'
 }
 assert_stderr() {
-  assert "$(< "${1}")" "$(< "${2}")" 'Error output: %s' 'Expected: %s'
+  assert "$(< "${1}")" "$(< "${2}")" 'Error output: %s' 'Expected error output: %s'
 }
 io_test() {
   declare -r test_folder="${1}"
@@ -39,7 +39,7 @@ io_test() {
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${IOTEST_CMD}"
   # TODO check unsupported test extensions (how?)
-  echo -e "\nTest ${test_folder_name}/${test_name}"
+  echo -e "\n${test_folder_name}/${test_name}"
   # create cmd from template
   # TODO: add reference to README
   declare -A variables
