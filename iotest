@@ -10,10 +10,10 @@ assert() {
   output="${1}"
   expected="${2}"
   [[ -n "${input}" ]] \
-    && printf -- "- Input: %s\n" "${input}"
-  printf -- "- ${3}\n" "${output}"
-  printf -- "- ${4}\n" "${expected}"
-  printf -- '- Status: '
+    && printf -- "Input: %s\n" "${input}"
+  printf -- "${3}\n" "${output}"
+  printf -- "${4}\n" "${expected}"
+  printf -- 'Status: '
   status=1
   [[ "${output}" == "${expected}" ]] \
     && printf -- 'success' \
