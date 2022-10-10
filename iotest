@@ -4,13 +4,20 @@ io_test_exit() {
   printf -- '%s' "${1}" >&2
   exit 1
 }
+is_long() {
+  [[ $(wc -l < "${1}") -gt 1 || $(head -1 "${1}" | wc -m) -gt 15 ]]
+}
 assert() {
   declare input output expected status
   input="${stdin}"
   output="${1}"
   expected="${2}"
+  if [[ -n "${stdin_file}" ]];
+    is_long "${stdin_file}" \
+      && printf -- "Input file: %s\n" "${stdin_file}" \
+      || printf -- "Input: %s\n" "${input}"
+  fi
   [[ -n "${input}" ]] \
-    && printf -- "Input: %s\n" "${input}"
   printf -- "${3}\n" "${output}"
   printf -- "${4}\n" "${expected}"
   printf -- 'Status: '
@@ -60,16 +67,18 @@ io_test() {
     cmd="${cmd/@${key}@/${variables[${key}]}}"
   done
   # TODO use optarg file
-  declare out_file err_file status_code stdin
+  declare out_file err_file status_code stdin stdin_file
   out_file="$(mktemp)"
   err_file="$(mktemp)"
   # run cmd once
   if [[ -f "${test_path}.stdin" ]]; then
     stdin="$(< "${test_path}.stdin")"
+    stdin_file="${test_path}.stdin"
     eval "cat '${test_path}.stdin' | ${cmd} >'${out_file}' 2>'${err_file}'"
     status_code=$?
   else
     stdin=''
+    stdin_file=''
     eval "${cmd} >'${out_file}' 2>'${err_file}'"
     status_code=$?
   fi
