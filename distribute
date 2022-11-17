@@ -224,7 +224,7 @@ while (( $# > 0 )); do
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -p|--prefix)
       PREFIX="${2}"
-      [[ "${PREFIX}" =~ ^[a-z0-9][a-z0-9-]+$ ]] \
+      [[ "${PREFIX}" =~ ^[a-z0-9][a-z0-9+-]+$ ]] \
         || exception 'Unsupported PREFIX value' 2
       shift; shift ;;
     -s|--namespace)
