@@ -14,10 +14,6 @@ get_test_color() {
   echo "${color}"
 }
 run_io_tests() {
-  # defaults
-  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
-  printf -- 'n/a' > "${IOTEST_TXT}"
-  printf -- '' > "${IOTEST_LOG}"
   "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" > ${IOTEST_LOG}
   declare summary passed count
   summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2)"
@@ -27,7 +23,6 @@ run_io_tests() {
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
   printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
-  printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
 main() {
@@ -41,11 +36,21 @@ main() {
 
   mkdir -p "${RESULTS}"
   printf -- '' > "${BADGES_TXT}"
+  # deafults for iotests
+  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
+  printf -- 'n/a' > "${IOTEST_TXT}"
+  printf -- '' > "${IOTEST_LOG}"
   case ${ACADEMY_LANG} in
     java)
+      declare -r COMPILE_TXT="${RESULTS}/compile.txt"
+      declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
+      declare -r TEST_TXT="${RESULTS}/test.txt"
       # shellcheck disable=SC1090
       # shellcheck disable=SC1091
       . "${DIR}/evaluate_java"
+      printf -- 'compile: %s\n' "$(<"${COMPILE_TXT}")" >> "${BADGES_TXT}"
+      printf -- 'checkstyle: %s\n' "$(<"${CHECKSTYLE_TXT}")" >> "${BADGES_TXT}"
+      printf -- 'test: %s\n' "$(<"${TEST_TXT}")" >> "${BADGES_TXT}"
     ;;
     oracle)
       # shellcheck disable=SC1090
@@ -55,6 +60,7 @@ main() {
     *)
     exception "Unexpected exception: academy lang should be checked before"
   esac
+  printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
   date +%s > "${GENERATED_TXT}"
   printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
 }
