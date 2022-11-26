@@ -22,7 +22,7 @@ run_io_tests() {
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
-  printf -- '%s/%s' "${passed}" "${count}" > "${IOTEST_TXT}"
+  printf -- '%s/%s' "${passed:-0}" "${count:-0}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
 main() {
