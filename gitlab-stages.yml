@@ -31,8 +31,8 @@ cache:
   git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
   # e.g. /umiami/george/csc220
   declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
-  declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
   declare -r project_name="$(basename "${PWD}")"
+  declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}/${project_name}"
   # simplify project remote url
   git remote set-url --push origin "${namespace}/${project_name}.git"
   # set permissions
