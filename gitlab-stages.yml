@@ -31,6 +31,7 @@ cache:
   git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
   # e.g. /umiami/george/csc220
   declare -r namespace="$(dirname "${PWD}" | cut -d/ -f3-)"
+  declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
   declare -r project_name="$(basename "${PWD}")"
   # simplify project remote url
   git remote set-url --push origin "${namespace}/${project_name}.git"
@@ -41,7 +42,7 @@ cache:
   if [[ -n "${ACADEMY_PREFIX}" ]]; then
     PREFIX="${ACADEMY_PREFIX}"
   else
-    PREFIX="${project_name}+"
+    PREFIX="${project_name}-"
   fi
 
 .before_script_token: &validate_token |
@@ -79,8 +80,6 @@ collect:
   script:
     # set token file (will be deprecated)
     - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
-    # process files distributed from current branch
-    - declare user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # checkout to ACADEMY_SOLUTION branch
     - |
         if [[ -z "${ACADEMY_SOLUTION}" ]]; then
@@ -159,14 +158,12 @@ distribute:
     - *validate_token
     - *global_init
   script:
-    # e.g. fall20
-    - declare -r branch="$(git rev-parse --abbrev-ref HEAD)"
     # set token file (will be deprecated)
     - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
     - *get_users
     # distribute current project among all users
     - |
-        ${ACADEMY} distribute --update-links --namespace "${namespace}/${branch}" \
+        ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         --prefix "${PREFIX}" \
         <<< "${users}"
@@ -192,8 +189,6 @@ measure:
         fi
     # set token file (will be deprecated)
     - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
-    # process files distributed from current branch
-    - declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}"
     # download moss script
     - curl -o /usr/local/bin/moss "${ACADEMY_MOSSURL}"
     - chmod +x /usr/local/bin/moss
