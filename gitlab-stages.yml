@@ -42,7 +42,7 @@ cache:
   if [[ -n "${ACADEMY_PREFIX}" ]]; then
     PREFIX="${ACADEMY_PREFIX}"
   else
-    PREFIX="${project_name}-"
+    PREFIX="$(basename "${namespace}")-${project_name}-"
   fi
 
 .before_script_token: &validate_token |
