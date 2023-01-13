@@ -122,11 +122,11 @@ run_io_tests() {
         && passed+=1 \
         && local_passed+=1
     done
-    printf -- "\n%s summary: %s/%s\n" "$(basename "${folder}")" \
-      "${local_passed}" "${local_count}"
+    printf -- "\n%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
+      "${local_count}" "${local_passed}"
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
   # generate summary and badge
-  printf -- "Summary: %s/%s\n" "${passed}" "${count}"
+  printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
 }
 main() {
   [[ -n "${1}" ]] \

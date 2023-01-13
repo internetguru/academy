@@ -16,9 +16,9 @@ get_test_color() {
 run_io_tests() {
   "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" > ${IOTEST_LOG}
   declare summary passed count
-  summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2)"
-  passed="$(cut -d '/' -f1 <<< "${summary}")"
-  count="$(cut -d '/' -f2 <<< "${summary}")"
+  summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
+  count="$(cut -d',' -f1 <<< "${summary}" | cut -d' ' -f2)"
+  passed="$(cut -d',' -f3 <<< "${summary}" | cut -d' ' -f3)"
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
