@@ -230,7 +230,7 @@ while (( $# > 0 )); do
     -s|--namespace)
       NAMESPACE="${2}"
       [[ "${NAMESPACE}" =~ ^[a-z0-9-]{2,}(/[a-z0-9-]{2,})*$ ]] \
-        || exception 'Unsupported REMOTE_NAMESPACE dirname' 2
+        || exception "Unsupported REMOTE_NAMESPACE $REMOTE_NAMESPACE dirname" 2
       shift; shift ;;
     -o|--output-dir)
       CACHE_FOLDER="${2}";
