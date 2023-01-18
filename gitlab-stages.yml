@@ -71,8 +71,6 @@ cache:
   users="$(tr ',' ' ' <<< "${users}")"
 
 collect:
-  tags:
-    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
@@ -151,8 +149,6 @@ evaluate:
     - when: manual
 
 distribute:
-  tags:
-    - ${BASE_RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
