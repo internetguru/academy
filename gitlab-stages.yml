@@ -149,6 +149,8 @@ evaluate:
     - when: manual
 
 distribute:
+  tags:
+    - "oracle"
   stage: build
   before_script:
     - *validate_token
