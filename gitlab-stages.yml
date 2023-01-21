@@ -149,8 +149,6 @@ evaluate:
     - when: manual
 
 distribute:
-  tags:
-    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
