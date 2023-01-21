@@ -150,7 +150,7 @@ evaluate:
 
 distribute:
   tags:
-    - "oracle"
+    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *validate_token
