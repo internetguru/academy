@@ -58,7 +58,7 @@ main() {
       . "${DIR}/evaluate_oracle"
     ;;
     *)
-      [[ ! -f "evaluate_${ACADEMY_LANG}" ]] \
+      [[ ! -f "${DIR}/evaluate_${ACADEMY_LANG}" ]] \
       && exception "Unexpected exception: academy lang should be checked before"
       . "${DIR}/evaluate_${ACADEMY_LANG}"
   esac
