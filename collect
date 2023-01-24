@@ -54,9 +54,7 @@ collect() {
   [[ -z "${group_id}" ]] \
     && exception "Namespace '${NAMESPACE}' not found" 3
   
-  set -x
-
-  # Pre-collect script
+    # Pre-collect script
   [[ -f "${DIR}/pre-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/pre-collect_${ACADEMY_LANG}"
   
@@ -85,7 +83,6 @@ collect() {
   [[ -f "${DIR}/post-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/post-collect_${ACADEMY_LANG}"
   
-  set +x
 }
 
 declare DRY_RUN='false'

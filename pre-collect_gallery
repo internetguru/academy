@@ -10,9 +10,9 @@ ssh-keyscan gitlab.wr.cz >> ~/.ssh/known_hosts
 base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
 
 # První běh -> Naklonovat galerii, vytvořit README.md
-if [[ ! -d "${local_gallery}" ]]; then
-    git clone "${gallery}" "${local_gallery}"
-    printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
-fi
+rm -rf "${local_gallery}" 2>/dev/null
+git clone "${gallery}" "${local_gallery}"
+printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
 
+# Nastavit správný remote (proč?)
 git -C "${local_gallery}" remote set-url origin "${gallery}"
