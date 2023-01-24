@@ -1,13 +1,15 @@
 #!/bin/bash
 
-GITLAB="https://oauth2:$ACADEMY_GITLAB_ACCESS_TOKEN@gitlab.wr.cz"
-GALLERY="${GITLAB}/fit/bi-ble/gallery.git"
+gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"
 local_gallery="/tmp/gallery"
 readme="${local_gallery}/README.md"
 
+# Přidání klíče
+base64 -d "${SSH_PRIVATE_KEY}" | ssh-add -
+
 # První běh -> Naklonovat galerii, vytvořit README.md
 if [[ ! -d "${local_gallery}" ]]; then
-    git clone "${GALLERY}" "${local_gallery}"
+    git clone "${gallery}" "${local_gallery}"
     printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
 fi
 
