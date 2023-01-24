@@ -1,34 +1,19 @@
 #!/bin/bash
 
-gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"
-local_gallery="/tmp/gallery"
-readme="${local_gallery}/README.md"
+file_patterns=(
+    '[01][0-9]-*/render[123].jpg'
+    '[01][0-9]-*/video.mp4'
+    'showreel/video.mp4'
+)
 
-# Přidání klíče serveru a klienta
-eval $( ssh-agent -s )
-ssh-keyscan gitlab.wr.cz >> ~/.ssh/known_hosts
-base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
-
-# První běh -> Naklonovat galerii, vytvořit README.md
-if [[ ! -d "${local_gallery}" ]]; then
-    git clone "${gallery}" "${local_gallery}"
-    printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
-fi
-
-git -C "${local_gallery}" remote set-url origin "${gallery}"
-
-# Upravit README.md v galerii
+# Přidat nadpis pro studenta
 printf '%s\n\n' "## ${user_name}" >> "${readme}"
 
 # Přidat studentské soubory do galerie
-for filepath in \
-    [01][0-9]-*/render[123].jpg \
-    [01][0-9]-*/video.mp4
-    # /showreel/video.mp4
-do
+for filepath in ${file_patterns[@]}; do
     mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
     cp "${filepath}" "${local_gallery}/${user_name}/${filepath}"
-    printf '![%s](%s){width=15%%}\n' "${filepath##*/}" "${filepath}" >> "${readme}"
+    printf '![%s](%s){width=15%%}\n' "${filepath##*/}" "${user_name}/${filepath}" >> "${readme}"
 done
 
 printf '\n\n' >> "${readme}"
