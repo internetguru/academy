@@ -54,6 +54,7 @@ collect() {
   [[ -z "${group_id}" ]] \
     && exception "Namespace '${NAMESPACE}' not found" 3
   # shellcheck disable=SC2013
+  export user_name
   for user_name in $(cat <&3); do
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
