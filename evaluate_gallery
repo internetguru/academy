@@ -4,8 +4,9 @@ gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"
 local_gallery="/tmp/gallery"
 readme="${local_gallery}/README.md"
 
-# Přidání klíče
+# Přidání klíče serveru a klienta
 eval $( ssh-agent -s )
+ssh-keygen -lf <(ssh-keyscan gitlab.wr.cz)
 base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
 
 # První běh -> Naklonovat galerii, vytvořit README.md
