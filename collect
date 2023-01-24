@@ -16,7 +16,10 @@ sync_files() {
     || exception 'Unable to rsync files'
   $eg
 }
-create_results() {
+create_results_default() {
+  "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
+}
+create_results_java() {
   "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
   mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
   compile_txt="${user_projects_folder}/${user_project_ns}/.results/compile.txt"
@@ -31,6 +34,12 @@ create_results() {
   done
   echo
   git_reset_hard "${user_projects_folder}/${user_project_ns}"
+}
+create_results() {
+  case "${ACADEMY_LANG}" in
+    java) create_results_"${ACADEMY_LANG}";;
+    *) create_results_default;;
+  esac
 }
 collect() {
   # shellcheck disable=SC2155
