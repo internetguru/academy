@@ -1,3 +1,11 @@
 echo "Post-collect: Gallery"
 
+# Add-commit-push galerii
+git -C "${local_gallery}" remote -v
+git -C "${local_gallery}" add .
+git -C "${local_gallery}" commit -m "Update gallery"
+git -C "${local_gallery}" push
+
+# Clean-up
+rm -rf "${local_gallery}"
 rm -rf .collect
