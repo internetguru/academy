@@ -11,7 +11,14 @@ printf '## %s [%s]\n\n' "$( get_user_name )" "${user_name}" >> "${readme}"
 for filepath in ${file_patterns[@]}; do
     mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
     cp "${filepath}" "${local_gallery}/${user_name}/${filepath}"
-    printf '![%s](%s){width=15%%}\n' "${filepath}" "${user_name}/${filepath}" >> "${readme}"
 done
+
+# Smazat výchozí soubory
+#FIXME
+
+# Vytvořit galerie po tématech
+#FIXME
+printf '![%s](%s){width=15%%}\n' "${filepath}" "${user_name}/${filepath}" >> "${readme}"
+
 
 printf '\n\n' >> "${readme}"

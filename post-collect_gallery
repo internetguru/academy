@@ -8,4 +8,4 @@ git -C "${local_gallery}" push
 
 # Clean-up
 rm -rf "${local_gallery}"
-rm -rf .collect
+find .collect

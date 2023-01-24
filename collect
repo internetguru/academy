@@ -18,6 +18,7 @@ sync_files() {
 }
 create_results_default() {
   "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
+  mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
 }
 create_results_java() {
   "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
