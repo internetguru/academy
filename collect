@@ -7,11 +7,14 @@ get_last_commit() {
   get_last_push
 }
 sync_files() {
+  local eg=$( shopt -p extglob )
+  shopt -s extglob
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
   # shellcheck disable=SC2086
   rsync -a --relative --delete \
     "${user_projects_folder}/${user_project_ns}/./"${EDITABLE} "${WORKING_DIR}" \
     || exception 'Unable to rsync files'
+  $eg
 }
 create_results() {
   "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
