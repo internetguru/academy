@@ -5,7 +5,7 @@ local_gallery="/tmp/gallery"
 readme="${local_gallery}/README.md"
 
 # Přidání klíče
-base64 -d "${SSH_PRIVATE_KEY}" | ssh-add -
+base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
 
 # První běh -> Naklonovat galerii, vytvořit README.md
 if [[ ! -d "${local_gallery}" ]]; then
