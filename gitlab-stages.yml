@@ -81,7 +81,7 @@ collect:
     # checkout to ACADEMY_SOLUTION branch
     - |
         if [[ -z "${ACADEMY_SOLUTION}" ]]; then
-          ACADEMY_SOLUTION='master'
+          ACADEMY_SOLUTION="${CI_DEFAULT_BRANCH}"
         fi
         git fetch --all
         git checkout "${ACADEMY_SOLUTION}"
@@ -195,7 +195,7 @@ measure:
     # copy files from ACADEMY_SOLUTION branch to measure
     - |
         if [[ -z "${ACADEMY_SOLUTION}" ]]; then
-          ACADEMY_SOLUTION='master'
+          ACADEMY_SOLUTION="${CI_DEFAULT_BRANCH}"
         fi
         git fetch --all
         git --work-tree="${measure_output}" checkout -f "origin/${ACADEMY_SOLUTION}" -- .
