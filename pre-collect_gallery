@@ -1,8 +1,8 @@
 echo "Pre-collect: Gallery"
 
-gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"
-local_gallery="/tmp/gallery"
-readme="${local_gallery}/README.md"
+export gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"
+export local_gallery="/tmp/gallery"
+export readme="${local_gallery}/README.md"
 
 # Přidání klíče serveru a klienta
 eval $( ssh-agent -s )
