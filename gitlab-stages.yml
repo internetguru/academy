@@ -12,6 +12,7 @@ workflow:
     - if: $ACADEMY_LANG == "oracle"
       variables:
         RUNNER_TAG: "oracle"
+    - when: always
 
 cache:
   key: mvn
