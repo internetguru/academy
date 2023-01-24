@@ -11,9 +11,11 @@ sync_files() {
   shopt -s extglob
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
   # shellcheck disable=SC2086
+  set -x
   rsync -a --relative --delete \
     "${user_projects_folder}/${user_project_ns}/./"${EDITABLE} "${WORKING_DIR}" \
     || exception 'Unable to rsync files'
+  set +x
   $eg
 }
 create_results() {
