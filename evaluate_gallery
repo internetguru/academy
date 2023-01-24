@@ -14,6 +14,8 @@ if [[ ! -d "${local_gallery}" ]]; then
     printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
 fi
 
+git remote set-url origin "${gallery}"
+
 # Upravit README.md v galerii
 printf '%s\n\n' "## ${user_name}" >> "${readme}"
 
