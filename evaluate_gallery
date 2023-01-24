@@ -6,7 +6,7 @@ readme="${local_gallery}/README.md"
 
 # Přidání klíče serveru a klienta
 eval $( ssh-agent -s )
-ssh-keygen -lf <(ssh-keyscan gitlab.wr.cz)
+ssh-keyscan gitlab.wr.cz >> ~/.ssh/known_hosts
 base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
 
 # První běh -> Naklonovat galerii, vytvořit README.md
