@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "Pre-collect: Gallery"
 
 gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"

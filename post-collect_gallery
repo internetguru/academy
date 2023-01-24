@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "Post-collect: Gallery"
 
 rm -rf .collect
