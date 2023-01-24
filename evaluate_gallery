@@ -5,13 +5,13 @@ file_patterns=(
 )
 
 # Přidat nadpis pro studenta
-printf '%s\n\n' "## ${user_name}" >> "${readme}"
+printf '## %s [%s]\n\n' "$( get_user_name )" "${user_name}" >> "${readme}"
 
 # Přidat studentské soubory do galerie
 for filepath in ${file_patterns[@]}; do
     mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
     cp "${filepath}" "${local_gallery}/${user_name}/${filepath}"
-    printf '![%s](%s){width=15%%}\n' "${filepath##*/}" "${user_name}/${filepath}" >> "${readme}"
+    printf '![%s](%s){width=15%%}\n' "${filepath}" "${user_name}/${filepath}" >> "${readme}"
 done
 
 printf '\n\n' >> "${readme}"

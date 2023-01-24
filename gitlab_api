@@ -109,6 +109,11 @@ get_user_id() {
   gitlab_api "api/v4/users?username=${user_name}" \
     | jq -r '.[] | .id' | sed 's/null//'
 }
+get_user_name() {
+  # shellcheck disable=SC2154
+  gitlab_api "api/v4/users?username=${user_name}" \
+    | jq -r '.[] | .name' | sed 's/null//'
+}
 create_ns() {
   declare -r ns="${1}"
   # shellcheck disable=SC2155
