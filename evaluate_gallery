@@ -17,7 +17,7 @@ printf '%s\n\n' "## ${user_name}" >> "${readme}"
 # Přidat studentské soubory do galerie
 for filepath in \
     [01][0-9]-*/render[123].jpg \
-    /[01][0-9]-*/video.mp4
+    [01][0-9]-*/video.mp4
     # /showreel/video.mp4
 do
     mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
@@ -31,3 +31,6 @@ printf '\n\n' >> "${readme}"
 git -C "${local_gallery}" add .
 git -C "${local_gallery}" commit -m "Update gallery for user '${user_name}'"
 git -C "${local_gallery}" push
+
+# Clean-up
+# rm -rf .
