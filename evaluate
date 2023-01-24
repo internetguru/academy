@@ -58,7 +58,9 @@ main() {
       . "${DIR}/evaluate_oracle"
     ;;
     *)
-    exception "Unexpected exception: academy lang should be checked before"
+      [[ ! -f "evaluate_${ACADEMY_LANG}" ]] \
+      && exception "Unexpected exception: academy lang should be checked before"
+      . "${DIR}/evaluate_${ACADEMY_LANG}"
   esac
   printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
   date +%s > "${GENERATED_TXT}"

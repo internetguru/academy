@@ -1,0 +1,33 @@
+#!/bin/bash
+
+GITLAB="https://oauth2:$ACADEMY_GITLAB_ACCESS_TOKEN@gitlab.wr.cz"
+GALLERY="${GITLAB}/fit/bi-ble/gallery.git"
+local_gallery="/tmp/gallery"
+readme="${local_gallery}/README.md"
+
+# První běh -> Naklonovat galerii, vytvořit README.md
+if [[ ! -d "${local_gallery}" ]]; then
+    git clone "${GALLERY}" "${local_gallery}"
+    printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
+fi
+
+# Upravit README.md v galerii
+printf '%s\n\n' "## ${user_name}" >> "${readme}"
+
+# Přidat studentské soubory do galerie
+for filepath in \
+    [01][0-9]-*/render[123].jpg \
+    /[01][0-9]-*/video.mp4
+    # /showreel/video.mp4
+do
+    mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
+    cp "${filepath}" "${local_gallery}/${user_name}/${filepath}"
+    printf '![%s](%s){width=15%%}\n' "${filepath##*/}" "${filepath}" >> "${readme}"
+done
+
+printf '\n\n' >> "${readme}"
+
+# Add-commit-push galerii
+git -C "${local_gallery}" add .
+git -C "${local_gallery}" commit -m "Update gallery for user '${user_name}'"
+git -C "${local_gallery}" push
