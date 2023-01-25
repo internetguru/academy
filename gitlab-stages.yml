@@ -20,7 +20,6 @@ cache:
     - .m2/repository
 
 .before_script_global: &global_init |
-  set -x
   # fix TERM
   export TERM=xterm
   # checkout to current branch
