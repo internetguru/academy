@@ -50,6 +50,7 @@ collect() {
   acquire_token
   [[ -z "${OUTPUT_DIR}" ]] \
     && OUTPUT_DIR="$(mktemp -d)"
+  trap 'rm -rf "${OUTPUT_DIR}"' EXIT
   # shellcheck disable=SC2155
   declare -r user_projects_folder="${OUTPUT_DIR}"
   declare group_id
@@ -63,11 +64,11 @@ collect() {
   group_id="$(get_group_id "${NAMESPACE}" 2>/dev/null)"
   [[ -z "${group_id}" ]] \
     && exception "Namespace '${NAMESPACE}' not found" 3
-  
+
   # Pre-collect script
   [[ -f "${DIR}/pre-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/pre-collect_${ACADEMY_LANG}"
-  
+
   # shellcheck disable=SC2013
   export user_name
   for user_name in $(cat <&3); do
@@ -90,11 +91,11 @@ collect() {
     create_results
     rm -rf "${user_projects_folder}/${user_project_ns}"
   done
-  
+
   # Post-collect script
   [[ -f "${DIR}/post-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/post-collect_${ACADEMY_LANG}"
-  
+
 }
 
 declare DRY_RUN='false'

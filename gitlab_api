@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # shellcheck disable=SC2034
-declare -r GITLAB_URL="${CI_SERVER_HOST:-gitlab.com}"
-declare -r TOKEN_FILE="${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
+[[ -z "${GITLAB_URL}" ]] \
+  && declare -r GITLAB_URL="${CI_SERVER_HOST:-gitlab.com}"
+[[ -z "${TOKEN_FILE}" ]] \
+  && declare -r TOKEN_FILE="${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
 
 gitlab_api() {
   declare -r url="${1}"
