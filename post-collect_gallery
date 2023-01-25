@@ -1,5 +1,29 @@
 echo "Post-collect: Gallery"
 
+shopt -s globstar
+
+declare -A themes=()
+
+for dir in "${local_gallery}"/*/*; do
+  dir="${dir#${local_gallery}/*/}"
+  themes[$dir]=
+done
+
+themes_sorted=()
+while read; do
+  themes_sorted+=( "$REPLY" )
+done < <( printf '%s\n' "${!themes[@]}" | sort )
+
+for theme in "${themes_sorted[@]}"; do
+  printf '\n## %s\n\n' "${theme//-/ }" >> "${readme}"
+  for file in "${local_gallery}"/*/"${theme}"/*; do
+    printf '![%s](%s){width=15%%}\n' "${file#${local_gallery}}" "${file#${local_gallery}}" >> "${readme}"
+  done
+done
+
+printf '\n\n' >> "${readme}"
+
+
 # Add-commit-push galerii
 git -C "${local_gallery}" remote -v
 git -C "${local_gallery}" add .
