@@ -64,13 +64,14 @@ collect() {
   [[ -z "${group_id}" ]] \
     && exception "Namespace '${NAMESPACE}' not found" 3
   
-    # Pre-collect script
+  # Pre-collect script
   [[ -f "${DIR}/pre-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/pre-collect_${ACADEMY_LANG}"
   
   # shellcheck disable=SC2013
   export user_name
   for user_name in $(cat <&3); do
+	 read -p "Processing $username?"
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
     get_project_id "${user_project_ns}" >/dev/null \
@@ -87,6 +88,7 @@ collect() {
       && continue
     sync_files
     create_results
+    rm -rf "${user_projects_folder}/${user_project_ns}"
   done
   
   # Post-collect script
@@ -132,7 +134,7 @@ while (( $# > 0 )); do
         || mkdir -p "${OUTPUT_DIR}" \
         || exception "Unable to create '${OUTPUT_DIR}' directory"
       [[ -z "$(ls "${OUTPUT_DIR}/")" ]] \
-        || exception "Output directory 'ls' is not empty"
+        || exception "Output directory '${OUTPUT_DIR}' is not empty"
       shift; shift ;;
     -p|--prefix) PREFIX="${2}"; shift; shift ;;
     -s|--namespace)

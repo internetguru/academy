@@ -1,0 +1,40 @@
+#!/bin/bash
+
+command="${1}"
+source commons
+
+[[ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" ]] \
+	||	exception "Undefined ACADEMY_GITLAB_ACCESS_TOKEN variable"
+
+export ACADEMY_LANG="gallery"
+export ACADEMY_EDITABLE="@([01][0-9]-*|showreel)/@(render[123].jpg|video.mp4)"
+export CI_SERVER_HOST="gitlab.wr.cz"
+PROJECT="fit/bi-ble/tasks"
+GITLAB_PATH="https://oauth2:${ACADEMY_GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${PROJECT}.git"
+
+printf '%s\n' "${ACADEMY_GITLAB_ACCESS_TOKEN}" > "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
+
+
+cleanup() {
+	rm -rf "${WORKING_DIR}"
+}
+
+
+WORKING_DIR="$( mktemp -d )"
+trap 'cleanup; exit' EXIT
+git clone "${GITLAB_PATH}" "${WORKING_DIR}"
+
+
+exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
+
+case "${command}" in
+	collect)
+		cd "${WORKING_DIR}"
+		~-/academy collect --namespace="fit/bi-ble/main/tasks" --prefix="bi-ble-tasks-" --editable="${ACADEMY_EDITABLE}"
+		;;
+	*)
+		./academy help
+		exit 2
+		;;
+esac
+
