@@ -16,3 +16,14 @@ printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
 
 # Nastavit správný remote (proč?)
 git -C "${local_gallery}" remote set-url origin "${gallery}"
+
+# Zjistit velikosti výchozích (placeholder) souborů
+file_patterns=(
+    '[01][0-9]-*/render[123].jpg'
+    '[01][0-9]-*/video.mp4'
+    'showreel/video.mp4'
+)
+declare -A filesize=()
+while read file size; do
+    filesize["$file"]="${size}"
+done < <( stat -c '%n %s' ${file_patterns[@]} )

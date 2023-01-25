@@ -1,16 +1,12 @@
-file_patterns=(
-    '[01][0-9]-*/render[123].jpg'
-    '[01][0-9]-*/video.mp4'
-    'showreel/video.mp4'
-)
-
 # Přidat nadpis pro studenta
 printf '## %s [%s]\n\n' "$( get_user_name )" "${user_name}" >> "${readme}"
 
 # Přidat studentské soubory do galerie
 for filepath in ${file_patterns[@]}; do
-    mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
-    cp "${filepath}" "${local_gallery}/${user_name}/${filepath}"
+  [[ $( stat -c '%s' "${filepath}" ) -eq ${size["$filepath"]} ]] \
+    continue
+  mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
+  cp "${filepath}" "${local_gallery}/${user_name}/${filepath}"
 done
 
 # Smazat výchozí soubory
