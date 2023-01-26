@@ -58,7 +58,6 @@ main() {
       . "${DIR}/evaluate_oracle"
     ;;
     *)
-      printf '$s[debug]: %s\n' "${0}" "${ACADEMY_LANG}"
       [[ ! -f "${DIR}/evaluate_${ACADEMY_LANG}" ]] \
       && exception "Unexpected exception: academy lang should be checked before"
       . "${DIR}/evaluate_${ACADEMY_LANG}"

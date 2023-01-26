@@ -1,4 +1,3 @@
 echo "Shell evaluator"
 
-pwd
-find
+find -ls
