@@ -14,7 +14,7 @@ workflow:
         RUNNER_TAG: "oracle"
     - when: always
       variables:
-        RUNNER_TAG: "shell"
+        RUNNER_TAG: "default"
 
 cache:
   key: mvn
