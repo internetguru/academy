@@ -13,8 +13,6 @@ workflow:
       variables:
         RUNNER_TAG: "oracle"
     - when: always
-      variables:
-        RUNNER_TAG: "default"
 
 cache:
   key: mvn
@@ -125,8 +123,8 @@ collect:
   allow_failure: true
 
 evaluate:
-  tags:
-    - ${RUNNER_TAG}
+#  tags:
+#    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *global_init
