@@ -15,14 +15,14 @@ while read; do
 done < <( printf '%s\n' "${!themes[@]}" | sort )
 
 for theme in "${themes_sorted[@]}"; do
-  printf '\n## %s\n\n' "${theme//-/ }" >> "${readme}"
+  printf '## %s\n\n' "${theme//-/ }" >> "${readme}"
   for file in "${local_gallery}"/*/"${theme}"/*; do
-    printf '![%s](%s){width=15%%}\n' "${file#${local_gallery}}" "${file#${local_gallery}}" >> "${readme}"
+    printf '![%s](%s){width=19%%}\n' "${file#${local_gallery}}" "${file#${local_gallery}}" >> "${readme}"
   done
+  printf '\n\n' >> "${readme}"
 done
 
-printf '\n\n' >> "${readme}"
-
+cat "${readme}" >&2
 
 # Add-commit-push galerii
 git -C "${local_gallery}" remote -v
