@@ -13,6 +13,8 @@ workflow:
       variables:
         RUNNER_TAG: "oracle"
     - when: always
+      variables:
+        RUNNER_TAG: "shell"
 
 cache:
   key: mvn
