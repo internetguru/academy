@@ -1,1 +1,10 @@
-status/run
+codes=(
+  status/run
+  courses/run
+  archive/run
+)
+
+for code in "${codes[@]}"; do
+  printf '%s\n' "Evaluating '${code}' ..."
+  "$code"
+done
