@@ -83,7 +83,7 @@ collect:
     - |
         if [[ -z "${ACADEMY_SOLUTION}" ]]; then
           ACADEMY_SOLUTION="${CI_DEFAULT_BRANCH}"
-        fi
+        fi        RUNNER_TAG: "shell"
         git fetch --all
         git checkout "${ACADEMY_SOLUTION}"
     # prepare deadline and editable options
@@ -123,8 +123,8 @@ collect:
   allow_failure: true
 
 evaluate:
-#  tags:
-#    - ${RUNNER_TAG}
+  tags:
+    - ${RUNNER_TAG}
   stage: build
   before_script:
     - *global_init
