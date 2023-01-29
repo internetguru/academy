@@ -1,10 +1,14 @@
-codes=(
-  status/run
-  courses/run
-  archive/run
-)
+mapfile -t codes < <(git diff HEAD..HEAD~1 --name-only)
+
+add_badge() {
+  printf '%s: %s\n' "${1}" "${2}" >> "${BADGES_TXT}"
+}
 
 for code in "${codes[@]}"; do
   printf '%s\n' "Evaluating '${code}' ..."
   "$code"
+  add_badge "${code}" "${?}"
 done
+
+# declare -r BADGES_TXT="${RESULTS}/badges.txt"
+# nazev-badge: hodnota-badge
