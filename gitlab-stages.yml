@@ -139,6 +139,7 @@ evaluate:
       fi
   script:
     - ${ACADEMY} evaluate
+    - curl -s "${ACADEMY_DASHBOARD}/${namespace}/${project_name}" -H "Cache-Control: no-cache"
   artifacts:
     paths:
       - .results/
