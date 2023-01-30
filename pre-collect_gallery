@@ -13,6 +13,14 @@ base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
 rm -rf "${local_gallery}" 2>/dev/null
 git clone "${gallery}" "${local_gallery}"
 printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
+printf '%s\n' \
+"Problematika tvorby v Blenderu je rozdělena do jednotlivých témat." \
+"V rámci každého tématu je zadán rámcový úkol." \
+"Z každé úlohy by měly průběžně v semestru vznikat výstupy v podobě" \
+"statických obrázků a také krátká videa." \
+"" \
+>> "${readme}"
+
 
 # Nastavit správný remote (proč?)
 git -C "${local_gallery}" remote set-url origin "${gallery}"
