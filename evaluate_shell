@@ -13,13 +13,13 @@ check_x() {
 
 for file in "${files[@]}"; do
   printf '%s\n' "Running '${file}' ..."
-  check_x "${file}"
   case "${file}" in
     status/*)
-      "$code" < status/rz_dispatcher.log
+      check_x status/run
+      status/run < status/rz_dispatcher.log
       ;;
     *)
-      "$code"
+      "$file"
   esac
   #printf '%s\n' "Evaluating '${file}' ..."
   add_badge "${file}" "${?}"
