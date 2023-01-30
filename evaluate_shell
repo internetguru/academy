@@ -3,8 +3,8 @@ mapfile -t files < <(git -C "${user_repo}" diff HEAD..HEAD~1 --name-only)
 add_badge() {
   printf '%s: %s\n' "${1}" "${2}" >> "${BADGES_TXT}"
 }
-err() {
-  printf '%s[error]: %s\n' "$*" >&2
+info() {
+  printf '%s[info]: %s\n' "$*" >&2
 }
 check_x() {
   [[ -x "${1}" ]] \
@@ -12,7 +12,7 @@ check_x() {
 }
 
 for file in "${files[@]}"; do
-  printf '%s\n' "Running '${file}' ..."
+  info "Running '${file}' ..."
   case "${file}" in
     status/*)
       check_x status/run
