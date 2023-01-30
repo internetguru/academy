@@ -149,7 +149,7 @@ evaluate:
   script:
     - ${ACADEMY} evaluate
     - |
-      curl -s "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
+      curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
         -X HEAD -H "Cache-Control: no-cache" -H "Accept: application/json"
   artifacts:
     paths:
