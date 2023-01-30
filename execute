@@ -1,0 +1,33 @@
+#!/bin/bash
+
+customize_execution() {
+  local CUSTOM_ACADEMY='.academy'
+  [[ -d "${CUSTOM_ACADEMY}" ]] \
+  || return
+  cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
+}
+main() {
+  declare -r RESULTS="${WORKING_DIR}/.results"
+  declare -r BADGES_TXT="${RESULTS}/badges.txt"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
+
+  customize_execution
+  mkdir -p "${RESULTS}"
+
+  [[ -f "${DIR}/pre-execute_${ACADEMY_LANG}" ]] \
+  && source "${DIR}/pre-execute_${ACADEMY_LANG}"
+
+  if [[ -f "${DIR}/execute_${ACADEMY_LANG}" ]]; then
+    source "${DIR}/execute_${ACADEMY_LANG}"
+  else
+    exception "Unexpected exception: academy lang should be checked before"
+  fi
+
+  [[ -f "${DIR}/post-execution_${ACADEMY_LANG}" ]] \
+  && source "${DIR}/post-execution_${ACADEMY_LANG}"
+
+  date +%s > "${GENERATED_TXT}"
+  printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
+}
+
+main "$@"

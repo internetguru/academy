@@ -41,7 +41,7 @@ while (( $# > 0 )); do
       # check requirements
       check_command git jq
       ;&
-    evaluate)
+    evaluate|execute)
       declare -r CMD="${1}"
       shift
       # shellcheck disable=SC1090
