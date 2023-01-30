@@ -11,6 +11,7 @@ check_x() {
     || chmod +x "${1}"
 }
 
+info "Using default shell evaluator"
 for file in "${files[@]}"; do
   info "Running '${file}' ..."
   check_x "${file}"
