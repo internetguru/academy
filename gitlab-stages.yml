@@ -41,19 +41,21 @@ cache:
   declare PREFIX
   declare DASHBOARD_PROJECT_NAME="${project_name}"
   slashes="${namespace//[^\/]}"
-  if [[ -n "${ACADEMY_PREFIX}" ]]; then
-    PREFIX="${ACADEMY_PREFIX}"
-    echo "?????????"
-  elif [[ ${#slashes} == 3 ]]; then
-    cname="$(cut -d/ -f2 <<< "${namespace}")"
-    pname="$(cut -d/ -f4 <<< "${namespace}")"
-    PREFIX="${cname}-${pname}-"
-    echo "!!!!!!!!!!!${PREFIX}"
-    DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}}"
-  else
-    PREFIX="$(basename "${namespace}")-${project_name}-"
-    echo "::::::::::::"
-  fi
+  echo "${slashes}"
+  echo "${#slashes}"
+  #if [[ -n "${ACADEMY_PREFIX}" ]]; then
+  #  PREFIX="${ACADEMY_PREFIX}"
+  #  echo "?????????"
+  #elif [[ ${#slashes} == 3 ]]; then
+  #  cname="$(cut -d/ -f2 <<< "${namespace}")"
+  #  pname="$(cut -d/ -f4 <<< "${namespace}")"
+  #  PREFIX="${cname}-${pname}-"
+  #  echo "!!!!!!!!!!!${PREFIX}"
+  #  DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}}"
+  #else
+  #  PREFIX="$(basename "${namespace}")-${project_name}-"
+  #  echo "::::::::::::"
+  #fi
 
 .before_script_token: &validate_token |
   # prepare acccess token for the distribution script
