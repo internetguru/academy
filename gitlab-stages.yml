@@ -47,7 +47,7 @@ cache:
       cname="$(cut -d/ -f2 <<< "${namespace}")"
       pname="$(cut -d/ -f4 <<< "${namespace}")"
       PREFIX="${cname}-${pname}-"
-      DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}-}"
+      DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}}"
     else
       DASHBOARD_PROJECT_NAME="${project_name}"
       PREFIX="$(basename "${namespace}")-${project_name}-"
