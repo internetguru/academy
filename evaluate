@@ -30,7 +30,6 @@ customize_evaluation() {
   [[ -d "${CUSTOM_ACADEMY}" ]] \
   || return
   cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
-  cat "${DIR}"/evaluate_shell
 }
 main() {
   declare -r RESULTS="${WORKING_DIR}/.results"
