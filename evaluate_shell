@@ -1,8 +1,5 @@
 mapfile -t files < <(git -C "${user_repo}" diff HEAD..HEAD~1 --name-only)
 
-add_badge() {
-  printf '%s: %s\n' "${1}" "${2}" >> "${BADGES_TXT}"
-}
 info() {
   printf '%s[info]: %s\n' "${0}" "$*" >&2
 }
@@ -13,17 +10,6 @@ check_x() {
 
 for file in "${files[@]}"; do
   info "Running '${file}' ..."
-  case "${file}" in
-    status/*)
-      check_x status/run
-      status/run < status/rz_dispatcher.log
-      ;;
-    *)
-      "$file"
-  esac
-  #printf '%s\n' "Evaluating '${file}' ..."
-  add_badge "${file}" "${?}"
+  check_x "${file}"
+  "$file"
 done
-
-# declare -r BADGES_TXT="${RESULTS}/badges.txt"
-# nazev-badge: hodnota-badge
