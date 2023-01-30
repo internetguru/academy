@@ -4,7 +4,7 @@ add_badge() {
   printf '%s: %s\n' "${1}" "${2}" >> "${BADGES_TXT}"
 }
 info() {
-  printf '%s[info]: %s\n' "$*" >&2
+  printf '%s[info]: %s\n' "${0}" "$*" >&2
 }
 check_x() {
   [[ -x "${1}" ]] \
