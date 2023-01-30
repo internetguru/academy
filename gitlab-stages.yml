@@ -42,7 +42,16 @@ cache:
   if [[ -n "${ACADEMY_PREFIX}" ]]; then
     PREFIX="${ACADEMY_PREFIX}"
   else
-    PREFIX="$(basename "${namespace}")-${project_name}-"
+    slashes="${project_name//[^\/]}"
+    if [[ ${#slashes} == 3 ]]; then
+      cname="$(cut -d/ -f2 <<< "${namespace}")"
+      pname="$(cut -d/ -f4 <<< "${namespace}")"
+      PREFIX="${cname}-${pname}-"
+      DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}-}"
+    else
+      DASHBOARD_PROJECT_NAME="${project_name}"
+      PREFIX="$(basename "${namespace}")-${project_name}-"
+    fi
   fi
 
 .before_script_token: &validate_token |
@@ -140,8 +149,8 @@ evaluate:
   script:
     - ${ACADEMY} evaluate
     - |
-      curl -s "${ACADEMY_DASHBOARD}/${namespace}/${project_name}" \
-        -H "Cache-Control: no-cache"
+      curl -s "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
+        -X HEAD -H "Cache-Control: no-cache" -H "Accept: application/json"
   artifacts:
     paths:
       - .results/
