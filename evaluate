@@ -26,21 +26,27 @@ run_io_tests() {
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
 main() {
-  declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
   declare -r RESULTS="${WORKING_DIR}/.results"
-  declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-  declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
-  declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
-  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
   declare -r BADGES_TXT="${RESULTS}/badges.txt"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
 
   mkdir -p "${RESULTS}"
-  printf -- '' > "${BADGES_TXT}"
-  # deafults for iotests
-  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
-  printf -- 'n/a' > "${IOTEST_TXT}"
-  printf -- '' > "${IOTEST_LOG}"
-  case ${ACADEMY_LANG} in
+  > "${BADGES_TXT}"
+
+  case "${ACADEMY_LANG}" in
+    java|oracle)
+      declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
+      declare -r IOTEST_LOG="${RESULTS}/iotest.log"
+      declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
+      declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
+      # deafults for iotests
+      curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
+      printf -- 'n/a' > "${IOTEST_TXT}"
+      printf -- '' > "${IOTEST_LOG}"
+      ;;
+  esac
+
+  case "${ACADEMY_LANG}" in
     java)
       declare -r COMPILE_TXT="${RESULTS}/compile.txt"
       declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
@@ -62,7 +68,13 @@ main() {
       && exception "Unexpected exception: academy lang should be checked before"
       . "${DIR}/evaluate_${ACADEMY_LANG}"
   esac
-  printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
+
+  case "${ACADEMY_LANG}" in
+    java|oracle)
+      printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
+      ;;
+  esac
+
   date +%s > "${GENERATED_TXT}"
   printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
 }
