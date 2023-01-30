@@ -29,8 +29,8 @@ customize_evaluation() {
   local CUSTOM_ACADEMY='.academy'
   [[ -d "${CUSTOM_ACADEMY}" ]] \
   || return
-  cp -v "${CUSTOM_ACADEMY}"/* .
-  cat "${CUSTOM_ACADEMY}"/*
+  cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
+  cat "${DIR}"/evaluate_shell
 }
 main() {
   declare -r RESULTS="${WORKING_DIR}/.results"
