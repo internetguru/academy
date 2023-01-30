@@ -1,4 +1,7 @@
-mapfile -t files < <(git -C "${user_repo}" diff HEAD..HEAD~1 --name-only)
+mapfile -t files < <(
+  git -C "${user_repo}" diff HEAD..HEAD~1 --name-only \
+  | grep -Ev '^(.academy|README.md)'
+  )
 
 info() {
   printf '%s[info]: %s\n' "${0}" "$*" >&2
