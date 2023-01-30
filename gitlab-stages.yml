@@ -42,7 +42,7 @@ cache:
   if [[ -n "${ACADEMY_PREFIX}" ]]; then
     PREFIX="${ACADEMY_PREFIX}"
   else
-    slashes="${project_name//[^\/]}"
+    slashes="${namespace//[^\/]}"
     if [[ ${#slashes} == 3 ]]; then
       cname="$(cut -d/ -f2 <<< "${namespace}")"
       pname="$(cut -d/ -f4 <<< "${namespace}")"
