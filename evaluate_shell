@@ -1,4 +1,4 @@
-mapfile -t codes < <(git diff HEAD..HEAD~1 --name-only)
+mapfile -t codes < <(git -C "${user_repo}" diff HEAD..HEAD~1 --name-only)
 
 add_badge() {
   printf '%s: %s\n' "${1}" "${2}" >> "${BADGES_TXT}"

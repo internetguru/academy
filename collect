@@ -60,6 +60,7 @@ collect() {
   declare checkstyle_txt
   declare test_txt
   declare results
+  declare -x user_repo
   # shellcheck disable=SC2034
   group_id="$(get_group_id "${NAMESPACE}" 2>/dev/null)"
   [[ -z "${group_id}" ]] \
@@ -80,6 +81,7 @@ collect() {
     echo "$user_project_ns"
     [[ "${DRY_RUN}" == 'true' ]] \
       && continue
+    user_repo="${user_projects_folder}/${user_project_ns}"
     mkdir -p "${user_projects_folder}/${user_project_ns}"
     git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
     last_commit="$(get_last_commit)" \
