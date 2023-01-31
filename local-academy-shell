@@ -29,9 +29,9 @@ git clone "${GITLAB_PATH}" "${WORKING_DIR}"
 exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
 
 case "${command}" in
-	collect)
+	collect|execute)
 		cd "${WORKING_DIR}"
-		~-/academy collect --namespace="fit/bi-skj/main/shell-intro" --prefix="bi-skj-shell-intro-" --editable="${ACADEMY_EDITABLE}"
+		~-/academy "${command}" --namespace="fit/bi-skj/main/shell-intro" --prefix="bi-skj-shell-intro-" --editable="${ACADEMY_EDITABLE}"
 		;;
 	*)
 		./academy help
