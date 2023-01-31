@@ -104,8 +104,13 @@ group_exists() {
   get_group_id "${1}" >/dev/null 2>&1
 }
 get_group_id() {
+  local group_id
   declare -r group_name="${1//\//%2F}"
-  gitlab_api "api/v4/groups/${group_name}" | jq -r '.id'
+  group_id="$( gitlab_api "api/v4/groups/${group_name}" | jq -r '.id' )"
+  [[ -n "${group_id}" ]] \
+  || warning "Group '${ns}' does not exist" 1 \
+  || return 1
+  printf -- '%s\n' "${project_id}"
 }
 request_exists() {
   # shellcheck disable=SC2154
