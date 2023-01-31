@@ -51,6 +51,14 @@ exception() {
     || printf -- '%s [ #%d ]\n' "${message}" "${code}" >&2
   exit "${code}"
 }
+warning() {
+  declare -r message="${1:-Unknown exception}"
+  declare -ri code=${2:-1}
+  (( code == 1 )) \
+    && printf -- '%s in %s() [ #%d ]\n' "${message}" "${FUNCNAME[1]}" "${code}" >&2 \
+    || printf -- '%s [ #%d ]\n' "${message}" "${code}" >&2
+  return "${code}"
+}
 print_usage() {
   declare out
   declare cmd="${CMD}"
