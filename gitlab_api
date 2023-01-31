@@ -217,3 +217,57 @@ remove_project() {
   || exception "Project '${project}' does not exist" 1
   gitlab_api "api/v4/projects/${project_id}" -
 }
+get_project_avatar() {
+  local project_id
+  local output_file
+  local avatar_url
+  declare -r ns="${1}"
+  project_id=$( get_project_id "$ns" ) \
+  || warning "Source project '${ns}' does not exist" 1 \
+  || return 1
+  output_file=$( mktemp )
+  avatar_url="$( gitlab_api "api/v4/projects/${project_id}" | jq -r .avatar_url )"
+  curl "${avatar_url}" > "${output_file}.${avatar_url##*.}"
+  printf '%s\n' "${output_file}.${avatar_url##*.}"
+}
+set_project_avatar() {
+  local project_id
+  declare -r ns="${1}"
+  local input_file="${2}"
+  project_id=$( get_project_id "${ns}" ) \
+  || warning "Destination project '${ns}' does not exist" 1 \
+  || return 1
+  gitlab_api "api/v4/projects/${project_id}" "PUT-FILE:avatar=@${input_file}"
+}
+set_group_avatar() {
+  local group_id
+  declare -r ns="${1}"
+  local input_file="${2}"
+  group_id=$( get_group_id "${ns}" ) \
+  || warning "Destination group '${ns}' does not exist" 1 \
+  || return 1
+  gitlab_api "api/v4/groups/${group_id}" "PUT-FILE:avatar=@${input_file}"
+}
+copy_avatar() {
+  local type
+  case "${1}" in
+    # group avatar
+    '-g')
+      type='group'
+      shift
+      ;;
+    # project avatar (default)
+    *)
+      type='project'
+  esac
+  local avatar_file
+  local src="${1}"
+  local dst="${2}"
+  avatar_file="$( get_project_avatar "${src}" )" \
+  || warning "Could not get source project '${src}' avatar" 1 \
+  || return 1
+  "set_${type}_avatar" "${dst}" "${avatar_file}" \
+  || warning "Could not set target ${type} '${dst}' avatar" 1 \
+  || return 1
+  rm "${avatar_file}"
+}
