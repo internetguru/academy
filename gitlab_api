@@ -78,8 +78,13 @@ get_token() {
 }
 get_project_id() {
   declare -r ns="${1}"
+  declare project_id
   # shellcheck disable=SC2154
-  gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id'
+  project_id=$( gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id' )
+  [[ -n "${project_id}" ]] \
+  || warning "Project '${ns}' does not exist" 1 \
+  || return 1
+  printf -- '%s\n' "${project_id}"
 }
 get_project_name() {
   declare -r ns="${1}"
