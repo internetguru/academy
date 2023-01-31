@@ -9,24 +9,64 @@
 gitlab_api() {
   declare -r url="${1}"
   declare data="${2}"
-  declare req='GET'
-  [[ -n "${data}" ]] \
-    && req='POST'
-  [[ "${data}" == '-' ]] \
-    && req='DELETE' \
-    && data="{}"
+  declare method
+  declare req
+  declare form=""
+  case "${data}" in
+    '-')
+      method='DELETE'
+      ;;
+    'PUT:'*)
+      method='PUT'
+      data="{${data#PUT:}}"
+      ;;
+    'PUT-FILE:'*)
+      method='PUT'
+      declare form="${data#PUT-FILE:}"
+      ;;
+    '')
+      method='GET'
+      ;;
+    *)
+      method='POST'
+  esac
   # shellcheck disable=SC2155
-  declare response="$(curl --silent --write-out '\n%{http_code}\n' \
-    --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
-    --header 'Content-Type: application/json' \
-    --request ${req} --data "${data:-{\}}" "https://${GITLAB_URL}/${url}")"
+  case "${method}" in
+    'GET'|'DELETE')
+      declare response="$(curl --silent --write-out '\n%{http_code}\n' \
+        --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+        --request "${method}" \
+        "https://${GITLAB_URL}/${url}"
+      )"
+      ;;
+    'PUT'|'POST')
+      if [[ -z "${form}" ]]; then
+        declare response="$(curl --silent --write-out '\n%{http_code}\n' \
+          --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+          --header 'Content-Type: application/json' \
+          --request "${method}" --data "${data:-{\}}" \
+          "https://${GITLAB_URL}/${url}"
+        )"
+      else
+        declare response="$(curl --silent --write-out '\n%{http_code}\n' \
+          --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+          --form "${form}" \
+          --request "${method}" \
+          "https://${GITLAB_URL}/${url}"
+        )"
+      fi
+      ;;
+    *)
+      exception "Unknown HTTP method '${method}'" 1
+  esac
   # shellcheck disable=SC2155
   declare status="$(sed -n '$p' <<< "${response}")"
   # shellcheck disable=SC2155
   declare output="$(sed '$d' <<< "${response}")"
-  [[ "${status}" != 20* ]] \
+  [[ "${status}" != 2?? ]] \
     && printf -- '%s\n' "${output}" >&2 \
-    && exception "Request status ${status}: ${url}"
+    && warning "Request status ${status}: ${url}" 0 \
+    && return 1
   printf -- '%s\n' "${output}"
 }
 get_token() {
