@@ -155,3 +155,10 @@ acquire_token() {
   # test ACADEMY_GITLAB_ACCESS_TOKEN
   gitlab_api "api/v4/projects" >/dev/null
 }
+remove_project() {
+  declare -r project="${1}"
+  declare project_id
+  project_id="$( get_project_id "${project}" )" \
+  || exception "Project '${project}' does not exist" 1
+  gitlab_api "api/v4/projects/${project_id}" -
+}
