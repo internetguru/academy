@@ -271,3 +271,72 @@ copy_avatar() {
   || return 1
   rm "${avatar_file}"
 }
+fork_project() {
+  local src_id
+  local data/tmp/tmp.jqFBy32ePd.png
+  local -A attr=( [visibility]="public" )
+  local output
+  while (( $# > 0 )); do
+    case "${1}" in
+      -d)
+        attr[description]="${2}"
+        shift 2
+        ;;
+      -n)
+        attr[name]="${2}"
+        if [[ -z "${attr[path]}" ]]; then
+          attr[path]="${attr[name],,}"
+          attr[path]="${attr[path]// /-}"
+        fi
+        shift 2/tmp/tmp.jqFBy32ePd.png
+        ;;
+      -N)
+        attr[path]="${2}"
+        shift 2
+        ;;
+      -p)
+        attr[namespace_path]="${2}"
+        shift 2
+        ;;
+      -v)
+        attr[visibility]="${2}"
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        warninig "Unknown parameter '${1}'"
+        return 2
+        ;;
+      *)
+        break
+    esac
+  done
+  [[ -n "${attr[name]}" ]] \
+  || warning "Missing essential parameter 'name' (opt. -n)" 1 \
+  || return 1
+  [[ -n "${attr[namespace_path]}" ]] \
+  || warning "Missing essential parameter 'namespace_path' (opt. -p)" 1 \
+  || return 1
+  group_exists "${attr[namespace_path]}" \
+  || warning "Target group '${attr[namespace_path]}' does not exist" 1 \
+  || return 1
+  ! project_exists "${attr[namespace_path]}/${attr[path]}" \
+  || warning "Project '${attr[namespace_path]}/${attr[path]}' already exists" 1 \
+  || return 1
+  [[ -n "${1}" ]] \
+  || warning "Missing source repository to fork from" 1 \
+  || return 1
+  local src="${1}"
+  src_id="$( get_project_id "${src}" )" \
+  || warning "Source repository '${src}' does not exist" \
+  || return 1
+  for key in "${!attr[@]}"; do
+    printf -v data -- '%s,"%s":"%s"' "$data" "${key}" "${attr[$key]}"
+  done
+  output=$( gitlab_api "api/v4/projects/${src_id}/fork" "{${data#,}}" ) \
+  || return 1
+  jq . <<< "${output}"
+}
