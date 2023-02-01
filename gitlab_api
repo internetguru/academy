@@ -275,7 +275,7 @@ copy_avatar() {
 }
 fork_project() {
   local src_id
-  local data/tmp/tmp.jqFBy32ePd.png
+  local data
   local -A attr=( [visibility]="public" )
   local output
   while (( $# > 0 )); do
@@ -290,7 +290,7 @@ fork_project() {
           attr[path]="${attr[name],,}"
           attr[path]="${attr[path]// /-}"
         fi
-        shift 2/tmp/tmp.jqFBy32ePd.png
+        shift 2
         ;;
       -N)
         attr[path]="${2}"
