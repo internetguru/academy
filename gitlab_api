@@ -44,7 +44,8 @@ gitlab_api() {
         declare response="$(curl --silent --write-out '\n%{http_code}\n' \
           --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
           --header 'Content-Type: application/json' \
-          --request "${method}" --data "${data:-{\}}" \
+          --request "${method}" \
+          --data "${data:-{\}}" \
           "https://${GITLAB_URL}/${url}"
         )"
       else
