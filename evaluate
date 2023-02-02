@@ -14,7 +14,7 @@ get_test_color() {
   echo "${color}"
 }
 run_io_tests() {
-  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" > ${IOTEST_LOG}
+  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" > "${IOTEST_LOG}"
   declare summary passed count
   summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
   count="$(cut -d',' -f1 <<< "${summary}" | cut -d' ' -f2)"
@@ -37,7 +37,7 @@ main() {
   declare -r GENERATED_TXT="${RESULTS}/generated.txt"
 
   mkdir -p "${RESULTS}"
-  > "${BADGES_TXT}"
+  : > "${BADGES_TXT}"
 
   customize_evaluation
 

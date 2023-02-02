@@ -1,6 +1,7 @@
 #!/bin/bash
 
 command="${1}"
+PROJECT="${2}"
 
 DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -r DIR
@@ -12,7 +13,6 @@ source "${DIR}/commons"
 export ACADEMY_LANG="shell"
 export ACADEMY_EDITABLE="*/run"
 export CI_SERVER_HOST="gitlab.wr.cz"
-PROJECT="fit/bi-skj/shell-intro"
 GITLAB_PATH="https://oauth2:${ACADEMY_GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${PROJECT}.git"
 
 [ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" ] \
