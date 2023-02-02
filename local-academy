@@ -34,10 +34,10 @@ exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
 case "${command}" in
 	collect)
 		cd "${WORKING_DIR}" || exception "Cannot acces '${WORKING_DIR}'"
-		~-/academy collect --namespace="fit/bi-ble/main/tasks" --prefix="bi-ble-tasks-" --editable="${ACADEMY_EDITABLE}"
+		"${DIR}/academy" collect --namespace="fit/bi-ble/main/tasks" --prefix="bi-ble-tasks-" --editable="${ACADEMY_EDITABLE}"
 		;;
 	*)
-		./academy help
+		"${DIR}/academy" help
 		exit 2
 		;;
 esac
