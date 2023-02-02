@@ -4,8 +4,6 @@ command="${1}"
 
 DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -r DIR
-pwd
-declare -p DIR
 source "${DIR}/commons"
 
 [[ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" || -f "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN" ]] \
@@ -34,8 +32,8 @@ git clone "${GITLAB_PATH}" "${WORKING_DIR}"
 exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
 
 case "${command}" in
-	collect|execute)
-		cd "${WORKING_DIR}"
+	collect|execute|evaluate)
+		cd "${WORKING_DIR}" || exception "Cannot acces '${WORKING_DIR}'"
 		"${DIR}/academy" "${command}" --namespace="fit/bi-skj/main/shell-intro" --prefix="bi-skj-shell-intro-" --editable="${ACADEMY_EDITABLE}"
 		;;
 	*)
