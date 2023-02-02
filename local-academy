@@ -1,7 +1,10 @@
 #!/bin/bash
 
 command="${1}"
-source commons
+
+DIR="$(dirname "${BASH_SOURCE[0]}")"
+declare -r DIR
+source "${DIR}/commons"
 
 [[ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" || -f "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN" ]] \
   || exception "Undefined ACADEMY_GITLAB_ACCESS_TOKEN variable nor ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN file"
@@ -30,7 +33,7 @@ exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
 
 case "${command}" in
 	collect)
-		cd "${WORKING_DIR}"
+		cd "${WORKING_DIR}" || exception "Cannot acces '${WORKING_DIR}'"
 		~-/academy collect --namespace="fit/bi-ble/main/tasks" --prefix="bi-ble-tasks-" --editable="${ACADEMY_EDITABLE}"
 		;;
 	*)
