@@ -1,7 +1,7 @@
 #!/bin/bash
 
 command="${1}"
-PROJECT="${2}"
+#PROJECT="${2}"
 
 DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -r DIR
@@ -13,7 +13,8 @@ source "${DIR}/commons"
 export ACADEMY_LANG="shell"
 export ACADEMY_EDITABLE="*/run"
 export CI_SERVER_HOST="gitlab.wr.cz"
-GITLAB_PATH="git@${CI_SERVER_HOST}:/${PROJECT}.git"
+export WORKING_DIR="/project"
+#GITLAB_PATH="git@${CI_SERVER_HOST}:/${PROJECT}.git"
 
 [ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" ] \
   && printf '%s\n' "${ACADEMY_GITLAB_ACCESS_TOKEN}" > "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
@@ -24,12 +25,12 @@ cleanup() {
 }
 
 # Clone repository to WORKING_DIRECTORY (the same as at gitlab)
-WORKING_DIR="$( mktemp -d )"
-trap 'cleanup; exit' EXIT
-git clone "${GITLAB_PATH}" "${WORKING_DIR}"
+#WORKING_DIR="$( mktemp -d )"
+#trap 'cleanup; exit' EXIT
+#git clone "${GITLAB_PATH}" "${WORKING_DIR}"
 
-
-exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
+[[ -f "${WORKING_DIR}/ACADEMY_ASSIGN" ]] \
+&& exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
 
 case "${command}" in
 	collect|execute|evaluate)
