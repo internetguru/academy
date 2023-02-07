@@ -103,7 +103,7 @@ build-docker-image:
   allow_failure: true
 
 set-docker-image:
-  stage: build
+  stage: academy
   tags:
     - docker
   dependencies:
@@ -114,10 +114,10 @@ set-docker-image:
       echo "CI registry name: ${CI_REGISTRY_IMAGE}"
       if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
         DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
-      elif [[ -z "$(curl -s -I "${CI_REGISTRY_IMAGE}" | grep "HTTP/1.1 200 OK" || true)" ]]; then
-        DOCKER_IMAGE='alpine:latest'
-      else
+      elif [[ -f 'Dockerfile' ]]; then
         DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
+      else
+        DOCKER_IMAGE='alpine:latest'
       fi
       echo "Using '$DOCKER_IMAGE' docker image."
 
