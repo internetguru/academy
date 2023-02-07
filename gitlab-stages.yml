@@ -81,6 +81,19 @@ stages:
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
+.set_image: &set_image |
+  declare DOCKER_IMAGE
+  echo "CI registry name: ${CI_REGISTRY_IMAGE}"
+  if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
+    DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
+  elif [[ -f 'Dockerfile' ]]; then
+    DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
+  else
+    DOCKER_IMAGE='alpine:latest'
+  fi
+  echo "Using '$DOCKER_IMAGE' docker image."
+
+
 build-docker-image:
   image: docker:20.10.10
   stage: build
@@ -102,33 +115,13 @@ build-docker-image:
       - Dockerfile
   allow_failure: true
 
-set-docker-image:
-  stage: academy
-  tags:
-    - docker
-  dependencies:
-    - build-docker-image
-  script:
-    - |
-      declare DOCKER_IMAGE
-      echo "CI registry name: ${CI_REGISTRY_IMAGE}"
-      if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
-        DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
-      elif [[ -f 'Dockerfile' ]]; then
-        DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
-      else
-        DOCKER_IMAGE='alpine:latest'
-      fi
-      echo "Using '$DOCKER_IMAGE' docker image."
-
 collect:
   image: $DOCKER_IMAGE
   stage: academy
   tags:
     - docker
-  dependencies:
-    - set-docker-image
   before_script:
+    - *set_image
     - *validate_token
     - *global_init
   script:
@@ -182,9 +175,8 @@ distribute:
   stage: academy
   tags:
     - docker
-  dependencies:
-    - set-docker-image
   before_script:
+    - *set_image
     - *validate_token
     - *global_init
   script:
@@ -209,9 +201,8 @@ measure:
   stage: academy
   tags:
     - docker
-  dependencies:
-    - set-docker-image
   before_script:
+    - *set_image
     - *validate_token
     - *global_init
   script:
@@ -252,9 +243,8 @@ execute:
   stage: academy
   tags:
     - docker
-  dependencies:
-    - set-docker-image
   before_script:
+    - *set_image
     - *global_init
     - |
       # skip initial commits
@@ -282,9 +272,8 @@ evaluate:
   stage: academy
   tags:
     - docker
-  dependencies:
-    - set-docker-image
   before_script:
+    - *set_image
     - *global_init
     - |
       # skip initial commits
