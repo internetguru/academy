@@ -94,6 +94,8 @@ stages:
 build-docker-image:
   image: docker:20.10.10
   stage: academy
+  tags:
+    - docker
   variables:
     DOCKER_HOST: tcp://dockerhost:2375/
     DOCKER_DRIVER: overlay2
