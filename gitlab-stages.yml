@@ -84,7 +84,7 @@ stages:
   declare DOCKER_IMAGE
   if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
     DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
-  elif [[ -z "$(curl -s -I "${CI_REGISTRY_IMAGE}" | grep "HTTP/1.1 200 OK" || true)" ]]
+  elif [[ -z "$(curl -s -I "${CI_REGISTRY_IMAGE}" | grep "HTTP/1.1 200 OK" || true)" ]]; then
     DOCKER_IMAGE='alpine:latest'
   else
     DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
