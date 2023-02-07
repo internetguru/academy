@@ -110,7 +110,7 @@ build-docker-image:
     - docker push $CI_REGISTRY_IMAGE
     # TODO: remove image when Dockerfile is removed
   rules:
-    - if: $CI_COMMIT_FILES == Dockerfile
+    - if: $CI_COMMIT_FILES =~ /Dockerfile/
       when: always
   allow_failure: true
 
