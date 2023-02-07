@@ -1,23 +1,26 @@
 
-variables:
-  ACADEMY_LANG: "java"
-  BASE_RUNNER_TAG: "java"
+# variables:
+#   ACADEMY_LANG: "java"
+#   BASE_RUNNER_TAG: "java"
 
-workflow:
-  rules:
-    - if: $ACADEMY_LANG == "java"
-      variables:
-        RUNNER_TAG: "java"
-        MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
-    - if: $ACADEMY_LANG == "oracle"
-      variables:
-        RUNNER_TAG: "oracle"
-    - when: always
+# workflow:
+#   rules:
+#     - if: $ACADEMY_LANG == "java"
+#       variables:
+#         RUNNER_TAG: "java"
+#         MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+#     - if: $ACADEMY_LANG == "oracle"
+#       variables:
+#         RUNNER_TAG: "oracle"
+#     - when: always
 
-cache:
-  key: mvn
-  paths:
-    - .m2/repository
+# cache:
+#   key: mvn
+#   paths:
+#     - .m2/repository
+
+stages:
+ - academy
 
 .before_script_global: &global_init |
   # fix TERM
@@ -61,6 +64,12 @@ cache:
     # commit move to keep git status empty (do not push)
     git commit -m "move users file" -- "ACADEMY_ASSIGN"
   fi
+  # do not distribute ACADEMY_ALLOW file
+  if [[ -f "ACADEMY_ALLOW" ]]; then
+    mv "ACADEMY_ALLOW" ..
+    # commit move to keep git status empty (do not push)
+    git commit -m "move allow file" -- "ACADEMY_ALLOW"
+  fi
   declare users
   if [[ -n "${ACADEMY_ASSIGN}" ]]; then
     users="${ACADEMY_ASSIGN}"
@@ -71,9 +80,41 @@ cache:
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
+.init_image: &init_image |
+  declare DOCKER_IMAGE
+  if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
+    DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
+  elif [[ -z "$(curl -s -I "${CI_REGISTRY_IMAGE}" | grep "HTTP/1.1 200 OK" || true)" ]]
+    DOCKER_IMAGE='alpine:latest'
+  else
+    DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
+  fi
+  echo "Using '$DOCKER_IMAGE' docker image."
+
+build-docker-image:
+  image: docker:20.10.10
+  stage: academy
+  variables:
+    DOCKER_HOST: tcp://dockerhost:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - name: docker:20.10.10-dind
+      alias: dockerhost
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build --pull -t $CI_REGISTRY_IMAGE .
+    - docker push $CI_REGISTRY_IMAGE
+  # Only run when the Dockerfile is changed
+  only:
+    changes:
+      - Dockerfile
+
 collect:
-  stage: build
+  image: $DOCKER_IMAGE
+  stage: academy
   before_script:
+    - *init_image
     - *validate_token
     - *global_init
   script:
@@ -122,35 +163,9 @@ collect:
     expire_in: 1 year
   allow_failure: true
 
-execute:
-  tags:
-    - ${RUNNER_TAG}
-  stage: build
-  before_script:
-    - *global_init
-    - |
-      # skip initial commits
-      if [[ $(git rev-list --all --count) -le 2 ]]; then
-        exit 0
-      fi
-      # do not evaluate ACADEMY_ASSIGN changes only
-      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
-        echo "Project evaluation stoped due to changes in ACADEMY_ASSIGN only"
-        exit 1
-      fi
-  script:
-    - ${ACADEMY} execute
-  artifacts:
-    paths:
-      - .results/
-    expire_in: 1 year
-  rules:
-    - if: '$ACADEMY_EXECUTE == "always"'
-      when: always
-    - when: manual
-
 distribute:
-  stage: build
+  image: $DOCKER_IMAGE
+  stage: academy
   before_script:
     - *validate_token
     - *global_init
@@ -172,9 +187,8 @@ distribute:
   allow_failure: true
 
 measure:
-  tags:
-    - ${BASE_RUNNER_TAG}
-  stage: build
+  image: $DOCKER_IMAGE
+  stage: academy
   before_script:
     - *validate_token
     - *global_init
@@ -211,10 +225,35 @@ measure:
   when: manual
   allow_failure: true
 
+execute:
+  image: $DOCKER_IMAGE
+  stage: academy
+  before_script:
+    - *global_init
+    - |
+      # skip initial commits
+      if [[ $(git rev-list --all --count) -le 2 ]]; then
+        exit 0
+      fi
+      # do not evaluate ACADEMY_ASSIGN changes only
+      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
+        echo "Project evaluation stoped due to changes in ACADEMY_ASSIGN only"
+        exit 1
+      fi
+  script:
+    - ${ACADEMY} execute
+  artifacts:
+    paths:
+      - .results/
+    expire_in: 1 year
+  rules:
+    - if: '$ACADEMY_EXECUTE == "always"'
+      when: always
+    - when: manual
+
 evaluate:
-  tags:
-    - ${RUNNER_TAG}
-  stage: build
+  image: $DOCKER_IMAGE
+  stage: academy
   before_script:
     - *global_init
     - |
