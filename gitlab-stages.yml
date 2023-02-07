@@ -108,7 +108,6 @@ build-docker-image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker build --pull -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
-    # TODO: remove image when Dockerfile is removed
   rules:
     - if: $CI_COMMIT_FILES =~ /Dockerfile/
       when: always
