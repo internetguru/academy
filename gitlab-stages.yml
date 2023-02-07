@@ -81,18 +81,6 @@ stages:
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
-.init_image: &init_image |
-  declare DOCKER_IMAGE
-  echo "CI registry name: ${CI_REGISTRY_IMAGE}"
-  if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
-    DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
-  elif [[ -z "$(curl -s -I "${CI_REGISTRY_IMAGE}" | grep "HTTP/1.1 200 OK" || true)" ]]; then
-    DOCKER_IMAGE='alpine:latest'
-  else
-    DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
-  fi
-  echo "Using '$DOCKER_IMAGE' docker image."
-
 build-docker-image:
   image: docker:20.10.10
   stage: build
@@ -114,15 +102,33 @@ build-docker-image:
       - Dockerfile
   allow_failure: true
 
+set-docker-image:
+  stage: build
+  tags:
+    - docker
+  dependencies:
+    - build-docker-image
+  script:
+    - |
+      declare DOCKER_IMAGE
+      echo "CI registry name: ${CI_REGISTRY_IMAGE}"
+      if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
+        DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
+      elif [[ -z "$(curl -s -I "${CI_REGISTRY_IMAGE}" | grep "HTTP/1.1 200 OK" || true)" ]]; then
+        DOCKER_IMAGE='alpine:latest'
+      else
+        DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
+      fi
+      echo "Using '$DOCKER_IMAGE' docker image."
+
 collect:
   image: $DOCKER_IMAGE
   stage: academy
   tags:
     - docker
   dependencies:
-    - build-docker-image
+    - set-docker-image
   before_script:
-    - *init_image
     - *validate_token
     - *global_init
   script:
@@ -177,9 +183,8 @@ distribute:
   tags:
     - docker
   dependencies:
-    - build-docker-image
+    - set-docker-image
   before_script:
-    - *init_image
     - *validate_token
     - *global_init
   script:
@@ -205,9 +210,8 @@ measure:
   tags:
     - docker
   dependencies:
-    - build-docker-image
+    - set-docker-image
   before_script:
-    - *init_image
     - *validate_token
     - *global_init
   script:
@@ -249,9 +253,8 @@ execute:
   tags:
     - docker
   dependencies:
-    - build-docker-image
+    - set-docker-image
   before_script:
-    - *init_image
     - *global_init
     - |
       # skip initial commits
@@ -280,9 +283,8 @@ evaluate:
   tags:
     - docker
   dependencies:
-    - build-docker-image
+    - set-docker-image
   before_script:
-    - *init_image
     - *global_init
     - |
       # skip initial commits
