@@ -169,6 +169,7 @@ distribute:
   image: $DOCKER_IMAGE
   stage: academy
   before_script:
+    - *init_image
     - *validate_token
     - *global_init
   script:
@@ -192,6 +193,7 @@ measure:
   image: $DOCKER_IMAGE
   stage: academy
   before_script:
+    - *init_image
     - *validate_token
     - *global_init
   script:
@@ -231,6 +233,7 @@ execute:
   image: $DOCKER_IMAGE
   stage: academy
   before_script:
+    - *init_image
     - *global_init
     - |
       # skip initial commits
@@ -257,6 +260,7 @@ evaluate:
   image: $DOCKER_IMAGE
   stage: academy
   before_script:
+    - *init_image
     - *global_init
     - |
       # skip initial commits
