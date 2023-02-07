@@ -209,35 +209,47 @@ while (( $# > 0 )); do
       ASSIGN="${2}"
       [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
         || exception 'Invalid option ASSIGN value'
-      shift; shift ;;
-    -h|--help) print_usage && exit 0 ;;
+      shift 2
+      ;;
+    -h|--help)
+      print_usage \
+        && exit 0
+      ;;
     -i|--process-issues)
       ISSUES_LABEL="$2"
       [[ "${ISSUES_LABEL}" =~ ^[a-z0-9][a-z0-9_-]+$ ]] \
         || exception 'Unsupported ISSUES_LABEL value' 2
-      shift; shift ;;
+      shift 2
+      ;;
     -l|--update-links)
       UPDATE_LINKS='true'
       [[ -f "${WORKING_DIR}/${README_FILE}" ]] \
         || exception 'Readme file not found in WORKING_DIR'
-      shift ;;
-    -n|--dry-run) DRY_RUN='true'; shift ;;
+      shift
+      ;;
+    -n|--dry-run)
+      DRY_RUN='true'
+      shift
+      ;;
     -p|--prefix)
       PREFIX="${2}"
       [[ "${PREFIX}" =~ ^[a-z0-9]+([a-z0-9._-]+)*$ ]] \
         || exception 'Unsupported PREFIX value' 2
-      shift; shift ;;
+      shift 2
+      ;;
     -s|--namespace)
       NAMESPACE="${2}"
       [[ "${NAMESPACE}" =~ ^[a-z0-9-]{2,}(/[a-z0-9-]{2,})*$ ]] \
         || exception "Unsupported REMOTE_NAMESPACE '$NAMESPACE' dirname" 2
-      shift; shift ;;
+      shift 2
+      ;;
     -o|--output-dir)
       CACHE_FOLDER="${2}";
       [[ -d "${CACHE_FOLDER}" ]] \
         || mkdir -p "${CACHE_FOLDER}" \
         || exception "Unable to create '${CACHE_FOLDER}' directory"
-      shift; shift ;;
+      shift 2
+      ;;
     --) shift; break ;;
      *) break ;;
   esac
