@@ -20,6 +20,7 @@
 #     - .m2/repository
 
 stages:
+ - build
  - academy
 
 .before_script_global: &global_init |
@@ -93,7 +94,7 @@ stages:
 
 build-docker-image:
   image: docker:20.10.10
-  stage: academy
+  stage: build
   tags:
     - docker
   variables:
@@ -107,14 +108,17 @@ build-docker-image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker build --pull -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
-  # Only run when the Dockerfile is changed
+    # TODO: remove image when Dockerfile is removed
   only:
     changes:
       - Dockerfile
+  allow_failure: true
 
 collect:
   image: $DOCKER_IMAGE
   stage: academy
+  dependencies:
+    - build-docker-image
   before_script:
     - *init_image
     - *validate_token
@@ -168,6 +172,8 @@ collect:
 distribute:
   image: $DOCKER_IMAGE
   stage: academy
+  dependencies:
+    - build-docker-image
   before_script:
     - *init_image
     - *validate_token
@@ -192,6 +198,8 @@ distribute:
 measure:
   image: $DOCKER_IMAGE
   stage: academy
+  dependencies:
+    - build-docker-image
   before_script:
     - *init_image
     - *validate_token
@@ -232,6 +240,8 @@ measure:
 execute:
   image: $DOCKER_IMAGE
   stage: academy
+  dependencies:
+    - build-docker-image
   before_script:
     - *init_image
     - *global_init
@@ -259,6 +269,8 @@ execute:
 evaluate:
   image: $DOCKER_IMAGE
   stage: academy
+  dependencies:
+    - build-docker-image
   before_script:
     - *init_image
     - *global_init
