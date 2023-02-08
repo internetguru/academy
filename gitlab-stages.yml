@@ -127,7 +127,7 @@ set-docker-image:
       dotenv: out.env
 
 collect:
-  image: ${DOCKER_IMAGE}
+  image: ${DOCKER_IMAGE}:latest
   stage: academy
   needs:
     - set-docker-image
@@ -183,7 +183,7 @@ collect:
   allow_failure: true
 
 distribute:
-  image: ${DOCKER_IMAGE}
+  image: ${DOCKER_IMAGE}:latest
   stage: academy
   needs:
     - set-docker-image
@@ -210,7 +210,7 @@ distribute:
   allow_failure: true
 
 measure:
-  image: ${DOCKER_IMAGE}
+  image: ${DOCKER_IMAGE}:latest
   stage: academy
   needs:
     - set-docker-image
@@ -253,7 +253,7 @@ measure:
   allow_failure: true
 
 execute:
-  image: ${DOCKER_IMAGE}
+  image: ${DOCKER_IMAGE}:latest
   stage: academy
   needs:
     - set-docker-image
@@ -284,7 +284,7 @@ execute:
   allow_failure: true
 
 evaluate:
-  image: ${DOCKER_IMAGE}
+  image: ${DOCKER_IMAGE}:latest
   stage: academy
   needs:
     - set-docker-image
