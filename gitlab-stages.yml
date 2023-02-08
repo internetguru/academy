@@ -104,7 +104,8 @@ build-docker-image:
 set-docker-image:
   stage: academy
   needs:
-    - build-docker-image
+    - job: build-docker-image
+      optional: true
   tags:
     - docker
   script:
