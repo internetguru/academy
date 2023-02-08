@@ -19,10 +19,6 @@
 #   paths:
 #     - .m2/repository
 
-stages:
- - build
- - academy
-
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
@@ -81,22 +77,8 @@ stages:
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
-.set_image: &set_image |
-  declare DOCKER_IMAGE
-  echo "CI registry name: ${CI_REGISTRY_IMAGE}"
-  if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
-    DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
-  elif [[ -f 'Dockerfile' ]]; then
-    DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
-  else
-    DOCKER_IMAGE='alpine:latest'
-  fi
-  echo "Using '$DOCKER_IMAGE' docker image."
-
-
 build-docker-image:
   image: docker:20.10.10
-  stage: build
   tags:
     - docker
   variables:
@@ -115,13 +97,36 @@ build-docker-image:
       - Dockerfile
   allow_failure: true
 
-collect:
-  image: $DOCKER_IMAGE
-  stage: academy
+set-docker-image:
   tags:
     - docker
+  needs:
+    - build-docker-image
+  script:
+    - |
+      declare DOCKER_IMAGE
+      echo "CI registry name: ${CI_REGISTRY_IMAGE}"
+      if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
+        DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
+      elif [[ -f 'Dockerfile' ]]; then
+        DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
+      else
+        DOCKER_IMAGE='alpine:latest'
+      fi
+      echo "Using '$DOCKER_IMAGE' docker image."
+      # using artifacts to share variables between jobs
+      echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> out.env
+  artifacts:
+    reports:
+      dotenv: out.env
+
+collect:
+  image: $DOCKER_IMAGE
+  tags:
+    - docker
+  needs:
+    - set-docker-image
   before_script:
-    - *set_image
     - *validate_token
     - *global_init
   script:
@@ -172,11 +177,11 @@ collect:
 
 distribute:
   image: $DOCKER_IMAGE
-  stage: academy
   tags:
     - docker
+  needs:
+    - set-docker-image
   before_script:
-    - *set_image
     - *validate_token
     - *global_init
   script:
@@ -198,11 +203,11 @@ distribute:
 
 measure:
   image: $DOCKER_IMAGE
-  stage: academy
   tags:
     - docker
+  needs:
+    - set-docker-image
   before_script:
-    - *set_image
     - *validate_token
     - *global_init
   script:
@@ -240,11 +245,11 @@ measure:
 
 execute:
   image: $DOCKER_IMAGE
-  stage: academy
   tags:
     - docker
+  needs:
+    - set-docker-image
   before_script:
-    - *set_image
     - *global_init
     - |
       # skip initial commits
@@ -269,11 +274,11 @@ execute:
 
 evaluate:
   image: $DOCKER_IMAGE
-  stage: academy
   tags:
     - docker
+  needs:
+    - set-docker-image
   before_script:
-    - *set_image
     - *global_init
     - |
       # skip initial commits
