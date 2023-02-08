@@ -148,21 +148,11 @@ collect:
         fi
         git fetch --all
         git checkout "${ACADEMY_SOLUTION}"
-    # prepare deadline and editable options
-    - declare deadline=''
-    - declare editable=''
-    - |
-        if [[ -n "${ACADEMY_DEADLINE}" ]]; then
-          deadline="--deadline ${ACADEMY_DEADLINE}"
-        fi
-        if [[ -n "${ACADEMY_EDITABLE}" ]]; then
-          editable="--editable ${ACADEMY_EDITABLE}"
-        fi
     # run collect for given or all branches
     - mkdir -p '.collect'
     - *get_users
     - |
-        ${ACADEMY} collect ${deadline} ${editable} \
+        ${ACADEMY} collect \
         --namespace "${user_namespace}" \
         --prefix "${PREFIX}" \
         --output-dir '.collect' \
