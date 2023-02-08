@@ -19,6 +19,9 @@
 #   paths:
 #     - .m2/repository
 
+stages:
+ - academy
+
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
@@ -79,6 +82,7 @@
 
 build-docker-image:
   image: docker:20.10.10
+  stage: academy
   tags:
     - docker
   variables:
@@ -98,10 +102,11 @@ build-docker-image:
   allow_failure: true
 
 set-docker-image:
-  tags:
-    - docker
+  stage: academy
   needs:
     - build-docker-image
+  tags:
+    - docker
   script:
     - |
       declare DOCKER_IMAGE
@@ -122,10 +127,11 @@ set-docker-image:
 
 collect:
   image: ${DOCKER_IMAGE}
-  tags:
-    - docker
+  stage: academy
   needs:
     - set-docker-image
+  tags:
+    - docker
   before_script:
     - *validate_token
     - *global_init
@@ -177,10 +183,11 @@ collect:
 
 distribute:
   image: ${DOCKER_IMAGE}
-  tags:
-    - docker
+  stage: academy
   needs:
     - set-docker-image
+  tags:
+    - docker
   before_script:
     - *validate_token
     - *global_init
@@ -203,10 +210,11 @@ distribute:
 
 measure:
   image: ${DOCKER_IMAGE}
-  tags:
-    - docker
+  stage: academy
   needs:
     - set-docker-image
+  tags:
+    - docker
   before_script:
     - *validate_token
     - *global_init
@@ -245,10 +253,11 @@ measure:
 
 execute:
   image: ${DOCKER_IMAGE}
-  tags:
-    - docker
+  stage: academy
   needs:
     - set-docker-image
+  tags:
+    - docker
   before_script:
     - *global_init
     - |
@@ -275,10 +284,11 @@ execute:
 
 evaluate:
   image: ${DOCKER_IMAGE}
-  tags:
-    - docker
+  stage: academy
   needs:
     - set-docker-image
+  tags:
+    - docker
   before_script:
     - *global_init
     - |
