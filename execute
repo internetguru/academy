@@ -20,11 +20,11 @@ main() {
   if [[ -f "${DIR}/execute_${ACADEMY_LANG}" ]]; then
     source "${DIR}/execute_${ACADEMY_LANG}"
   else
-    exception "Unexpected exception: academy lang should be checked before"
+    exception "Missing execute script 'execute_${ACADEMY_LANG}' for selected language."
   fi
 
-  [[ -f "${DIR}/post-execution_${ACADEMY_LANG}" ]] \
-  && source "${DIR}/post-execution_${ACADEMY_LANG}"
+  [[ -f "${DIR}/post-execute_${ACADEMY_LANG}" ]] \
+  && source "${DIR}/post-execute_${ACADEMY_LANG}"
 
   date +%s > "${GENERATED_TXT}"
   printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"

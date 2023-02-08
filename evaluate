@@ -47,7 +47,7 @@ main() {
   if [[ -f "${DIR}/evaluate_${ACADEMY_LANG}" ]]; then
     source "${DIR}/evaluate_${ACADEMY_LANG}"
   else
-    exception "Unexpected exception: academy lang should be checked before"
+    exception "Missing evaluate script 'evaluate_${ACADEMY_LANG}' for selected language."
   fi
 
   [[ -f "${DIR}/post-evaluate_${ACADEMY_LANG}" ]] \

@@ -26,7 +26,8 @@ while (( $# > 0 )); do
       WORKING_DIR="$(readlink -f "${2}")"
       [[ -d "${WORKING_DIR}" ]] \
         || exception 'WORKING_DIR not found'
-      shift; shift ;;
+      shift 2
+      ;;
     help)
       print_usage
       exit
@@ -35,17 +36,15 @@ while (( $# > 0 )); do
       # shellcheck disable=SC1091
       # shellcheck disable=SC1090
       . "${DIR}/git_functions"
-      # shellcheck disable=SC1091
-      # shellcheck disable=SC1090
-      . "${DIR}/gitlab_api"
       # check requirements
       check_command git jq
       ;&
     evaluate|execute)
       declare -r CMD="${1}"
       shift
-      # shellcheck disable=SC1090
+      # shellcheck disable=SC1091
       . "${DIR}/gitlab_api"
+      # shellcheck disable=SC1090
       . "${DIR}/${CMD}" "$@"
       exit $?
       ;;
