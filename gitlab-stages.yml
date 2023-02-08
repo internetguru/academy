@@ -113,15 +113,15 @@ set-docker-image:
       else
         DOCKER_IMAGE='alpine:latest'
       fi
-      echo "Using '$DOCKER_IMAGE' docker image."
+      echo "Using '${DOCKER_IMAGE}' docker image."
       # using artifacts to share variables between jobs
-      echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> out.env
+      echo "DOCKER_IMAGE=${DOCKER_IMAGE}" >> out.env
   artifacts:
     reports:
       dotenv: out.env
 
 collect:
-  image: $DOCKER_IMAGE
+  image: ${DOCKER_IMAGE}
   tags:
     - docker
   needs:
@@ -176,7 +176,7 @@ collect:
   allow_failure: true
 
 distribute:
-  image: $DOCKER_IMAGE
+  image: ${DOCKER_IMAGE}
   tags:
     - docker
   needs:
@@ -202,7 +202,7 @@ distribute:
   allow_failure: true
 
 measure:
-  image: $DOCKER_IMAGE
+  image: ${DOCKER_IMAGE}
   tags:
     - docker
   needs:
@@ -244,7 +244,7 @@ measure:
   allow_failure: true
 
 execute:
-  image: $DOCKER_IMAGE
+  image: ${DOCKER_IMAGE}
   tags:
     - docker
   needs:
@@ -273,7 +273,7 @@ execute:
     - when: manual
 
 evaluate:
-  image: $DOCKER_IMAGE
+  image: ${DOCKER_IMAGE}
   tags:
     - docker
   needs:
