@@ -20,7 +20,9 @@
 #     - .m2/repository
 
 stages:
- - academy
+ - build
+ - manage
+ - run
 
 .before_script_global: &global_init |
   # fix TERM
@@ -82,7 +84,7 @@ stages:
 
 build-docker-image:
   image: docker:20.10.10
-  stage: academy
+  stage: build
   tags:
     - docker
   variables:
@@ -102,7 +104,7 @@ build-docker-image:
   allow_failure: true
 
 set-docker-image:
-  stage: academy
+  stage: build
   needs:
     - job: build-docker-image
       optional: true
@@ -115,7 +117,7 @@ set-docker-image:
       if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
         DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
       elif [[ -f 'Dockerfile' ]]; then
-        DOCKER_IMAGE="${CI_REGISTRY_IMAGE}"
+        DOCKER_IMAGE="${CI_REGISTRY_IMAGE}:latest"
       else
         DOCKER_IMAGE='alpine:latest'
       fi
@@ -127,8 +129,8 @@ set-docker-image:
       dotenv: out.env
 
 collect:
-  image: ${DOCKER_IMAGE}:latest
-  stage: academy
+  image: ${DOCKER_IMAGE}
+  stage: manage
   needs:
     - set-docker-image
   tags:
@@ -175,7 +177,11 @@ collect:
       echo "ACADEMY_SOLUTION: '${ACADEMY_SOLUTION}'"
       echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
       echo '#######################'
-  when: manual
+  rules:
+    - exists:
+      - "ACADEMY_ASSIGN"
+      when: manual
+    - when: never
   artifacts:
     paths:
       - .collect/
@@ -183,8 +189,8 @@ collect:
   allow_failure: true
 
 distribute:
-  image: ${DOCKER_IMAGE}:latest
-  stage: academy
+  image: ${DOCKER_IMAGE}
+  stage: manage
   needs:
     - set-docker-image
   tags:
@@ -206,12 +212,15 @@ distribute:
   rules:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
-    - when: manual
+    - exists:
+      - "ACADEMY_ASSIGN"
+      when: manual
+    - when: never
   allow_failure: true
 
 measure:
-  image: ${DOCKER_IMAGE}:latest
-  stage: academy
+  image: ${DOCKER_IMAGE}
+  stage: manage
   needs:
     - set-docker-image
   tags:
@@ -249,12 +258,16 @@ measure:
       --prefix "${PREFIX}" \
       <<< "${users}"
   cache: []
-  when: manual
+  rules:
+    - exists:
+      - "ACADEMY_ASSIGN"
+      when: manual
+    - when: never
   allow_failure: true
 
 execute:
-  image: ${DOCKER_IMAGE}:latest
-  stage: academy
+  image: ${DOCKER_IMAGE}
+  stage: run
   needs:
     - set-docker-image
   tags:
@@ -284,8 +297,8 @@ execute:
   allow_failure: true
 
 evaluate:
-  image: ${DOCKER_IMAGE}:latest
-  stage: academy
+  image: ${DOCKER_IMAGE}
+  stage: run
   needs:
     - set-docker-image
   tags:
