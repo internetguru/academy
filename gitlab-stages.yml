@@ -312,3 +312,4 @@ evaluate:
     - if: '$ACADEMY_EVALUATE == "always"'
       when: always
     - when: manual
+  allow_failure: true
