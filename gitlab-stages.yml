@@ -271,6 +271,7 @@ execute:
     - if: '$ACADEMY_EXECUTE == "always"'
       when: always
     - when: manual
+  allow_failure: true
 
 evaluate:
   image: ${DOCKER_IMAGE}
