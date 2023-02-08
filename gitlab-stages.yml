@@ -97,7 +97,7 @@ build-docker-image:
     - docker build --pull -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
   rules:
-    changes:
+    - changes:
       - Dockerfile
   allow_failure: true
 
