@@ -24,6 +24,9 @@ stages:
  - manage
  - run
 
+variables:
+  ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
+
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
@@ -119,7 +122,7 @@ set-docker-image:
       elif [[ -f 'Dockerfile' ]]; then
         DOCKER_IMAGE="${CI_REGISTRY_IMAGE}:latest"
       else
-        DOCKER_IMAGE='alpine:latest'
+        DOCKER_IMAGE=${ACADEMY_DEFAULT_DOCKER_IMAGE}
       fi
       echo "Using '${DOCKER_IMAGE}' docker image."
       # using artifacts to share variables between jobs
@@ -179,7 +182,7 @@ collect:
   allow_failure: true
 
 distribute:
-  image: ${DOCKER_IMAGE}
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
   needs:
     - set-docker-image
@@ -209,7 +212,7 @@ distribute:
   allow_failure: true
 
 measure:
-  image: ${DOCKER_IMAGE}
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
   needs:
     - set-docker-image
