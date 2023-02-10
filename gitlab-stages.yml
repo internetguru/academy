@@ -242,7 +242,9 @@ evaluate:
         exit 1
       fi
   script:
+    - echo '%% evaluate start %%'
     - ${ACADEMY} evaluate
+    - echo '%% evaluate end %%'
   artifacts:
     paths:
       - .results/
