@@ -1,31 +1,11 @@
 
-# variables:
-#   ACADEMY_LANG: "java"
-#   BASE_RUNNER_TAG: "java"
-
-# workflow:
-#   rules:
-#     - if: $ACADEMY_LANG == "java"
-#       variables:
-#         RUNNER_TAG: "java"
-#         MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
-#     - if: $ACADEMY_LANG == "oracle"
-#       variables:
-#         RUNNER_TAG: "oracle"
-#     - when: always
-
-# cache:
-#   key: mvn
-#   paths:
-#     - .m2/repository
-
 stages:
- - build
  - manage
- - run
+ - post-process
 
 variables:
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
+  ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
 
 .before_script_global: &global_init |
   # fix TERM
@@ -85,57 +65,9 @@ variables:
   fi
   users="$(tr ',' ' ' <<< "${users}")"
 
-build-docker-image:
-  image: docker:20.10.10
-  stage: build
-  tags:
-    - docker
-  variables:
-    DOCKER_HOST: tcp://dockerhost:2375/
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  services:
-    - name: docker:20.10.10-dind
-      alias: dockerhost
-  script:
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build --pull -t $CI_REGISTRY_IMAGE .
-    - docker push $CI_REGISTRY_IMAGE
-  rules:
-    - changes:
-      - Dockerfile
-  allow_failure: true
-
-set-docker-image:
-  stage: build
-  needs:
-    - job: build-docker-image
-      optional: true
-  tags:
-    - docker
-  script:
-    - |
-      declare DOCKER_IMAGE
-      echo "CI registry name: ${CI_REGISTRY_IMAGE}"
-      if [[ -n "${ACADEMY_DOCKER_IMAGE}" ]]; then
-        DOCKER_IMAGE="${ACADEMY_DOCKER_IMAGE}"
-      elif [[ -f 'Dockerfile' ]]; then
-        DOCKER_IMAGE="${CI_REGISTRY_IMAGE}:latest"
-      else
-        DOCKER_IMAGE=${ACADEMY_DEFAULT_DOCKER_IMAGE}
-      fi
-      echo "Using '${DOCKER_IMAGE}' docker image."
-      # using artifacts to share variables between jobs
-      echo "DOCKER_IMAGE=${DOCKER_IMAGE}" >> out.env
-  artifacts:
-    reports:
-      dotenv: out.env
-
 collect:
-  image: ${DOCKER_IMAGE}
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
-  needs:
-    - set-docker-image
   tags:
     - docker
   before_script:
@@ -184,8 +116,6 @@ collect:
 distribute:
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
-  needs:
-    - set-docker-image
   tags:
     - docker
   before_script:
@@ -214,8 +144,6 @@ distribute:
 measure:
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
-  needs:
-    - set-docker-image
   tags:
     - docker
   before_script:
@@ -259,10 +187,8 @@ measure:
   allow_failure: true
 
 execute:
-  image: ${DOCKER_IMAGE}
+  image: ${ACADEMY_DOCKER_IMAGE}
   stage: run
-  needs:
-    - set-docker-image
   tags:
     - docker
   before_script:
@@ -290,10 +216,8 @@ execute:
   allow_failure: true
 
 evaluate:
-  image: ${DOCKER_IMAGE}
+  image: ${ACADEMY_DOCKER_IMAGE}
   stage: run
-  needs:
-    - set-docker-image
   tags:
     - docker
   before_script:
@@ -319,3 +243,12 @@ evaluate:
       when: always
     - when: manual
   allow_failure: true
+
+meta:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: post-process
+  tags:
+    - docker
+  script
+    - |
+      # TODO
