@@ -28,11 +28,19 @@ variables:
   declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
   declare PREFIX
+  declare DASHBOARD_PROJECT_NAME="${project_name}"
+  slashes="${namespace//[^\/]}"
   if [[ -n "${ACADEMY_PREFIX}" ]]; then
     PREFIX="${ACADEMY_PREFIX}"
+  elif [[ ${#slashes} == 3 ]]; then
+    cname="$(cut -d/ -f2 <<< "${namespace}")"
+    pname="$(cut -d/ -f4 <<< "${namespace}")"
+    PREFIX="${cname}-${pname}-"
+    DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}}"
   else
     PREFIX="$(basename "${namespace}")-${project_name}-"
   fi
+
 
 .before_script_token: &validate_token |
   # prepare acccess token for the distribution script
@@ -251,4 +259,13 @@ meta:
     - docker
   script:
     - |
-      # TODO
+      echo "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}"
+      # clear dashboard cache
+      curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
+        -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      # crate generated
+      date +%s > generated.txt
+  artifacts:
+    paths:
+      - generated.txt
+    expire_in: 1 year
