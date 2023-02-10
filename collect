@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 get_last_commit() {
   [[ -z "${DEADLINE}" ]] \

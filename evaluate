@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 get_test_color() {
   declare color='brightgreen'

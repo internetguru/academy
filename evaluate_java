@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 main() {
   declare -r POM="${WORKING_DIR}/pom.xml"
