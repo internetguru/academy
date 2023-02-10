@@ -1,6 +1,7 @@
 
 stages:
  - manage
+ - run
  - post-process
 
 variables:
@@ -249,6 +250,6 @@ meta:
   stage: post-process
   tags:
     - docker
-  script
+  script:
     - |
       # TODO
