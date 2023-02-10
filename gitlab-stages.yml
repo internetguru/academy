@@ -257,6 +257,8 @@ meta:
   stage: post-process
   tags:
     - docker
+  before_script:
+    - *global_init
   script:
     - |
       echo "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}"
