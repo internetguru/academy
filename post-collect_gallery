@@ -34,3 +34,4 @@ git -C "${local_gallery}" push
 rm -rf "${local_gallery}"
 rm -rf .collect
 mkdir .collect
+touch summary.txt
