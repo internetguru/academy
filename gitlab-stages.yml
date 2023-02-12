@@ -103,7 +103,7 @@ collect:
         <<< "${users}" \
         | tee 'summary.txt'
     # output variables and summary
-    - mv 'summary.txt' '.collect/'
+    #- mv 'summary.txt' '.collect/'
     - |
       echo '#######################'
       echo "ACADEMY_DEADLINE: '${ACADEMY_DEADLINE}'"
