@@ -35,4 +35,4 @@ rm -rf "${local_gallery}"
 rm -rf .collect
 mkdir .collect
 pwd
-find
+find -ls
