@@ -10,7 +10,7 @@ source "${DIR}/commons"
 [[ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" || -f "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN" ]] \
   || exception "Undefined ACADEMY_GITLAB_ACCESS_TOKEN variable nor ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN file"
 
-export ACADEMY_LANG="shell"
+#export ACADEMY_LANG="shell"
 export ACADEMY_EDITABLE="*/run"
 export CI_SERVER_HOST="gitlab.wr.cz"
 export WORKING_DIR="/project"
