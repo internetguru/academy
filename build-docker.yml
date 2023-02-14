@@ -17,4 +17,5 @@ build-docker-image:
   rules:
     - changes:
       - Dockerfile
+    - when: manual
   allow_failure: true
