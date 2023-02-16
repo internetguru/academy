@@ -47,7 +47,11 @@ main() {
   if [[ -f "${DIR}/evaluate_${ACADEMY_LANG}" ]]; then
     source "${DIR}/evaluate_${ACADEMY_LANG}"
   else
-    exception "Missing evaluate script 'evaluate_${ACADEMY_LANG}' for selected language."
+    if [[ -z "${ACADEMY_LANG}" ]]; then
+      exception "Undefined ACADEMY_LANG variable. Evaluation skipped." 0
+    else
+      exception "Missing evaluate script 'evaluate_${ACADEMY_LANG}' for selected language."
+    fi
   fi
 
   [[ -f "${DIR}/post-evaluate_${ACADEMY_LANG}" ]] \
