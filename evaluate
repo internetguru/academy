@@ -48,7 +48,7 @@ main() {
     source "${DIR}/evaluate_${ACADEMY_LANG}"
   else
     if [[ -z "${ACADEMY_LANG}" ]]; then
-      exception "Undefined ACADEMY_LANG variable. Evaluation skipped." 0
+      warning "Undefined ACADEMY_LANG variable. Evaluation skipped."
     else
       exception "Missing evaluate script 'evaluate_${ACADEMY_LANG}' for selected language."
     fi
