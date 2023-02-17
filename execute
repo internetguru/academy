@@ -20,7 +20,11 @@ main() {
   if [[ -f "${DIR}/execute_${ACADEMY_LANG}" ]]; then
     source "${DIR}/execute_${ACADEMY_LANG}"
   else
-    exception "Missing execute script 'execute_${ACADEMY_LANG}' for selected language."
+    if [[ -z "${ACADEMY_LANG}" ]]; then
+      warning "Undefined ACADEMY_LANG variable. Execution skipped."
+    else
+      exception "Missing execute script 'execute_${ACADEMY_LANG}' for selected language."
+    fi
   fi
 
   [[ -f "${DIR}/post-execute_${ACADEMY_LANG}" ]] \

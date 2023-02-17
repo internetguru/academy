@@ -33,6 +33,7 @@ update_links() {
   sed -i "s~${PROJECT_LINK}~${user_project_ns}~g" "${user_readme_path}"
   sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_default_branch}/\1~g" "${user_readme_path}"
   sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_default_branch}~g" "${user_readme_path}"
+  sed -i "s~\(https://[^/]*\)/${PROJECT_LINK#*/}~\1/${user_project_ns#*/}~g" "${user_readme_path}"
 }
 init_user_repo() {
   declare user_id=''
