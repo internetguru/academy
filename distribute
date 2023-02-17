@@ -65,6 +65,7 @@ init_user_repo() {
   remove_protected_branch
   set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  set_public_pages "${project_id}"
 }
 status_empty () {
   get_cache
@@ -81,6 +82,7 @@ update_user_repo() {
     || exit 1
   request_exists \
     || create_request
+  set_public_pages "${project_id}"
 }
 read_issues() {
   ISSUES="$(gitlab_api "api/v4/projects/${PROJECT_ID}/issues?labels=${ISSUES_LABEL}")" \

@@ -250,6 +250,10 @@ set_group_avatar() {
   || return 1
   gitlab_api "api/v4/groups/${group_id}" "PUT-FILE:avatar=@${input_file}"
 }
+set_public_pages() {
+  local project_id="${1}"
+  gitlab_api "/api/v4/projects/${project_id}" "PUT:pages_access_level=public"
+}
 copy_avatar() {
   local type
   case "${1}" in
