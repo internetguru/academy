@@ -5,9 +5,10 @@ pages:
     - cp -r ./* .public
     - rm -rf public
     - mv .public public
-    - curl --request PUT --header "PRIVATE-TOKEN: ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
-       --url "${CI_SERVER_URL}/api/v4/projects/${CI_PROJECT_ID}" \
-       --data "pages_access_level=public"
+    - |
+       curl --request PUT --header "PRIVATE-TOKEN: ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+         --url "${CI_SERVER_URL}/api/v4/projects/${CI_PROJECT_ID}" \
+         --data "pages_access_level=public"
   artifacts:
     paths:
       - public
