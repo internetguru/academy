@@ -41,6 +41,7 @@ gitlab_api() {
       ;;
     'PUT'|'POST')
       if [[ -z "${form}" ]]; then
+        set -x
         declare response="$(curl --silent --write-out '\n%{http_code}\n' \
           --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
           --header 'Content-Type: application/json' \
@@ -48,6 +49,7 @@ gitlab_api() {
           --data "${data:-{\}}" \
           "https://${GITLAB_URL}/${url}"
         )"
+        set +x
       else
         declare response="$(curl --silent --write-out '\n%{http_code}\n' \
           --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
@@ -252,7 +254,7 @@ set_group_avatar() {
 }
 set_public_pages() {
   local project_id="${1}"
-  gitlab_api "/api/v4/projects/${project_id}" "PUT:pages_access_level=public"
+  gitlab_api "api/v4/projects/${project_id}" "PUT:pages_access_level=public"
 }
 copy_avatar() {
   local type
