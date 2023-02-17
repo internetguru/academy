@@ -204,7 +204,7 @@ execute:
     - *global_init
     - |
       # skip initial commits
-      if [[ $(git rev-list --all --count) -le 2 ]]; then
+      if [[ $(git rev-list --all --count) -le 1 ]]; then
         exit 0
       fi
       # do not evaluate ACADEMY_ASSIGN changes only
@@ -233,7 +233,7 @@ evaluate:
     - *global_init
     - |
       # skip initial commits
-      if [[ $(git rev-list --all --count) -le 2 ]]; then
+      if [[ $(git rev-list --all --count) -le 1 ]]; then
         exit 0
       fi
       # do not evaluate ACADEMY_ASSIGN changes only
