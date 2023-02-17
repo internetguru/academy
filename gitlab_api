@@ -41,7 +41,6 @@ gitlab_api() {
       ;;
     'PUT'|'POST')
       if [[ -z "${form}" ]]; then
-        set -x
         declare response="$(curl --silent --write-out '\n%{http_code}\n' \
           --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
           --header 'Content-Type: application/json' \
@@ -49,7 +48,6 @@ gitlab_api() {
           --data "${data:-{\}}" \
           "https://${GITLAB_URL}/${url}"
         )"
-        set +x
       else
         declare response="$(curl --silent --write-out '\n%{http_code}\n' \
           --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
