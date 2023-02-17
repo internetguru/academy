@@ -28,19 +28,7 @@ variables:
   # set permissions
   declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
-  declare PREFIX
   declare DASHBOARD_PROJECT_NAME="${project_name}"
-  slashes="${namespace//[^\/]}"
-  if [[ -n "${ACADEMY_PREFIX}" ]]; then
-    PREFIX="${ACADEMY_PREFIX}"
-  elif [[ ${#slashes} == 3 ]]; then
-    cname="$(cut -d/ -f2 <<< "${namespace}")"
-    pname="$(cut -d/ -f4 <<< "${namespace}")"
-    PREFIX="${cname}-${pname}-"
-    DASHBOARD_PROJECT_NAME="${project_name#${PREFIX}}"
-  else
-    PREFIX="$(basename "${namespace}")-${project_name}-"
-  fi
 
 
 .before_script_token: &validate_token |
@@ -98,7 +86,6 @@ collect:
     - |
         ${ACADEMY} collect \
         --namespace "${user_namespace}" \
-        --prefix "${PREFIX}" \
         --output-dir '.collect' \
         <<< "${users}" \
         | tee 'summary.txt'
@@ -137,8 +124,7 @@ distribute:
     # distribute current project among all users
     - |
         ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-        --prefix "${PREFIX}" \
+        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}"
         <<< "${users}"
   cache: []
   rules:
@@ -184,8 +170,7 @@ measure:
     - *get_users
     - |
       ${ACADEMY} measure --output-dir "${measure_output}" \
-      --namespace "${user_namespace}" \
-      --prefix "${PREFIX}" \
+      --namespace "${user_namespace}"
       <<< "${users}"
   cache: []
   rules:
