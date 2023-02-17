@@ -132,7 +132,7 @@ create_user_project() {
   # shellcheck disable=SC2154
   # shellcheck disable=SC2153
   gitlab_api 'api/v4/projects' \
-    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${PROJECT_NAME} ${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
+    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
     | jq -r '.id'
 }
 get_role() {
