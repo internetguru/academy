@@ -124,7 +124,7 @@ distribute:
     # distribute current project among all users
     - |
         ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}"
+        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         <<< "${users}"
   cache: []
   rules:
