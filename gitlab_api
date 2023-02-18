@@ -132,7 +132,7 @@ create_user_project() {
   # shellcheck disable=SC2154
   # shellcheck disable=SC2153
   gitlab_api 'api/v4/projects' \
-    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${PROJECT_NAME} ${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
+    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
     | jq -r '.id'
 }
 get_role() {
@@ -249,6 +249,10 @@ set_group_avatar() {
   || warning "Destination group '${ns}' does not exist" 1 \
   || return 1
   gitlab_api "api/v4/groups/${group_id}" "PUT-FILE:avatar=@${input_file}"
+}
+set_public_pages() {
+  local project_id="${1}"
+  gitlab_api "api/v4/projects/${project_id}" 'PUT:"pages_access_level":"public"'
 }
 copy_avatar() {
   local type
