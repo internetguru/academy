@@ -82,20 +82,31 @@ update_user_repo() {
     || exit 1
   request_exists \
     || create_request
+  copy_issues
   set_public_pages "${project_id}"
 }
 read_issues() {
-  ISSUES="$(gitlab_api "api/v4/projects/${PROJECT_ID}/issues?labels=${ISSUES_LABEL}")" \
+  local pid="${1:-PROJECT_ID}"
+  local label="${2:-ISSUES_LABEL}"
+  ISSUES="$(gitlab_api "api/v4/projects/${pid}/issues?labels=${label}")" \
     && ISSUES_COUNT="$(jq length <<< "${ISSUES}")" \
     || exit 1
 }
 copy_issues() {
-  declare i issue
-  for (( i=0; i < ISSUES_COUNT; i++ )); do
-    issue="$(jq ".[${i}] | {title, description, due_date}" <<< "${ISSUES}")"
+  declare i issue_src issues_dst issues_count_dst
+  declare -A description=()
+  read_issues "${project_id}" \
+    && issues_dst="${ISSUES}" issues_count_dst="${ISSUES_COUNT}"
+  for (( i=0; i < issues_count_dst; i++ )); do
+    description+=( ["$(jq -r ".[${i}].title" <<< "${issues_dst}")"]="$(jq -r ".[${i}].description" <<< "${issues_dst}")" )
+  done
+  for (( i=0; i < issues_count_src; i++ )); do
+    issue_src="$(jq ".[${i}] | {title, description, due_date}" <<< "${issues_src}")"
+    [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]] \
+      && continue
     [[ -n "${user_id}" ]] \
-      && issue="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue}")"
-    gitlab_api "api/v4/projects/${project_id}/issues" "${issue}" >/dev/null
+      && issue_src="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue_src}")"
+    gitlab_api "api/v4/projects/${project_id}/issues" "${issue_src}" >/dev/null
   done
 }
 read_project_info() {
@@ -112,7 +123,8 @@ read_project_info() {
     || exit 1
   [[ -z "${NAMESPACE}" ]] \
     && NAMESPACE="$(dirname "${PROJECT_LINK}")"
-  read_issues
+  read_issues "${PROJECT_ID}" "${ISSUES_LABEL}" \
+    && issues_src="${ISSUES}" issues_count_src="${ISSUES_COUNT}"
   msg_end
 }
 process_users() {
@@ -193,7 +205,9 @@ declare PROJECT_ID=''
 declare PROJECT_NAME=''
 declare PROJECT_BRANCH=''
 declare ISSUES=''
+declare issues_src="$ISSUES"
 declare -i ISSUES_COUNT=0
+declare -i issues_count_src="${ISSUES_COUNT}"
 # shellcheck disable=SC2034
 declare ACADEMY_GITLAB_ACCESS_TOKEN
 
