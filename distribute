@@ -104,6 +104,9 @@ copy_issues() {
     issue_src="$(jq ".[${i}] | {title, description, due_date}" <<< "${issues_src}")"
     [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]] \
       && continue
+    # Update existing issue
+    # ToDo
+    # Add new issue
     [[ -n "${user_id}" ]] \
       && issue_src="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue_src}")"
     gitlab_api "api/v4/projects/${project_id}/issues" "${issue_src}" >/dev/null
