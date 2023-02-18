@@ -1,6 +1,6 @@
 echo "Pre-collect: Gallery"
 
-export gallery="git@gitlab.wr.cz:fit/bi-ble/gallery.git"
+export gallery="git@gitlab.wr.cz:bi-ble/gallery.git"
 export local_gallery="/tmp/gallery"
 export readme="${local_gallery}/README.md"
 
