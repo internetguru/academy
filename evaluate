@@ -43,6 +43,7 @@ main() {
     git -C "${WORKING_DIR}" diff HEAD..HEAD~1 --name-only \
       | grep -E "${ACADEMY_EDITABLE:-.*}"
   )
+  set -x
   # shellcheck disable=SC1090
   [[ -f "${DIR}/pre-evaluate_${ACADEMY_LANG}" ]] \
     && source "${DIR}/pre-evaluate_${ACADEMY_LANG}"
@@ -61,6 +62,7 @@ main() {
   # shellcheck disable=SC1090
   [[ -f "${DIR}/post-evaluate_${ACADEMY_LANG}" ]] \
     && source "${DIR}/post-evaluate_${ACADEMY_LANG}"
+  set +x
 }
 
 main "$@"
