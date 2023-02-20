@@ -232,8 +232,8 @@ evaluate:
       fi
   script:
     - echo '%% evaluate start %%'
-    - |
-      set -x
+    - ls -la ${ACADEMY}
+    - ls -la $(dirname ${ACADEMY})/*
     - ${ACADEMY} evaluate
     - echo '%% evaluate end %%'
   artifacts:
