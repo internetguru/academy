@@ -1,5 +1,5 @@
 [[ -n "${IOTEST_FOLDER}" && -d "${IOTEST_FOLDER}" ]] \
-  && run_io_tests 'java @RELATIVE_PATH@'
+  && run_io_tests "java ${WORKING_DIR}/@RELATIVE_PATH@"
 
 if [[ -n "${ACADEMY_EDITABLE}" ]]; then
   ${CHECKSTYLE_CMD} -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
