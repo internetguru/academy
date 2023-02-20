@@ -31,6 +31,11 @@ customize_evaluation() {
   cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
 }
 main() {
+  # deprecated
+  declare -r BADGES_TXT="${RESULTS}/badges.txt"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
+  : > "${BADGES_TXT}"
+
   declare -r RESULTS="${WORKING_DIR}/.results"
   declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
@@ -61,6 +66,10 @@ main() {
   # shellcheck disable=SC1090
   [[ -f "${DIR}/post-evaluate_${ACADEMY_LANG}" ]] \
     && source "${DIR}/post-evaluate_${ACADEMY_LANG}"
+
+  # deprecated
+  date +%s > "${GENERATED_TXT}"
+  printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
 }
 
 main "$@"
