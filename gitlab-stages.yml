@@ -9,7 +9,7 @@ variables:
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: ".academy-cache"
 
-cache
+cache:
   key: academy-cache
   paths
     - $ACADEMY_CACHE
