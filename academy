@@ -10,7 +10,7 @@ declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
 declare -r SRC_DIR='src'
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
-. "${DIR}/commons"
+source "${DIR}/commons"
 
 # disabled by LB
 # check_lang "${ACADEMY_LANG}"
@@ -34,7 +34,7 @@ while (( $# > 0 )); do
     collect|distribute|measure)
       # shellcheck disable=SC1091
       # shellcheck disable=SC1090
-      . "${DIR}/git_functions"
+      source "${DIR}/git_functions"
       # check requirements
       check_command git jq
       ;&
@@ -42,9 +42,9 @@ while (( $# > 0 )); do
       declare -r CMD="${1}"
       shift
       # shellcheck disable=SC1091
-      . "${DIR}/gitlab_api"
+      source "${DIR}/gitlab_api"
       # shellcheck disable=SC1090
-      . "${DIR}/${CMD}" "$@"
+      source "${DIR}/${CMD}" "$@"
       exit $?
       ;;
     *)
