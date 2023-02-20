@@ -9,10 +9,10 @@ variables:
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: ".academy-cache"
 
-#cache:
-#  key: academy-cache
-#  paths:
-#    - $ACADEMY_CACHE
+cache:
+  key: academy-cache
+  paths:
+    - $ACADEMY_CACHE
 
 .before_script_global: &global_init |
   # fix TERM
