@@ -232,6 +232,8 @@ evaluate:
       fi
   script:
     - echo '%% evaluate start %%'
+    - |
+      set -x
     - ${ACADEMY} evaluate
     - echo '%% evaluate end %%'
   artifacts:
