@@ -11,7 +11,7 @@ variables:
 
 cache:
   key: academy-cache
-  paths
+  paths:
     - $ACADEMY_CACHE
 
 .before_script_global: &global_init |
