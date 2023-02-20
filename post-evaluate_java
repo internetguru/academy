@@ -1,4 +1,0 @@
-printf -- 'compile: %s\n' "$(<"${COMPILE_TXT}")" >> "${BADGES_TXT}"
-printf -- 'checkstyle: %s\n' "$(<"${CHECKSTYLE_TXT}")" >> "${BADGES_TXT}"
-printf -- 'test: %s\n' "$(<"${TEST_TXT}")" >> "${BADGES_TXT}"
-printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"

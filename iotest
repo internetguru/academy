@@ -54,8 +54,8 @@ io_test() {
   variables=( \
    ['FOLDER_NAME']="${test_folder_name%.*}"\
    ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"\
-   ['WORKING_DIR']="${WORKING_DIR}" \
   )
+  # TODO ['WORKING_DIR']="${WORKING_DIR}" \
   # add filtered env variables
   while read -r line; do
     [[ -z "${line}" ]] \

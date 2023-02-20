@@ -1,14 +1,17 @@
 declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
 declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
+declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
+declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
 
-# deafults for iotests
+# deafults
 curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
+curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
 
-printf -- 'n/a' > "${IOTEST_TXT}"
 printf -- '' > "${IOTEST_LOG}"
 
-declare -r COMPILE_TXT="${RESULTS}/compile.txt"
-declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
-declare -r TEST_TXT="${RESULTS}/test.txt"
+declare -r CHECKSTYLE_VERION="10.7.0"
+declare -r CHECKSTYLE_FILE="${ACADEMY_CACHE}/checkstyle.jar"
+declare -r CHECKSTYLE_CMD="java -jar ${CHECKSTYLE_FILE}"
+[[ -f "${CHECKSTYLE_FILE}" ]] \
+  || curl -sL "https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${CHECKSTYLE_VERION}/checkstyle-10.7.0-all.jar" > "${CHECKSTYLE_FILE}"

@@ -7,6 +7,12 @@ stages:
 variables:
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  ACADEMY_CACHE: ".academy-cache"
+
+cache
+  key: academy-cache
+  paths
+    - $ACADEMY_CACHE
 
 .before_script_global: &global_init |
   # fix TERM
@@ -126,7 +132,6 @@ distribute:
         ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         <<< "${users}"
-  cache: []
   rules:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
@@ -172,7 +177,6 @@ measure:
       ${ACADEMY} measure --output-dir "${measure_output}" \
       --namespace "${user_namespace}"
       <<< "${users}"
-  cache: []
   rules:
     - exists:
       - "ACADEMY_ASSIGN"
