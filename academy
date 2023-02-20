@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o pipefail
-
+set -x
 declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
