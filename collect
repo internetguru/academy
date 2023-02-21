@@ -74,12 +74,12 @@ collect() {
 
   # shellcheck disable=SC2013
   export user_name
-  for user_name in $(cat <&3); do
+  while read -r -u 3 user_name; do
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
+    echo "$user_project_ns"
     get_project_id "${user_project_ns}" >/dev/null \
       || continue
-    echo "$user_project_ns"
     [[ "${DRY_RUN}" == 'true' ]] \
       && continue
     user_repo="${user_projects_folder}/${user_project_ns}"
