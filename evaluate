@@ -24,12 +24,6 @@ run_io_tests() {
     && test_color='critical'
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
-customize_evaluation() {
-  local CUSTOM_ACADEMY='.academy'
-  [[ -d "${CUSTOM_ACADEMY}" ]] \
-    || return
-  cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
-}
 main() {
   # deprecated
   declare -r BADGES_TXT="${RESULTS}/badges.txt"
@@ -40,8 +34,6 @@ main() {
   declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
   mkdir -p "${ACADEMY_CACHE}"
-
-  customize_evaluation
 
   # shellcheck disable=SC2034
   mapfile -t CHANGED_FILES < <(

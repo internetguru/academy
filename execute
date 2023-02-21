@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
 
-customize_execution() {
-  local CUSTOM_ACADEMY='.academy'
-  [[ -d "${CUSTOM_ACADEMY}" ]] \
-  || return
-  cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
-}
 main() {
   declare -r RESULTS="${WORKING_DIR}/.results"
   declare -r BADGES_TXT="${RESULTS}/badges.txt"
   declare -r GENERATED_TXT="${RESULTS}/generated.txt"
 
-  customize_execution
   mkdir -p "${RESULTS}"
 
   [[ -f "${DIR}/pre-execute_${ACADEMY_LANG}" ]] \

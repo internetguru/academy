@@ -15,6 +15,15 @@ source "${DIR}/commons"
 # disabled by LB
 # check_lang "${ACADEMY_LANG}"
 
+customize_academy() {
+  local CUSTOM_ACADEMY='.academy'
+  [[ -d "${CUSTOM_ACADEMY}" ]] \
+    || return
+  cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
+}
+
+customize_academy
+
 # shellcheck disable=SC2155
 declare WORKING_DIR="$(readlink -f ".")"
 (( $# == 0 )) \
