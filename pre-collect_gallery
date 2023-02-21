@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "Pre-collect: Gallery"
 
 export gallery="git@gitlab.wr.cz:bi-ble/gallery.git"
