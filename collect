@@ -7,6 +7,7 @@ get_last_commit() {
   get_last_push
 }
 sync_files() {
+  # shellcheck disable=SC2155
   local eg=$( shopt -p extglob )
   shopt -s extglob
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
@@ -67,13 +68,13 @@ collect() {
     && exception "Namespace '${NAMESPACE}' not found" 3
 
   # Pre-collect script
+  # shellcheck disable=SC1090
   [[ -f "${DIR}/pre-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/pre-collect_${ACADEMY_LANG}"
 
   # shellcheck disable=SC2013
   export user_name
   for user_name in $(cat <&3); do
-	 read -p "Processing $username?"
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
     get_project_id "${user_project_ns}" >/dev/null \
@@ -91,10 +92,11 @@ collect() {
       && continue
     sync_files
     create_results
-    rm -rf "${user_projects_folder}/${user_project_ns}"
+    rm -rf "${user_projects_folder:?}/${user_project_ns}"
   done
 
   # Post-collect script
+  # shellcheck disable=SC1090
   [[ -f "${DIR}/post-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/post-collect_${ACADEMY_LANG}"
 
