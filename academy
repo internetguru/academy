@@ -8,6 +8,7 @@ declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
 # shellcheck disable=SC2034
 declare -r SRC_DIR='src'
+declare CUSTOMIZE=1
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 source "${DIR}/commons"
@@ -16,13 +17,12 @@ source "${DIR}/commons"
 # check_lang "${ACADEMY_LANG}"
 
 customize_academy() {
+  (( CUSTOMIZE )) || return
   local CUSTOM_ACADEMY='.academy'
   [[ -d "${CUSTOM_ACADEMY}" ]] \
     || return
   cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
 }
-
-customize_academy
 
 # shellcheck disable=SC2155
 declare WORKING_DIR="$(readlink -f ".")"
@@ -35,6 +35,10 @@ while (( $# > 0 )); do
       [[ -d "${WORKING_DIR}" ]] \
         || exception 'WORKING_DIR not found'
       shift 2
+      ;;
+    -C|--no-customize)
+      CUSTOMIZE=0
+      shift
       ;;
     help)
       print_usage
@@ -52,6 +56,7 @@ while (( $# > 0 )); do
       shift
       # shellcheck disable=SC1091
       source "${DIR}/gitlab_api"
+      customize_academy
       # shellcheck disable=SC1090
       source "${DIR}/${CMD}" "$@"
       exit $?
