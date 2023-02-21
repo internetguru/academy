@@ -47,9 +47,10 @@ collect() {
   # shellcheck disable=SC2155
   [[ ! -t 0 ]] \
     || exception 'Missing stdin' 2
-  local user_list
-  user_list="$( cat )"
-  declare -p user_list
+  local user_list=()
+  # shellcheck disable=SC2207
+  user_list=( $( cat ) )
+  local user_i=1
   acquire_token
   [[ -z "${OUTPUT_DIR}" ]] \
     && OUTPUT_DIR="$(mktemp -d)"
@@ -76,11 +77,10 @@ collect() {
 
   # shellcheck disable=SC2013
   export user_name
-  # shellcheck disable=2013
-  for user_name in ${user_list}; do
+  for user_name in "${user_list[@]}"; do
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
-    echo "$user_project_ns"
+    echo "[$((user_i++))/${#user_list[@]}] ${user_project_ns}"
     get_project_id "${user_project_ns}" >/dev/null \
       || continue
     [[ "${DRY_RUN}" == 'true' ]] \
