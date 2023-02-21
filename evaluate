@@ -14,7 +14,7 @@ get_test_color() {
   echo "${color}"
 }
 run_io_tests() {
-  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" > "${IOTEST_LOG}"
+  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
   declare summary passed count
   summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
   count="$(cut -d',' -f1 <<< "${summary}" | cut -d' ' -f2)"
@@ -22,29 +22,38 @@ run_io_tests() {
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
-  printf -- '%s/%s' "${passed:-0}" "${count:-0}" > "${IOTEST_TXT}"
   curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
 }
 customize_evaluation() {
   local CUSTOM_ACADEMY='.academy'
   [[ -d "${CUSTOM_ACADEMY}" ]] \
-  || return
+    || return
   cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
 }
 main() {
-  declare -r RESULTS="${WORKING_DIR}/.results"
+  # deprecated
   declare -r BADGES_TXT="${RESULTS}/badges.txt"
   declare -r GENERATED_TXT="${RESULTS}/generated.txt"
-
-  mkdir -p "${RESULTS}"
   : > "${BADGES_TXT}"
+
+  declare -r RESULTS="${WORKING_DIR}/.results"
+  declare -r ACADEMY_CACHE="${HOME}/.academy"
+  mkdir -p "${RESULTS}"
+  mkdir -p "${ACADEMY_CACHE}"
 
   customize_evaluation
 
+  # shellcheck disable=SC2034
+  mapfile -t CHANGED_FILES < <(
+    git -C "${WORKING_DIR}" diff HEAD..HEAD~1 --name-only \
+      | grep -E "${ACADEMY_EDITABLE:-.*}"
+  )
+  # shellcheck disable=SC1090
   [[ -f "${DIR}/pre-evaluate_${ACADEMY_LANG}" ]] \
-  && source "${DIR}/pre-evaluate_${ACADEMY_LANG}"
+    && source "${DIR}/pre-evaluate_${ACADEMY_LANG}"
 
   if [[ -f "${DIR}/evaluate_${ACADEMY_LANG}" ]]; then
+    # shellcheck disable=SC1090
     source "${DIR}/evaluate_${ACADEMY_LANG}"
   else
     if [[ -z "${ACADEMY_LANG}" ]]; then
@@ -54,9 +63,11 @@ main() {
     fi
   fi
 
+  # shellcheck disable=SC1090
   [[ -f "${DIR}/post-evaluate_${ACADEMY_LANG}" ]] \
-  && source "${DIR}/post-evaluate_${ACADEMY_LANG}"
+    && source "${DIR}/post-evaluate_${ACADEMY_LANG}"
 
+  # deprecated
   date +%s > "${GENERATED_TXT}"
   printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
 }

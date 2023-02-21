@@ -53,8 +53,7 @@ io_test() {
   # script varaibles
   variables=( \
    ['FOLDER_NAME']="${test_folder_name%.*}"\
-   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"\
-   ['WORKING_DIR']="${WORKING_DIR}" \
+   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"
   )
   # add filtered env variables
   while read -r line; do
