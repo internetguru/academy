@@ -113,7 +113,7 @@ run_io_tests() {
   while read -r -d '' folder; do
     local_passed=0
     local_count=0
-    echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%\n"
+    echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%"
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       count+=1
@@ -123,7 +123,7 @@ run_io_tests() {
         && local_passed+=1
       printf -- "\n"
     done
-    printf -- "\n%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
+    printf -- "%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
       "${local_count}" "${local_passed}"
     echo -e "%% file end %%\n"
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
