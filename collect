@@ -7,6 +7,7 @@ get_last_commit() {
   get_last_push
 }
 sync_files() {
+  # shellcheck disable=SC2155
   local eg=$( shopt -p extglob )
   shopt -s extglob
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
@@ -17,7 +18,7 @@ sync_files() {
   $eg
 }
 create_results_default() {
-  "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
+  "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" --no-customize evaluate
   mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
 }
 create_results_java() {
@@ -46,7 +47,10 @@ collect() {
   # shellcheck disable=SC2155
   [[ ! -t 0 ]] \
     || exception 'Missing stdin' 2
-  exec 3<&0
+  local user_list=()
+  # shellcheck disable=SC2207
+  user_list=( $( cat ) )
+  local user_i=1
   acquire_token
   [[ -z "${OUTPUT_DIR}" ]] \
     && OUTPUT_DIR="$(mktemp -d)"
@@ -67,18 +71,18 @@ collect() {
     && exception "Namespace '${NAMESPACE}' not found" 3
 
   # Pre-collect script
+  # shellcheck disable=SC1090
   [[ -f "${DIR}/pre-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/pre-collect_${ACADEMY_LANG}"
 
   # shellcheck disable=SC2013
   export user_name
-  for user_name in $(cat <&3); do
-	 read -p "Processing $username?"
+  for user_name in "${user_list[@]}"; do
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
+    echo "[$((user_i++))/${#user_list[@]}] ${user_project_ns}"
     get_project_id "${user_project_ns}" >/dev/null \
       || continue
-    echo "$user_project_ns"
     [[ "${DRY_RUN}" == 'true' ]] \
       && continue
     user_repo="${user_projects_folder}/${user_project_ns}"
@@ -91,10 +95,11 @@ collect() {
       && continue
     sync_files
     create_results
-    rm -rf "${user_projects_folder}/${user_project_ns}"
+    rm -rf "${user_projects_folder:?}/${user_project_ns}"
   done
 
   # Post-collect script
+  # shellcheck disable=SC1090
   [[ -f "${DIR}/post-collect_${ACADEMY_LANG}" ]] \
     && . "${DIR}/post-collect_${ACADEMY_LANG}"
 
