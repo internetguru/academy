@@ -260,11 +260,11 @@ meta:
       # create age badge
       mkdir -p .results
       declare date
-      date="$(date +"%Y-%m-%dT%H:%M:%S" | jq -sRr @uri)"
+      date="$(date +"%Y-%m-%dT%H:%M:%S" | jq -sRr @uri | sed 's/-/--/g')"
       curl -so ".results/age.svg" "https://img.shields.io/badge/Age-${date}-blue"
       # create merge badge
       # TODO
   artifacts:
     paths:
-      - .results/
+      - .results/age.svg
     expire_in: 1 year
