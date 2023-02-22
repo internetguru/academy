@@ -121,6 +121,7 @@ run_io_tests() {
       io_test "${folder}" "${name}" \
         && passed+=1 \
         && local_passed+=1
+      printf -- "\n"
     done
     printf -- "\n%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
       "${local_count}" "${local_passed}"
