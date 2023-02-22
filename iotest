@@ -47,7 +47,7 @@ io_test() {
   declare cmd="${IOTEST_CMD}"
   echo -e "%% file start ${test_folder#"${IOTEST_FOLDER}/"} %%\n"
   # TODO check unsupported test extensions (how?)
-  echo -e "\nTest ${test_folder_name}/${test_name}"
+  echo "Test ${test_folder_name}/${test_name}"
   # create cmd from template
   # TODO: add reference to README
   declare -A variables
