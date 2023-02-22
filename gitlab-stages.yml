@@ -257,9 +257,14 @@ meta:
       # clear dashboard cache
       curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
         -I -H "Cache-Control: no-cache" -H "Accept: application/json"
-      # crate generated
-      date +%s > generated.txt
+      # create age badge
+      mkdir -p .results
+      declare date
+      date="$(date +"%Y-%m-%dT%H:%M:%S" | jq -sRr @uri)"
+      curl -so ".results/age.svg" "https://img.shields.io/badge/Age-${date}-blue"
+      # create merge badge
+      # TODO
   artifacts:
     paths:
-      - generated.txt
+      - .results/
     expire_in: 1 year
