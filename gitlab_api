@@ -113,9 +113,13 @@ get_group_id() {
   || return 1
   printf -- '%s\n' "${group_id}"
 }
+get_source_merge() {
+  local project_id="${1}"
+  gitlab_api "api/v4/projects/${project_id}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}"
+}
 request_exists() {
   # shellcheck disable=SC2154
-  gitlab_api "api/v4/projects/${project_id}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}" \
+  get_source_merge "${project_id}" \
     | grep -qv "^\[\]$"
 }
 create_request() {

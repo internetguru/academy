@@ -1,5 +1,3 @@
-echo "pre-evaluate java"
-
 declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 declare -r IOTEST_LOG="${RESULTS}/iotest.log"
 declare -r IOTEST_SVG="${RESULTS}/iotest.svg"

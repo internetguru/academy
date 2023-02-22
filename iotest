@@ -45,6 +45,7 @@ io_test() {
   declare -r test_name="${2}"
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${IOTEST_CMD}"
+  echo -e "%% file start ${test_folder#"${IOTEST_FOLDER}/"} %%\n"
   # TODO check unsupported test extensions (how?)
   echo -e "\nTest ${test_folder_name}/${test_name}"
   # create cmd from template
@@ -102,6 +103,7 @@ io_test() {
     || cat "${err_file}" >&2
   rm "${out_file}"
   rm "${err_file}"
+  echo -e "%% file end %%\n"
   return ${retrun_code}
 }
 run_io_tests() {
