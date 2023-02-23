@@ -7,8 +7,7 @@ declare DEFAULT_COLOR='gray'
 badge_init() {
   local badge_name="${1}"
   local badge_default="${2}" #opt
-  local badge_color="${DEFAULT_COLOR}"
-  badge_generate "${badge_name}" "${badge_default:--}" "${badge_color}"
+  badge_generate "${badge_name}" "${badge_default:--}"
   # printf '' ... FIXME - Print badge URL
 }
 
@@ -50,9 +49,8 @@ badge_generate() {
   badge_label="$( url_encode "${badge_name}" )"
   local badge_value
   badge_value="$( url_encode "${2}" )"
-  local badge_color
-  set -x
-  [[ -z "${3}" ]] \
+  local badge_color="${3}"
+  [[ -z "${badge_color}" ]] \
     && case "${badge_value}" in
       n/a) badge_color="${DEFAULT_COLOR}";;
       */*) badge_color="$( fraction_to_color "${2}" )";;
@@ -60,5 +58,4 @@ badge_generate() {
       *) badge_color="${DEFAULT_COLOR}"
     esac
   curl -so "${badge_file}" "${SHIELDS}?label=${badge_label}&message=${badge_value}&color=${badge_color}"
-  set +x
 }
