@@ -65,7 +65,7 @@ init_user_repo() {
   remove_protected_branch
   set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
-  set_public_pages "${project_id}"
+  set_public_pages "${project_id}" >/dev/null
 }
 status_empty () {
   get_cache
@@ -83,7 +83,7 @@ update_user_repo() {
   request_exists \
     || create_request
   copy_issues
-  set_public_pages "${project_id}"
+  set_public_pages "${project_id}" >/dev/null
 }
 read_issues() {
   local pid="${1:?project id missing}"
@@ -109,7 +109,7 @@ copy_issues() {
     # Update existing issue
     # ToDo
     # Add new issue
-    printf -- "[issues] adding '%s'" "${issue_src//$'\n'/|}" >&2
+    printf -- "[issues] adding '%s'\n" "${issue_src//$'\n'/|}" >&2
     [[ -n "${user_id}" ]] \
       && issue_src="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue_src}")"
     gitlab_api "api/v4/projects/${project_id}/issues" "${issue_src}" >/dev/null
