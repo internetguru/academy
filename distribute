@@ -95,22 +95,21 @@ read_issues() {
 copy_issues() {
   declare i issue_src issues_dst issues_count_dst
   declare -A description=()
-  set -x
   read_issues "${project_id}" \
     && issues_dst="${ISSUES}" issues_count_dst="${ISSUES_COUNT}"
-  set +x
-  declare -p issues_src issues_count_src issues_dst issues_count_dst
   for (( i=0; i < issues_count_dst; i++ )); do
     description+=( ["$(jq -r ".[${i}].title" <<< "${issues_dst}")"]="$(jq -r ".[${i}].description" <<< "${issues_dst}")" )
   done
   for (( i=0; i < issues_count_src; i++ )); do
     issue_src="$(jq ".[${i}] | {title, description, due_date}" <<< "${issues_src}")"
-    [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]] \
-      && { echo "[issues] skipping '$(jq -r ".title" <<< "${issue_src}")'"; continue; }
+    if [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]]; then
+      printf -- "[issues] skipping '%s'\n" "$(jq -r ".title" <<< "${issue_src}")'" >&2
+      continue
+    fi
     # Update existing issue
     # ToDo
     # Add new issue
-    echo "[issues] adding '${issue_src}'"
+    printf -- "[issues] adding '%s'" "${issue_src//$'\n'/|}" >&2
     [[ -n "${user_id}" ]] \
       && issue_src="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue_src}")"
     gitlab_api "api/v4/projects/${project_id}/issues" "${issue_src}" >/dev/null
