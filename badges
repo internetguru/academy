@@ -51,6 +51,7 @@ badge_generate() {
   local badge_value
   badge_value="$( url_encode "${2}" )"
   local badge_color
+  set -x
   [[ -z "${3}" ]] \
     && case "${badge_value}" in
       n/a) badge_color="${DEFAULT_COLOR}";;
@@ -59,4 +60,5 @@ badge_generate() {
       *) badge_color="${DEFAULT_COLOR}"
     esac
   curl -so "${badge_file}" "${SHIELDS}?label=${badge_label}&message=${badge_value}&color=${badge_color}"
+  set +x
 }
