@@ -14,14 +14,14 @@ badge_init() {
 # % to colors
 percent_to_color() {
   declare color='brightgreen'
-  declare perc="${1}"
-  (( perc < 85 )) \
+  declare perc="${1%\%}"
+  (( 10#$perc < 85 )) \
     && color='green'
-  (( perc < 70 )) \
+  (( 10#$perc < 70 )) \
     && color='yellow'
-  (( perc < 55 )) \
+  (( 10#$perc < 55 )) \
     && color='orange'
-  (( perc < 45 )) \
+  (( 10#$perc < 45 )) \
     && color='red'
   printf -- '%s\n' "${color}"
 }
@@ -51,7 +51,7 @@ badge_generate() {
   badge_value="$( url_encode "${2}" )"
   local badge_color="${3}"
   [[ -z "${badge_color}" ]] \
-    && case "${badge_value}" in
+    && case "${2}" in
       n/a) badge_color="${DEFAULT_COLOR}";;
       */*) badge_color="$( fraction_to_color "${2}" )";;
       *%) badge_color="$( percent_to_color "${2%\%}" )";;
