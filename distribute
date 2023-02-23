@@ -103,13 +103,13 @@ copy_issues() {
   for (( i=0; i < issues_count_src; i++ )); do
     issue_src="$(jq ".[${i}] | {title, description, due_date}" <<< "${issues_src}")"
     if [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]]; then
-      printf -- "[issues] skipping '%s'\n" "$(jq -r ".title" <<< "${issue_src}")'" >&2
+      #printf -- "[issues] skipping '%s'\n" "$(jq -r ".title" <<< "${issue_src}")'" >&2
       continue
     fi
     # Update existing issue
     # ToDo
     # Add new issue
-    printf -- "[issues] adding '%s'\n" "${issue_src//$'\n'/|}" >&2
+    #printf -- "[issues] adding '%s'\n" "${issue_src//$'\n'/|}" >&2
     [[ -n "${user_id}" ]] \
       && issue_src="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue_src}")"
     gitlab_api "api/v4/projects/${project_id}/issues" "${issue_src}" >/dev/null
