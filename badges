@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare SHIELDS='https://img.shields.io/static/v1'
-declare DEFAULT_COLOR='gray'
+declare DEFAULT_COLOR='inactive'
 
 # init pathnames to badges
 badge_init() {
