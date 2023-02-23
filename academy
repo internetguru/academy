@@ -23,7 +23,7 @@ customize_academy() {
   local CUSTOM_ACADEMY='.academy'
   [[ -d "${CUSTOM_ACADEMY}" ]] \
     || return
-  cp -v "${CUSTOM_ACADEMY}"/* "${DIR}"
+  cp "${CUSTOM_ACADEMY}"/* "${DIR}"
 }
 
 # shellcheck disable=SC2155
