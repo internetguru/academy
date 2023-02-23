@@ -269,7 +269,7 @@ meta:
         [[ "${badge}" =~ ".results/badge-"([^-]+)-(.*)".svg" ]]
         job="${BASH_REMATCH[1]}"
         badge_name="${BASH_REMATCH[2]}"
-        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=%s)' \
+        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=%s)\n' \
           "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}" "${job}"
       done
   artifacts:
