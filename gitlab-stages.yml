@@ -261,20 +261,9 @@ meta:
       mkdir -p .results
       declare date
       date="$(date +"%Y-%m-%dT%H:%M:%S" | jq -sRr @uri | sed 's/-/--/g')"
-      curl -so ".results/age.svg" "https://img.shields.io/badge/Age-${date}-blue"
+      curl -so ".results/badge-meta-age.svg" "https://img.shields.io/badge/Age-${date}-blue"
       # create merge badge
       # TODO
-  artifacts:
-    paths:
-      - .results/age.svg
-    expire_in: 1 year
-
-badges-info:
-  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
-  stage: post-process
-  tags:
-    - docker
-  script:
     - |
       for badge in .results/badge-*.svg; do
         [[ "${badge}" =~ ".results/badge-"([^-]+)-(.*)".svg" ]]
@@ -287,6 +276,3 @@ badges-info:
     paths:
       - .results/
     expire_in: 1 year
-  rules:
-    - when: manual
-  allow_failure: true
