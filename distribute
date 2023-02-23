@@ -86,8 +86,8 @@ update_user_repo() {
   set_public_pages "${project_id}"
 }
 read_issues() {
-  local pid="${1:-PROJECT_ID}"
-  local label="${2:-ISSUES_LABEL}"
+  local pid="${1:-${PROJECT_ID}}"
+  local label="${2:-${ISSUES_LABEL}}"
   ISSUES="$(gitlab_api "api/v4/projects/${pid}/issues?labels=${label}")" \
     && ISSUES_COUNT="$(jq length <<< "${ISSUES}")" \
     || exit 1
