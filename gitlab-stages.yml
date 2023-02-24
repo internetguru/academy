@@ -203,9 +203,9 @@ execute:
         exit 1
       fi
   script:
-    - echo '%% execute start %%'
+    - echo '%% job start execute %%'
     - ${ACADEMY} execute
-    - echo '%% execute end %%'
+    - echo '%% job end execute %%'
   artifacts:
     paths:
       - .results/
@@ -234,9 +234,9 @@ evaluate:
         exit 1
       fi
   script:
-    - echo '%% evaluate start %%'
+    - echo '%% job start evaluate %%'
     - ${ACADEMY} evaluate
-    - echo '%% evaluate end %%'
+    - echo '%% job end evaluate %%'
   artifacts:
     paths:
       - .results/
