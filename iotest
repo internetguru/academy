@@ -108,13 +108,12 @@ run_io_tests() {
   [[ ! -d "${IOTEST_FOLDER}" ]] \
     && return
   # run iotests
-  declare -i passed=0 count=0 local_passed local_count file_path
+  declare -i passed=0 count=0 local_passed local_count
   # search deepest folders only by -links 2 (folder with 2 hardlinks)
   while read -r -d '' folder; do
     local_passed=0
     local_count=0
-    file_path="${folder#"${IOTEST_FOLDER}/"}"
-    echo -e "%% file start $file_path %%"
+    echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%"
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       count+=1
@@ -126,7 +125,7 @@ run_io_tests() {
     done
     printf -- "%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
       "${local_count}" "${local_passed}"
-    echo -e "%% file end $file_path %%\n"
+    echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
   # generate summary and badge
   printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
