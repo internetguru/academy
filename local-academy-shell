@@ -35,7 +35,7 @@ cleanup() {
 case "${command}" in
 	collect|execute|evaluate)
 		cd "${WORKING_DIR}" || exception "Cannot acces '${WORKING_DIR}'"
-		"${DIR}/academy" "${command}" --namespace="fit/bi-skj/main/shell-intro" --prefix="bi-skj-shell-intro-" --editable="${ACADEMY_EDITABLE}"
+		"${DIR}/academy" "${command}" --namespace="bi-skj/b222/shell-intro" --editable="${ACADEMY_EDITABLE}"
 		;;
 	*)
 		"${DIR}/academy" help
