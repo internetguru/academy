@@ -273,6 +273,7 @@ meta:
       # create age badge
       mkdir -p .results
       source "${ACADEMY_DIR}/badges"
+      WORKING_DIR='.'
       badge_generate 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
       badge_generate 'Merge' 'n/a'
       badge_generate 'Status' 'n/a'
