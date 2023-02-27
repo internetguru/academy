@@ -272,7 +272,7 @@ meta:
         -I -H "Cache-Control: no-cache" -H "Accept: application/json"
       # create age badge
       mkdir -p .results
-      source '${ACADEMY_DIR}/badges'
+      source "${ACADEMY_DIR}/badges"
       badge_generate 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
       badge_generate 'Merge' 'n/a'
       badge_generate 'Status' 'n/a'
