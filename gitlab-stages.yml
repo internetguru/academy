@@ -106,6 +106,8 @@ collect:
       echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
       echo '#######################'
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
     - if: $CI_COMMIT_BRANCH == "source"
       when: never
     - exists:
