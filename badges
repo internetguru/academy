@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 declare SHIELDS='https://img.shields.io/static/v1'
 declare DEFAULT_COLOR='inactive'
 
