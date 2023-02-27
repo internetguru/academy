@@ -1,12 +1,10 @@
 declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
-declare -r CHECKSTYLE_SVG="${RESULTS}/checkstyle.svg"
 
 # deafults
-curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
-curl -so "${CHECKSTYLE_SVG}" 'https://img.shields.io/badge/Code%20Style-n/a-gray'
+badge_generate 'IO Tests' '0/0'
+badge_generate 'Code Style' 'n/a'
 
 printf -- '' > "${IOTEST_LOG}"
 

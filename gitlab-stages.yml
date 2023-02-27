@@ -272,11 +272,10 @@ meta:
         -I -H "Cache-Control: no-cache" -H "Accept: application/json"
       # create age badge
       mkdir -p .results
-      declare date
-      date="$(date +"%Y-%m-%dT%H:%M:%S" | jq -sRr @uri | sed 's/-/--/g')"
-      curl -so ".results/badge-meta-age.svg" "https://img.shields.io/badge/Age-${date}-blue"
-      # create merge badge
-      # TODO
+      source '${ACADEMY_DIR}/badges'
+      badge_generate 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
+      badge_generate 'Merge' 'n/a'
+      badge_generate 'Status' 'n/a'
     - |
       for badge in .results/badge-*.svg; do
         [[ "${badge}" =~ ".results/badge-"([^-]+)-(.*)".svg" ]]

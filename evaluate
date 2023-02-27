@@ -1,18 +1,5 @@
 #!/usr/bin/env bash
 
-get_test_color() {
-  declare color='brightgreen'
-  declare perc="${1}"
-  (( perc < 85 )) \
-    && color='green'
-  (( perc < 70 )) \
-    && color='yellow'
-  (( perc < 55 )) \
-    && color='orange'
-  (( perc < 45 )) \
-    && color='red'
-  echo "${color}"
-}
 run_io_tests() {
   "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
   declare summary passed count
@@ -22,7 +9,7 @@ run_io_tests() {
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
-  curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
+  badge_generate 'IO Tests' "${passed}/${count}" "${test_color}"
 }
 main() {
   # deprecated

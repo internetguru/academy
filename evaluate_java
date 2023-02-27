@@ -10,6 +10,5 @@ if [[ -n "${ACADEMY_EDITABLE}" ]]; then
   declare -i perc=100
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
-  color="$(get_test_color "${perc}")"
-  curl -so "${CHECKSTYLE_SVG}" "https://img.shields.io/badge/Code%20Style-${perc}%20%25-${color}"
+  badge_generate 'Code Style' "${perc} %"
 fi
