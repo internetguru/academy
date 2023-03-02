@@ -280,8 +280,8 @@ meta:
       source "${ACADEMY_DIR}/badges"
       WORKING_DIR='.'
       badge_generate 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
-      badge_generate 'Updates' 'n/a'
-      badge_generate 'Status' 'n/a'
+      badge_generate 'Updates' 'unknown'
+      badge_generate 'Status' 'unknown'
     - |
       for badge in .results/badge-*.svg; do
         [[ "${badge}" =~ ".results/badge-"([^-]+)-(.*)".svg" ]]
