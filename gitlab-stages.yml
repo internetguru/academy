@@ -10,9 +10,12 @@ variables:
   ACADEMY_CACHE: ".academy-cache"
 
 cache:
-  key: academy-cache
-  paths:
-    - $ACADEMY_CACHE
+  - key: academy-cache
+    paths:
+      - $ACADEMY_CACHE
+  - key: artifacts
+    paths:
+      - .results/
 
 .before_script_global: &global_init |
   # fix TERM
