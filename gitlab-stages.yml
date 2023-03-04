@@ -128,6 +128,7 @@ distribute:
   stage: manage
   tags:
     - docker
+  cache: []
   before_script:
     - *validate_token
     - *global_init
