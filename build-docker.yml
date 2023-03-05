@@ -1,0 +1,21 @@
+build-docker-image:
+  image: docker:20.10.10
+  stage: build
+  tags:
+    - docker
+  variables:
+    DOCKER_HOST: tcp://dockerhost:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - name: docker:20.10.10-dind
+      alias: dockerhost
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build --pull -t $CI_REGISTRY_IMAGE .
+    - docker push $CI_REGISTRY_IMAGE
+  rules:
+    - changes:
+      - Dockerfile
+    - when: manual
+  allow_failure: true

@@ -1,0 +1,13 @@
+# Načtení velikostí výchozích souborů
+declare -A file_size=()
+while read file size; do
+  file_size["${file}"]="${size}"
+done <<< "${file_size_data}"
+
+# Přidat studentské soubory do galerie, pokud se liší od výchozích
+for filepath in ${file_pattern_data}; do
+  [[ $( stat -c '%s' "${filepath}" ) -eq ${file_size["$filepath"]} ]] \
+    && continue
+  mkdir -p "${local_gallery}/${user_name}/${filepath%/*}"
+  cp -v "${filepath}" "${local_gallery}/${user_name}/${filepath}"
+done

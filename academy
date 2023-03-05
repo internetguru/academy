@@ -1,7 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -o pipefail
-
 declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
@@ -9,11 +8,23 @@ declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
 # shellcheck disable=SC2034
 declare -r SRC_DIR='src'
+declare CUSTOMIZE=1
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
-. "${DIR}/commons"
+source "${DIR}/commons"
+# shellcheck disable=SC1091
+source "${DIR}/badges"
 
-check_lang "${ACADEMY_LANG}"
+# disabled by LB
+# check_lang "${ACADEMY_LANG}"
+
+customize_academy() {
+  (( CUSTOMIZE )) || return
+  local CUSTOM_ACADEMY='.academy'
+  [[ -d "${CUSTOM_ACADEMY}" ]] \
+    || return
+  cp "${CUSTOM_ACADEMY}"/* "${DIR}"
+}
 
 # shellcheck disable=SC2155
 declare WORKING_DIR="$(readlink -f ".")"
@@ -25,7 +36,12 @@ while (( $# > 0 )); do
       WORKING_DIR="$(readlink -f "${2}")"
       [[ -d "${WORKING_DIR}" ]] \
         || exception 'WORKING_DIR not found'
-      shift; shift ;;
+      shift 2
+      ;;
+    -C|--no-customize)
+      CUSTOMIZE=0
+      shift
+      ;;
     help)
       print_usage
       exit
@@ -33,18 +49,18 @@ while (( $# > 0 )); do
     collect|distribute|measure)
       # shellcheck disable=SC1091
       # shellcheck disable=SC1090
-      . "${DIR}/git_functions"
-      # shellcheck disable=SC1091
-      # shellcheck disable=SC1090
-      . "${DIR}/gitlab_api"
+      source "${DIR}/git_functions"
       # check requirements
       check_command git jq
       ;&
-    evaluate)
+    evaluate|execute)
       declare -r CMD="${1}"
       shift
+      # shellcheck disable=SC1091
+      source "${DIR}/gitlab_api"
+      customize_academy
       # shellcheck disable=SC1090
-      . "${DIR}/${CMD}" "$@"
+      source "${DIR}/${CMD}" "$@"
       exit $?
       ;;
     *)

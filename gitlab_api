@@ -1,30 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # shellcheck disable=SC2034
-declare -r GITLAB_URL="${CI_SERVER_HOST:-gitlab.com}"
-declare -r TOKEN_FILE="${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
+[[ -z "${GITLAB_URL}" ]] \
+  && declare -r GITLAB_URL="${CI_SERVER_HOST:-gitlab.com}"
+[[ -z "${TOKEN_FILE}" ]] \
+  && declare -r TOKEN_FILE="${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
 
 gitlab_api() {
   declare -r url="${1}"
   declare data="${2}"
-  declare req='GET'
-  [[ -n "${data}" ]] \
-    && req='POST'
-  [[ "${data}" == '-' ]] \
-    && req='DELETE' \
-    && data="{}"
+  declare method
+  declare req
+  declare form=""
+  case "${data}" in
+    '-')
+      method='DELETE'
+      ;;
+    'PUT:'*)
+      method='PUT'
+      data="{${data#PUT:}}"
+      ;;
+    'PUT-FILE:'*)
+      method='PUT'
+      declare form="${data#PUT-FILE:}"
+      ;;
+    '')
+      method='GET'
+      ;;
+    *)
+      method='POST'
+  esac
   # shellcheck disable=SC2155
-  declare response="$(curl --silent --write-out '\n%{http_code}\n' \
-    --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
-    --header 'Content-Type: application/json' \
-    --request ${req} --data "${data:-{\}}" "https://${GITLAB_URL}/${url}")"
+  case "${method}" in
+    'GET'|'DELETE')
+      declare response="$(curl --silent --write-out '\n%{http_code}\n' \
+        --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+        --request "${method}" \
+        "https://${GITLAB_URL}/${url}"
+      )"
+      ;;
+    'PUT'|'POST')
+      if [[ -z "${form}" ]]; then
+        declare response="$(curl --silent --write-out '\n%{http_code}\n' \
+          --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+          --header 'Content-Type: application/json' \
+          --request "${method}" \
+          --data "${data:-{\}}" \
+          "https://${GITLAB_URL}/${url}"
+        )"
+      else
+        declare response="$(curl --silent --write-out '\n%{http_code}\n' \
+          --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
+          --form "${form}" \
+          --request "${method}" \
+          "https://${GITLAB_URL}/${url}"
+        )"
+      fi
+      ;;
+    *)
+      exception "Unknown HTTP method '${method}'" 1
+  esac
   # shellcheck disable=SC2155
   declare status="$(sed -n '$p' <<< "${response}")"
   # shellcheck disable=SC2155
   declare output="$(sed '$d' <<< "${response}")"
-  [[ "${status}" != 20* ]] \
+  [[ "${status}" != 2?? ]] \
     && printf -- '%s\n' "${output}" >&2 \
-    && exception "Request status ${status}: ${url}"
+    && warning "Request status ${status}: ${url}" 0 \
+    && return 1
   printf -- '%s\n' "${output}"
 }
 get_token() {
@@ -36,8 +79,13 @@ get_token() {
 }
 get_project_id() {
   declare -r ns="${1}"
+  declare project_id
   # shellcheck disable=SC2154
-  gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id'
+  project_id=$( gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id' )
+  [[ -n "${project_id}" ]] \
+  || warning "Project '${ns}' does not exist" 1 \
+  || return 1
+  printf -- '%s\n' "${project_id}"
 }
 get_project_name() {
   declare -r ns="${1}"
@@ -49,15 +97,29 @@ get_default_branch() {
   gitlab_api "api/v4/projects/${user_project_ns//\//%2F}" | jq -r '.default_branch'
 }
 project_exists() {
+  # Should get $1 instead of $user_project_ns
+  [[ -n "$1" ]] && local user_project_ns="${1}"
   get_project_id "${user_project_ns}" >/dev/null 2>&1
 }
+group_exists() {
+  get_group_id "${1}" >/dev/null 2>&1
+}
 get_group_id() {
+  local group_id
   declare -r group_name="${1//\//%2F}"
-  gitlab_api "api/v4/groups/${group_name}" | jq -r '.id'
+  group_id="$( gitlab_api "api/v4/groups/${group_name}" | jq -r '.id' )"
+  [[ -n "${group_id}" ]] \
+  || warning "Group '${1}' does not exist" 1 \
+  || return 1
+  printf -- '%s\n' "${group_id}"
+}
+get_source_merge() {
+  local project_id="${1}"
+  gitlab_api "api/v4/projects/${project_id}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}"
 }
 request_exists() {
   # shellcheck disable=SC2154
-  gitlab_api "api/v4/projects/${project_id}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}" \
+  get_source_merge "${project_id}" \
     | grep -qv "^\[\]$"
 }
 create_request() {
@@ -72,8 +134,9 @@ create_user_project() {
   [[ -n "${user_id}" ]] \
     && visibility='private'
   # shellcheck disable=SC2154
+  # shellcheck disable=SC2153
   gitlab_api 'api/v4/projects' \
-    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${PROJECT_NAME} ${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
+    "{\"namespace_id\":\"${GROUP_ID}\", \"name\":\"${user_name}\", \"path\":\"${user_project_name}\", \"visibility\":\"${visibility}\"}" \
     | jq -r '.id'
 }
 get_role() {
@@ -108,6 +171,11 @@ get_user_id() {
   # shellcheck disable=SC2154
   gitlab_api "api/v4/users?username=${user_name}" \
     | jq -r '.[] | .id' | sed 's/null//'
+}
+get_user_name() {
+  # shellcheck disable=SC2154
+  gitlab_api "api/v4/users?username=${user_name}" \
+    | jq -r '.[] | .name' | sed 's/null//'
 }
 create_ns() {
   declare -r ns="${1}"
@@ -147,4 +215,138 @@ acquire_token() {
     || exit 1
   # test ACADEMY_GITLAB_ACCESS_TOKEN
   gitlab_api "api/v4/projects" >/dev/null
+}
+remove_project() {
+  declare -r project="${1}"
+  declare project_id
+  project_id="$( get_project_id "${project}" )" \
+  || exception "Project '${project}' does not exist" 1
+  gitlab_api "api/v4/projects/${project_id}" -
+}
+get_project_avatar() {
+  local project_id
+  local output_file
+  local avatar_url
+  declare -r ns="${1}"
+  project_id=$( get_project_id "$ns" ) \
+  || warning "Source project '${ns}' does not exist" 1 \
+  || return 1
+  output_file=$( mktemp )
+  avatar_url="$( gitlab_api "api/v4/projects/${project_id}" | jq -r .avatar_url )"
+  curl "${avatar_url}" > "${output_file}.${avatar_url##*.}"
+  printf '%s\n' "${output_file}.${avatar_url##*.}"
+}
+set_project_avatar() {
+  local project_id
+  declare -r ns="${1}"
+  local input_file="${2}"
+  project_id=$( get_project_id "${ns}" ) \
+  || warning "Destination project '${ns}' does not exist" 1 \
+  || return 1
+  gitlab_api "api/v4/projects/${project_id}" "PUT-FILE:avatar=@${input_file}"
+}
+set_group_avatar() {
+  local group_id
+  declare -r ns="${1}"
+  local input_file="${2}"
+  group_id=$( get_group_id "${ns}" ) \
+  || warning "Destination group '${ns}' does not exist" 1 \
+  || return 1
+  gitlab_api "api/v4/groups/${group_id}" "PUT-FILE:avatar=@${input_file}"
+}
+set_public_pages() {
+  local project_id="${1}"
+  gitlab_api "api/v4/projects/${project_id}" 'PUT:"pages_access_level":"public"'
+}
+copy_avatar() {
+  local type
+  case "${1}" in
+    # group avatar
+    '-g')
+      type='group'
+      shift
+      ;;
+    # project avatar (default)
+    *)
+      type='project'
+  esac
+  local avatar_file
+  local src="${1}"
+  local dst="${2}"
+  avatar_file="$( get_project_avatar "${src}" )" \
+  || warning "Could not get source project '${src}' avatar" 1 \
+  || return 1
+  "set_${type}_avatar" "${dst}" "${avatar_file}" \
+  || warning "Could not set target ${type} '${dst}' avatar" 1 \
+  || return 1
+  rm "${avatar_file}"
+}
+fork_project() {
+  local src_id
+  local data
+  local -A attr=( [visibility]="public" )
+  local output
+  while (( $# > 0 )); do
+    case "${1}" in
+      -d)
+        attr[description]="${2}"
+        shift 2
+        ;;
+      -n)
+        attr[name]="${2}"
+        if [[ -z "${attr[path]}" ]]; then
+          attr[path]="${attr[name],,}"
+          attr[path]="${attr[path]// /-}"
+        fi
+        shift 2
+        ;;
+      -N)
+        attr[path]="${2}"
+        shift 2
+        ;;
+      -p)
+        attr[namespace_path]="${2}"
+        shift 2
+        ;;
+      -v)
+        attr[visibility]="${2}"
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        warninig "Unknown parameter '${1}'"
+        return 2
+        ;;
+      *)
+        break
+    esac
+  done
+  [[ -n "${attr[name]}" ]] \
+  || warning "Missing essential parameter 'name' (opt. -n)" 1 \
+  || return 1
+  [[ -n "${attr[namespace_path]}" ]] \
+  || warning "Missing essential parameter 'namespace_path' (opt. -p)" 1 \
+  || return 1
+  group_exists "${attr[namespace_path]}" \
+  || warning "Target group '${attr[namespace_path]}' does not exist" 1 \
+  || return 1
+  ! project_exists "${attr[namespace_path]}/${attr[path]}" \
+  || warning "Project '${attr[namespace_path]}/${attr[path]}' already exists" 1 \
+  || return 1
+  [[ -n "${1}" ]] \
+  || warning "Missing source repository to fork from" 1 \
+  || return 1
+  local src="${1}"
+  src_id="$( get_project_id "${src}" )" \
+  || warning "Source repository '${src}' does not exist" \
+  || return 1
+  for key in "${!attr[@]}"; do
+    printf -v data -- '%s,"%s":"%s"' "$data" "${key}" "${attr[$key]}"
+  done
+  output=$( gitlab_api "api/v4/projects/${src_id}/fork" "{${data#,}}" ) \
+  || return 1
+  jq . <<< "${output}"
 }
