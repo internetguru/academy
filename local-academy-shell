@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+command="${1}"
+#PROJECT="${2}"
+
+DIR="$(dirname "${BASH_SOURCE[0]}")"
+declare -r DIR
+source "${DIR}/commons"
+
+[[ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" || -f "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN" ]] \
+  || exception "Undefined ACADEMY_GITLAB_ACCESS_TOKEN variable nor ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN file"
+
+#export ACADEMY_LANG="shell"
+export ACADEMY_EDITABLE="*/run"
+export CI_SERVER_HOST="gitlab.wr.cz"
+export WORKING_DIR="/project"
+#GITLAB_PATH="git@${CI_SERVER_HOST}:/${PROJECT}.git"
+
+[ -n "${ACADEMY_GITLAB_ACCESS_TOKEN}" ] \
+  && printf '%s\n' "${ACADEMY_GITLAB_ACCESS_TOKEN}" > "${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN"
+
+
+cleanup() {
+	rm -rf "${WORKING_DIR}"
+}
+
+# Clone repository to WORKING_DIRECTORY (the same as at gitlab)
+#WORKING_DIR="$( mktemp -d )"
+#trap 'cleanup; exit' EXIT
+#git clone "${GITLAB_PATH}" "${WORKING_DIR}"
+
+[[ -f "${WORKING_DIR}/ACADEMY_ASSIGN" ]] \
+&& exec < "${WORKING_DIR}/ACADEMY_ASSIGN"
+
+case "${command}" in
+	collect|execute|evaluate)
+		cd "${WORKING_DIR}" || exception "Cannot acces '${WORKING_DIR}'"
+		"${DIR}/academy" "${command}" --namespace="bi-skj/b222/shell-intro" --editable="${ACADEMY_EDITABLE}"
+		;;
+	*)
+		"${DIR}/academy" help
+		exit 2
+		;;
+esac

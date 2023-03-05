@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 io_test_exit() {
   printf -- '%s' "${1}" >&2
@@ -46,15 +46,14 @@ io_test() {
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${IOTEST_CMD}"
   # TODO check unsupported test extensions (how?)
-  echo -e "\nTest ${test_folder_name}/${test_name}"
+  echo "Test ${test_folder_name}/${test_name}"
   # create cmd from template
   # TODO: add reference to README
   declare -A variables
   # script varaibles
   variables=( \
    ['FOLDER_NAME']="${test_folder_name%.*}"\
-   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"\
-   ['WORKING_DIR']="${WORKING_DIR}" \
+   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"
   )
   # add filtered env variables
   while read -r line; do
@@ -114,6 +113,7 @@ run_io_tests() {
   while read -r -d '' folder; do
     local_passed=0
     local_count=0
+    echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%"
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       count+=1
@@ -121,9 +121,11 @@ run_io_tests() {
       io_test "${folder}" "${name}" \
         && passed+=1 \
         && local_passed+=1
+      printf -- "\n"
     done
-    printf -- "\n%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
+    printf -- "%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
       "${local_count}" "${local_passed}"
+    echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
   done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
   # generate summary and badge
   printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"

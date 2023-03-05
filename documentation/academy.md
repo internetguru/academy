@@ -27,8 +27,11 @@ collect
 distribute
        Create or update user repositories with files from source project.
 
+execute
+       Execute code to see output on the fly.
+
 evaluate
-       Verify Java project and generate badges for README.
+       Verify project and generate badges for README.
 
 help
        Display this usage.

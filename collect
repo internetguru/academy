@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 get_last_commit() {
   [[ -z "${DEADLINE}" ]] \
@@ -7,13 +7,21 @@ get_last_commit() {
   get_last_push
 }
 sync_files() {
+  # shellcheck disable=SC2155
+  local eg=$( shopt -p extglob )
+  shopt -s extglob
   git_checkout "${user_projects_folder}/${user_project_ns}" "${last_commit}"
   # shellcheck disable=SC2086
   rsync -a --relative --delete \
     "${user_projects_folder}/${user_project_ns}/./"${EDITABLE} "${WORKING_DIR}" \
     || exception 'Unable to rsync files'
+  $eg
 }
-create_results() {
+create_results_default() {
+  "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" --no-customize evaluate
+  mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
+}
+create_results_java() {
   "${DIR}/${SCRIPT}" -w "${WORKING_DIR}" evaluate
   mv "${WORKING_DIR}/.results" "${user_projects_folder}/${user_project_ns}"
   compile_txt="${user_projects_folder}/${user_project_ns}/.results/compile.txt"
@@ -29,14 +37,24 @@ create_results() {
   echo
   git_reset_hard "${user_projects_folder}/${user_project_ns}"
 }
+create_results() {
+  case "${ACADEMY_LANG}" in
+    java) create_results_"${ACADEMY_LANG}";;
+    *) create_results_default;;
+  esac
+}
 collect() {
   # shellcheck disable=SC2155
   [[ ! -t 0 ]] \
     || exception 'Missing stdin' 2
-  exec 3<&0
+  local user_list=()
+  # shellcheck disable=SC2207
+  user_list=( $( cat ) )
+  local user_i=1
   acquire_token
   [[ -z "${OUTPUT_DIR}" ]] \
     && OUTPUT_DIR="$(mktemp -d)"
+  trap 'rm -rf "${OUTPUT_DIR}"' EXIT
   # shellcheck disable=SC2155
   declare -r user_projects_folder="${OUTPUT_DIR}"
   declare group_id
@@ -46,19 +64,28 @@ collect() {
   declare checkstyle_txt
   declare test_txt
   declare results
+  declare -x user_repo
   # shellcheck disable=SC2034
   group_id="$(get_group_id "${NAMESPACE}" 2>/dev/null)"
   [[ -z "${group_id}" ]] \
     && exception "Namespace '${NAMESPACE}' not found" 3
+
+  # Pre-collect script
+  # shellcheck disable=SC1090
+  [[ -f "${DIR}/pre-collect_${ACADEMY_LANG}" ]] \
+    && . "${DIR}/pre-collect_${ACADEMY_LANG}"
+
   # shellcheck disable=SC2013
-  for user_name in $(cat <&3); do
+  export user_name
+  for user_name in "${user_list[@]}"; do
     user_project_name="${PREFIX}${user_name}"
     user_project_ns="${NAMESPACE}/${user_project_name}"
+    echo "[$((user_i++))/${#user_list[@]}] ${user_project_ns}"
     get_project_id "${user_project_ns}" >/dev/null \
       || continue
-    echo "$user_project_ns"
     [[ "${DRY_RUN}" == 'true' ]] \
       && continue
+    user_repo="${user_projects_folder}/${user_project_ns}"
     mkdir -p "${user_projects_folder}/${user_project_ns}"
     git_clone "$(get_remote_url "${user_project_ns}")" "${user_projects_folder}/${user_project_ns}"
     last_commit="$(get_last_commit)" \
@@ -68,14 +95,21 @@ collect() {
       && continue
     sync_files
     create_results
+    rm -rf "${user_projects_folder:?}/${user_project_ns}"
   done
+
+  # Post-collect script
+  # shellcheck disable=SC1090
+  [[ -f "${DIR}/post-collect_${ACADEMY_LANG}" ]] \
+    && . "${DIR}/post-collect_${ACADEMY_LANG}"
+
 }
 
 declare DRY_RUN='false'
 declare PREFIX=''
 declare NAMESPACE=''
-declare EDITABLE='src/main/*.java'
-declare DEADLINE=''
+declare EDITABLE="${ACADEMY_EDITABLE}"
+declare DEADLINE="${ACADEMY_DEADLINE}"
 declare OUTPUT_DIR=''
 
 # get options
@@ -95,12 +129,12 @@ while (( $# > 0 )); do
       DEADLINE="${2}";
       [[ "${DEADLINE}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(Z|[+−][0-9]{2}:[0-9]{2})?)?)?$ ]] \
         || exception "Invalid deadline option"
-      shift; shift ;;
+      shift 2 ;;
     -e|--editable)
       EDITABLE="${2}";
       [[ "${EDITABLE}" == *".."* ]] \
         && exception "Invalid editable option, contains '..'"
-      shift; shift ;;
+      shift 2 ;;
     -n|--dry-run) DRY_RUN='true'; shift ;;
     -o|--output-dir)
       OUTPUT_DIR="${2}";
@@ -108,14 +142,14 @@ while (( $# > 0 )); do
         || mkdir -p "${OUTPUT_DIR}" \
         || exception "Unable to create '${OUTPUT_DIR}' directory"
       [[ -z "$(ls "${OUTPUT_DIR}/")" ]] \
-        || exception "Output directory 'ls' is not empty"
-      shift; shift ;;
-    -p|--prefix) PREFIX="${2}"; shift; shift ;;
+        || exception "Output directory '${OUTPUT_DIR}' is not empty"
+      shift 2 ;;
+    -p|--prefix) PREFIX="${2}"; shift 2 ;;
     -s|--namespace)
       NAMESPACE="${2}";
       [[ "${NAMESPACE}" =~ ^[a-z0-9-]{2,}(/[a-z0-9-]{2,})*$ ]] \
         || exception "Unsupported NAMESPACE '${NAMESPACE}'" 2
-      shift; shift ;;
+      shift 2 ;;
     --) shift; break ;;
      *) break ;;
   esac

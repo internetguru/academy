@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## functions
 get_cache_folder() {
@@ -33,6 +33,7 @@ update_links() {
   sed -i "s~${PROJECT_LINK}~${user_project_ns}~g" "${user_readme_path}"
   sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_default_branch}/\1~g" "${user_readme_path}"
   sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_default_branch}~g" "${user_readme_path}"
+  sed -i "s~\(https://[^/]*\)/${PROJECT_LINK#*/}~\1/${user_project_ns#*/}~g" "${user_readme_path}"
 }
 init_user_repo() {
   declare user_id=''
@@ -64,6 +65,7 @@ init_user_repo() {
   remove_protected_branch
   set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  set_public_pages "${project_id}" >/dev/null
 }
 status_empty () {
   get_cache
@@ -80,19 +82,37 @@ update_user_repo() {
     || exit 1
   request_exists \
     || create_request
+  copy_issues
+  set_public_pages "${project_id}" >/dev/null
 }
 read_issues() {
-  ISSUES="$(gitlab_api "api/v4/projects/${PROJECT_ID}/issues?labels=${ISSUES_LABEL}")" \
+  local pid="${1:?project id missing}"
+  local label="${2}"
+  ISSUES="$(gitlab_api "api/v4/projects/${pid}/issues?labels=${label}")" \
     && ISSUES_COUNT="$(jq length <<< "${ISSUES}")" \
     || exit 1
 }
 copy_issues() {
-  declare i issue
-  for (( i=0; i < ISSUES_COUNT; i++ )); do
-    issue="$(jq ".[${i}] | {title, description, due_date}" <<< "${ISSUES}")"
+  declare i issue_src issues_dst issues_count_dst
+  declare -A description=()
+  read_issues "${project_id}" \
+    && issues_dst="${ISSUES}" issues_count_dst="${ISSUES_COUNT}"
+  for (( i=0; i < issues_count_dst; i++ )); do
+    description+=( ["$(jq -r ".[${i}].title" <<< "${issues_dst}")"]="$(jq -r ".[${i}].description" <<< "${issues_dst}")" )
+  done
+  for (( i=0; i < issues_count_src; i++ )); do
+    issue_src="$(jq ".[${i}] | {title, description, due_date}" <<< "${issues_src}")"
+    if [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]]; then
+      #printf -- "[issues] skipping '%s'\n" "$(jq -r ".title" <<< "${issue_src}")'" >&2
+      continue
+    fi
+    # Update existing issue
+    # ToDo
+    # Add new issue
+    #printf -- "[issues] adding '%s'\n" "${issue_src//$'\n'/|}" >&2
     [[ -n "${user_id}" ]] \
-      && issue="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue}")"
-    gitlab_api "api/v4/projects/${project_id}/issues" "${issue}" >/dev/null
+      && issue_src="$(jq --arg a "${user_id}" '. + {assignee_ids:[$a]}' <<< "${issue_src}")"
+    gitlab_api "api/v4/projects/${project_id}/issues" "${issue_src}" >/dev/null
   done
 }
 read_project_info() {
@@ -109,7 +129,8 @@ read_project_info() {
     || exit 1
   [[ -z "${NAMESPACE}" ]] \
     && NAMESPACE="$(dirname "${PROJECT_LINK}")"
-  read_issues
+  read_issues "${PROJECT_ID}" "${ISSUES_LABEL}" \
+    && issues_src="${ISSUES}" issues_count_src="${ISSUES_COUNT}"
   msg_end
 }
 process_users() {
@@ -190,7 +211,9 @@ declare PROJECT_ID=''
 declare PROJECT_NAME=''
 declare PROJECT_BRANCH=''
 declare ISSUES=''
+declare issues_src="$ISSUES"
 declare -i ISSUES_COUNT=0
+declare -i issues_count_src="${ISSUES_COUNT}"
 # shellcheck disable=SC2034
 declare ACADEMY_GITLAB_ACCESS_TOKEN
 
@@ -209,35 +232,47 @@ while (( $# > 0 )); do
       ASSIGN="${2}"
       [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
         || exception 'Invalid option ASSIGN value'
-      shift; shift ;;
-    -h|--help) print_usage && exit 0 ;;
+      shift 2
+      ;;
+    -h|--help)
+      print_usage \
+        && exit 0
+      ;;
     -i|--process-issues)
       ISSUES_LABEL="$2"
       [[ "${ISSUES_LABEL}" =~ ^[a-z0-9][a-z0-9_-]+$ ]] \
         || exception 'Unsupported ISSUES_LABEL value' 2
-      shift; shift ;;
+      shift 2
+      ;;
     -l|--update-links)
       UPDATE_LINKS='true'
       [[ -f "${WORKING_DIR}/${README_FILE}" ]] \
         || exception 'Readme file not found in WORKING_DIR'
-      shift ;;
-    -n|--dry-run) DRY_RUN='true'; shift ;;
+      shift
+      ;;
+    -n|--dry-run)
+      DRY_RUN='true'
+      shift
+      ;;
     -p|--prefix)
       PREFIX="${2}"
       [[ "${PREFIX}" =~ ^[a-z0-9]+([a-z0-9._-]+)*$ ]] \
         || exception 'Unsupported PREFIX value' 2
-      shift; shift ;;
+      shift 2
+      ;;
     -s|--namespace)
       NAMESPACE="${2}"
       [[ "${NAMESPACE}" =~ ^[a-z0-9-]{2,}(/[a-z0-9-]{2,})*$ ]] \
         || exception "Unsupported REMOTE_NAMESPACE '$NAMESPACE' dirname" 2
-      shift; shift ;;
+      shift 2
+      ;;
     -o|--output-dir)
       CACHE_FOLDER="${2}";
       [[ -d "${CACHE_FOLDER}" ]] \
         || mkdir -p "${CACHE_FOLDER}" \
         || exception "Unable to create '${CACHE_FOLDER}' directory"
-      shift; shift ;;
+      shift 2
+      ;;
     --) shift; break ;;
      *) break ;;
   esac

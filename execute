@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+main() {
+  declare -r RESULTS="${WORKING_DIR}/.results"
+  declare -r BADGES_TXT="${RESULTS}/badges.txt"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
+
+  mkdir -p "${RESULTS}"
+
+  [[ -f "${DIR}/pre-execute_${ACADEMY_LANG}" ]] \
+  && source "${DIR}/pre-execute_${ACADEMY_LANG}"
+
+  if [[ -f "${DIR}/execute_${ACADEMY_LANG}" ]]; then
+    source "${DIR}/execute_${ACADEMY_LANG}"
+  else
+    if [[ -z "${ACADEMY_LANG}" ]]; then
+      warning "Undefined ACADEMY_LANG variable. Execution skipped."
+    else
+      exception "Missing execute script 'execute_${ACADEMY_LANG}' for selected language."
+    fi
+  fi
+
+  [[ -f "${DIR}/post-execute_${ACADEMY_LANG}" ]] \
+  && source "${DIR}/post-execute_${ACADEMY_LANG}"
+
+  date +%s > "${GENERATED_TXT}"
+  printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
+}
+
+main "$@"

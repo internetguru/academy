@@ -1,20 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-get_test_color() {
-  declare color='brightgreen'
-  declare perc="${1}"
-  (( perc < 85 )) \
-    && color='green'
-  (( perc < 70 )) \
-    && color='yellow'
-  (( perc < 55 )) \
-    && color='orange'
-  (( perc < 45 )) \
-    && color='red'
-  echo "${color}"
-}
 run_io_tests() {
-  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" > ${IOTEST_LOG}
+  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
   declare summary passed count
   summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
   count="$(cut -d',' -f1 <<< "${summary}" | cut -d' ' -f2)"
@@ -22,45 +9,45 @@ run_io_tests() {
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
-  printf -- '%s/%s' "${passed:-0}" "${count:-0}" > "${IOTEST_TXT}"
-  curl -so "${IOTEST_SVG}" "https://img.shields.io/badge/IO%20Tests-${passed}/${count}-${test_color}"
+  badge_generate 'IO Tests' "${passed}/${count}" "${test_color}"
 }
 main() {
-  declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
-  declare -r RESULTS="${WORKING_DIR}/.results"
-  declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-  declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
-  declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
-  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
+  # deprecated
   declare -r BADGES_TXT="${RESULTS}/badges.txt"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
+  : > "${BADGES_TXT}"
 
+  declare -r RESULTS="${WORKING_DIR}/.results"
+  declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
-  printf -- '' > "${BADGES_TXT}"
-  # deafults for iotests
-  curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
-  printf -- 'n/a' > "${IOTEST_TXT}"
-  printf -- '' > "${IOTEST_LOG}"
-  case ${ACADEMY_LANG} in
-    java)
-      declare -r COMPILE_TXT="${RESULTS}/compile.txt"
-      declare -r CHECKSTYLE_TXT="${RESULTS}/checkstyle.txt"
-      declare -r TEST_TXT="${RESULTS}/test.txt"
-      # shellcheck disable=SC1090
-      # shellcheck disable=SC1091
-      . "${DIR}/evaluate_java"
-      printf -- 'compile: %s\n' "$(<"${COMPILE_TXT}")" >> "${BADGES_TXT}"
-      printf -- 'checkstyle: %s\n' "$(<"${CHECKSTYLE_TXT}")" >> "${BADGES_TXT}"
-      printf -- 'test: %s\n' "$(<"${TEST_TXT}")" >> "${BADGES_TXT}"
-    ;;
-    oracle)
-      # shellcheck disable=SC1090
-      # shellcheck disable=SC1091
-      . "${DIR}/evaluate_oracle"
-    ;;
-    *)
-    exception "Unexpected exception: academy lang should be checked before"
-  esac
-  printf -- 'iotest: %s\n' "$(<"${IOTEST_TXT}")" >> "${BADGES_TXT}"
+  mkdir -p "${ACADEMY_CACHE}"
+
+  # jenom pro CI a ten grep je spatne, ACADEMY_EDITABLE neni RE ale SP
+  # shellcheck disable=SC2034
+  mapfile -t CHANGED_FILES < <(
+    git -C "${WORKING_DIR}" diff HEAD..HEAD~1 --name-only 2>/dev/null \
+      | grep -E "${ACADEMY_EDITABLE:-.*}"
+  )
+  # shellcheck disable=SC1090
+  [[ -f "${DIR}/pre-evaluate_${ACADEMY_LANG}" ]] \
+    && source "${DIR}/pre-evaluate_${ACADEMY_LANG}"
+
+  if [[ -f "${DIR}/evaluate_${ACADEMY_LANG}" ]]; then
+    # shellcheck disable=SC1090
+    source "${DIR}/evaluate_${ACADEMY_LANG}"
+  else
+    if [[ -z "${ACADEMY_LANG}" ]]; then
+      warning "Undefined ACADEMY_LANG variable. Evaluation skipped."
+    else
+      exception "Missing evaluate script 'evaluate_${ACADEMY_LANG}' for selected language."
+    fi
+  fi
+
+  # shellcheck disable=SC1090
+  [[ -f "${DIR}/post-evaluate_${ACADEMY_LANG}" ]] \
+    && source "${DIR}/post-evaluate_${ACADEMY_LANG}"
+
+  # deprecated
   date +%s > "${GENERATED_TXT}"
   printf -- 'age: %s\n' "$(<"${GENERATED_TXT}")" >> "${BADGES_TXT}"
 }

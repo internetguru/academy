@@ -1,0 +1,36 @@
+#!/bin/bash
+echo "Pre-collect: Gallery"
+
+export gallery="git@gitlab.wr.cz:bi-ble/gallery.git"
+export local_gallery="/tmp/gallery"
+export readme="${local_gallery}/README.md"
+
+# Přidání klíče serveru a klienta
+eval $( ssh-agent -s )
+ssh-keyscan gitlab.wr.cz >> ~/.ssh/known_hosts
+base64 -d <<< "${SSH_PRIVATE_KEY}" | ssh-add -
+
+# První běh -> Naklonovat galerii, vytvořit README.md
+rm -rf "${local_gallery}" 2>/dev/null
+git clone "${gallery}" "${local_gallery}"
+printf '%s\n\n' "# Galerie studentských prací BI-BLE" > "${readme}"
+printf '%s\n' \
+"Problematika tvorby v Blenderu je rozdělena do jednotlivých témat." \
+"V rámci každého tématu je zadán rámcový úkol." \
+"Z každé úlohy by měly průběžně v semestru vznikat výstupy v podobě" \
+"statických obrázků a také krátká videa." \
+"" \
+>> "${readme}"
+
+
+# Nastavit správný remote (proč?)
+git -C "${local_gallery}" remote set-url origin "${gallery}"
+
+# Zjistit velikosti výchozích (placeholder) souborů
+export file_pattern_data="
+    [01][0-9]-*/render[123].jpg
+    [01][0-9]-*/video.mp4
+    showreel/video.mp4
+"
+
+export file_size_data="$( stat -c '%n %s' ${file_pattern_data} )"

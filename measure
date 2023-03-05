@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 measure() {
   # shellcheck disable=SC2155
   [[ ! -t 0 ]] \
