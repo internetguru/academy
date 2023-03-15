@@ -4,12 +4,13 @@ if [[ -n "${IOTEST_LOG}" ]]; then
 fi
 
 if [[ -n "${JUNIT_LOG}" ]]; then
-  ${JUNIT_CMD} > "${JUNIT_LOG}"
+  javac -cp "${JUNIT_FILE}" "${WORKING_DIR}"/*.java > "${JUNIT_LOG}"
+  java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=none >> "${JUNIT_LOG}"
   cat "${JUNIT_LOG}"
 fi
 
 if [[ -n "${ACADEMY_EDITABLE}" ]]; then
-  ${CHECKSTYLE_CMD} -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
+  java -jar "${CHECKSTYLE_FILE}" -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
   # shellcheck disable=SC2155
   declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
   # shellcheck disable=SC2155

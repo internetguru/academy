@@ -12,7 +12,6 @@ if compgen -G "${WORKING_DIR}/*Test*.java" >/dev/null; then
   badge_generate 'JUnit Tests' '0/0'
   printf -- '' > "${JUNIT_LOG}"
   declare -r JUNIT_FILE="${ACADEMY_CACHE}/junit.jar"
-  declare -r JUNIT_CMD="javac -cp '${JUNIT_FILE}' *.java; java -jar '${JUNIT_FILE}' -cp '${WORKING_DIR}' --scan-classpath --disable-banner --details=none"
   [[ -f "${JUNIT_FILE}" ]] \
     || curl -sL "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.2/junit-platform-console-standalone-1.9.2.jar" > "${JUNIT_FILE}"
 fi
@@ -21,6 +20,5 @@ badge_generate 'Code Style' 'n/a'
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r CHECKSTYLE_VERION="10.7.0"
 declare -r CHECKSTYLE_FILE="${ACADEMY_CACHE}/checkstyle.jar"
-declare -r CHECKSTYLE_CMD="java -jar ${CHECKSTYLE_FILE}"
 [[ -f "${CHECKSTYLE_FILE}" ]] \
   || curl -sL "https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${CHECKSTYLE_VERION}/checkstyle-10.7.0-all.jar" > "${CHECKSTYLE_FILE}"
