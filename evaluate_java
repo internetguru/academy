@@ -5,7 +5,7 @@ fi
 
 if [[ -n "${JUNIT_LOG}" ]]; then
   javac -cp "${JUNIT_FILE}" "${WORKING_DIR}"/*.java > "${JUNIT_LOG}"
-  java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=none >> "${JUNIT_LOG}"
+  java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=summary >> "${JUNIT_LOG}"
   cat "${JUNIT_LOG}"
   declare -ri found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
   declare -ri successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
