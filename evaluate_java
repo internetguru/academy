@@ -17,7 +17,7 @@ if [[ -n "${ACADEMY_EDITABLE}" ]]; then
   # shellcheck disable=SC2155
   declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
   # shellcheck disable=SC2155
-  declare -ri lines=$(find "${WORKING_DIR}/$(dirname "${ACADEMY_EDITABLE}")" -name "$(basename "${ACADEMY_EDITABLE}")" -exec cat {} + | wc -l)
+  declare -ri lines=$(compgen -G "${WORKING_DIR}/${ACADEMY_EDITABLE}" | xargs cat | wc -l)
   declare -i perc=100
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
