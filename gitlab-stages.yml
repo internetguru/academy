@@ -272,7 +272,7 @@ evaluate:
     paths:
       - .results/
     expire_in: 1 year
-  execpt:
+  except:
     changes:
       - ACADEMY_ASSIGN
   rules:
