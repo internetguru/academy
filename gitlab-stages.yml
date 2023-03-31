@@ -272,10 +272,10 @@ evaluate:
     paths:
       - .results/
     expire_in: 1 year
-  except:
-    changes:
-      - ACADEMY_ASSIGN
   rules:
+    - changes:
+      - ACADEMY_ASSIGN
+      when: never
     - if: $CI_COMMIT_BRANCH == "source"
       when: never
     - if: '$ACADEMY_EVALUATE == "always"'
