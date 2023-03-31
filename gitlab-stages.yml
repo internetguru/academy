@@ -273,6 +273,8 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
+    - if: $CI_PIPELINE_IID == 1
+      when: never
     - changes:
       - ACADEMY_ASSIGN
       when: never
