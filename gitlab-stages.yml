@@ -264,11 +264,6 @@ evaluate:
       if [[ $(git rev-list --all --count) -le 1 ]]; then
         exit 0
       fi
-      # do not evaluate ACADEMY_ASSIGN changes only
-      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
-        echo "Project evaluation stoped due to changes in ACADEMY_ASSIGN only"
-        exit 1
-      fi
   script:
     - echo '%% job start evaluate %%'
     - ${ACADEMY} evaluate
@@ -278,6 +273,10 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
+    - if: true
+      changes:
+        - ACADEMY_ASSIGN
+      when: never
     - if: $CI_COMMIT_BRANCH == "source"
       when: never
     - if: '$ACADEMY_EVALUATE == "always"'
