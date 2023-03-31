@@ -45,8 +45,7 @@ cache:
     revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" <<< "$ACADEMY_INCLUDE")
   fi
   if [[ -d "${ACADEMY_DIR}/.git" ]]; then
-    git -C "${ACADEMY_DIR}" fetch origin ${revision}
-    git -C "${ACADEMY_DIR}" checkout ${revision}
+    git -C "${ACADEMY_DIR}" pull origin ${revision}
   else
     git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
   fi
