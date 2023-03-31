@@ -5,6 +5,13 @@ stages:
  - post-process
 
 variables:
+  # https://docs.gitlab.com/runner/configuration/feature-flags.html#enable-feature-flag-in-pipeline-configuration
+  FF_USE_FASTZIP: 1 # enable fast zip gitlab runner feature
+  # https://docs.gitlab.com/ee/ci/runners/configure_runners.html#artifact-and-cache-settings
+  TRANSFER_METER_FREQUENCY: "1s" # shows a progress meter for artifact and cache uploads and downloads
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+  # Academy variables
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: ".academy-cache"
