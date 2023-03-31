@@ -29,25 +29,35 @@ cache:
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
-  # checkout to current branch
-  git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
-  # set git user
-  git config --global user.email "${GITLAB_USER_EMAIL}"
-  git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  if [[ -d .git ]]; then
+    # checkout to current branch
+    git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
+    # set git user
+    git config --global user.email "${GITLAB_USER_EMAIL}"
+    git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  fi
   mkdir -p ${ACADEMY_CACHE}
-  export ACADEMY_DIR="$(mktemp -d)"
+  export ACADEMY_DIR="${ACADEMY_CACHE}/academy"
+  mkdir -p "${ACADEMY_DIR}"
   if [[ -z "$ACADEMY_INCLUDE" ]]; then
     revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
   else
     revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" <<< "$ACADEMY_INCLUDE")
   fi
-  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  if [[ -d "${ACADEMY_DIR}/.git" ]]; then
+    git -C "${ACADEMY_DIR}" fetch origin ${revision}
+    git -C "${ACADEMY_DIR}" checkout ${revision}
+  else
+    git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  fi
   # e.g. /umiami/george/csc220
   declare -r namespace="${CI_PROJECT_NAMESPACE}"
   declare -r project_name="$(basename "${PWD}")"
   declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}/${project_name}"
   # simplify project remote url
-  git remote set-url --push origin "${namespace}/${project_name}.git"
+  if [[ -d .git ]]; then
+    git remote set-url --push origin "${namespace}/${project_name}.git"
+   fi
   # set permissions
   declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
