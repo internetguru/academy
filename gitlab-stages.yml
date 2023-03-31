@@ -11,6 +11,8 @@ variables:
   TRANSFER_METER_FREQUENCY: "1s" # shows a progress meter for artifact and cache uploads and downloads
   ARTIFACT_COMPRESSION_LEVEL: "fast"
   CACHE_COMPRESSION_LEVEL: "fast"
+  # https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning
+  GIT_DEPTH: 10
   # Academy variables
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
