@@ -133,8 +133,6 @@ collect:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - exists:
       - "ACADEMY_ASSIGN"
       when: manual
@@ -164,8 +162,6 @@ distribute:
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         <<< "${users}"
   rules:
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
     - exists:
@@ -211,8 +207,6 @@ measure:
       --namespace "${user_namespace}"
       <<< "${users}"
   rules:
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - exists:
       - "ACADEMY_ASSIGN"
       when: manual
@@ -246,7 +240,7 @@ execute:
     expire_in: 1 year
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - if: '$ACADEMY_EXECUTE == "always"'
       when: always
     - when: manual
@@ -274,12 +268,12 @@ evaluate:
     expire_in: 1 year
   rules:
     - if: $CI_PIPELINE_IID == "1"
-      when: never
+      when: manual
     - changes:
       - ACADEMY_ASSIGN
-      when: never
+      when: manual
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - if: '$ACADEMY_EVALUATE == "always"'
       when: always
     - when: manual
@@ -317,7 +311,7 @@ meta:
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - when: always
   artifacts:
     paths:
