@@ -267,12 +267,14 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
+    - if: $ACADEMY_FORCE_JOB == "true"
+      when: always
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual
     - changes:
       - ACADEMY_ASSIGN
       when: manual
-    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_SOURCE != "api"
+    - if: $CI_PIPELINE_IID == "1"
       when: manual
     - if: $ACADEMY_EVALUATE == "always"
       when: always
