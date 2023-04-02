@@ -272,7 +272,7 @@ evaluate:
     - changes:
       - ACADEMY_ASSIGN
       when: manual
-    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_SOURCE != "trigger"
+    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_SOURCE != "api"
       when: manual
     - if: $ACADEMY_EVALUATE == "always"
       when: always
