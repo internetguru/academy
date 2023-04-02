@@ -272,9 +272,9 @@ evaluate:
     - changes:
       - ACADEMY_ASSIGN
       when: manual
-    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_TRIGGERED == false
+    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_TRIGGERED == "false"
       when: manual
-    - if: '$ACADEMY_EVALUATE == "always"'
+    - if: $ACADEMY_EVALUATE == "always"
       when: always
     - when: manual
   allow_failure: true
