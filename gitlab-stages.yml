@@ -272,7 +272,7 @@ evaluate:
     - changes:
       - ACADEMY_ASSIGN
       when: manual
-    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_TRIGGERED == "false"
+    - if: $CI_PIPELINE_IID == "1" && $CI_PIPELINE_SOURCE == "trigger"
       when: manual
     - if: $ACADEMY_EVALUATE == "always"
       when: always
@@ -290,10 +290,12 @@ meta:
     - *global_init
   script:
     - |
-      echo "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}"
-      # clear dashboard cache
-      curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
-        -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      # clear dashboards cache
+      while read dashboard; do
+        echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}"
+        curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
+          -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
       source "${ACADEMY_DIR}/badges"
