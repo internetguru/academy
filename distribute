@@ -32,6 +32,7 @@ update_links() {
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
   sed -i "s~${PROJECT_LINK}~${user_project_ns}~g" "${user_readme_path}"
   sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_default_branch}/\1~g" "${user_readme_path}"
+  sed -i "s~/\(pipeline\|raw\|file\)/${PROJECT_BRANCH}~/\1/${user_default_branch}~g" "${user_readme_path}"
   sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_default_branch}~g" "${user_readme_path}"
   sed -i "s~\(https://[^/]*\)/${PROJECT_LINK#*/}~\1/${user_project_ns#*/}~g" "${user_readme_path}"
 }
