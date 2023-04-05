@@ -5,9 +5,18 @@ stages:
  - post-process
 
 variables:
+  # https://docs.gitlab.com/runner/configuration/feature-flags.html#enable-feature-flag-in-pipeline-configuration
+  FF_USE_FASTZIP: 1 # enable fast zip gitlab runner feature
+  # https://docs.gitlab.com/ee/ci/runners/configure_runners.html#artifact-and-cache-settings
+  TRANSFER_METER_FREQUENCY: "1s" # shows a progress meter for artifact and cache uploads and downloads
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+  # https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning
+  GIT_DEPTH: 10
+  # Academy variables
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
-  ACADEMY_CACHE: ".academy-cache"
+  ACADEMY_CACHE: "../.academy-cache"
 
 cache:
   - key: academy-cache
@@ -20,21 +29,35 @@ cache:
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
-  # checkout to current branch
-  git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
-  # set git user
-  git config --global user.email "${GITLAB_USER_EMAIL}"
-  git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  if [[ -d .git ]]; then
+    # checkout to current branch
+    git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
+    # set git user
+    git config --global user.email "${GITLAB_USER_EMAIL}"
+    git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  fi
   mkdir -p ${ACADEMY_CACHE}
-  export ACADEMY_DIR="$(mktemp -d)"
-  revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
-  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  export ACADEMY_DIR="${ACADEMY_CACHE}/academy"
+  mkdir -p "${ACADEMY_DIR}"
+  if [[ -z "$ACADEMY_INCLUDE" ]]; then
+    revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
+  else
+    revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" <<< "$ACADEMY_INCLUDE")
+  fi
+  if [[ -d "${ACADEMY_DIR}/.git" ]]; then
+    git -C "${ACADEMY_DIR}" reset --hard
+    git -C "${ACADEMY_DIR}" pull origin ${revision}
+  else
+    git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  fi
   # e.g. /umiami/george/csc220
   declare -r namespace="${CI_PROJECT_NAMESPACE}"
   declare -r project_name="$(basename "${PWD}")"
   declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}/${project_name}"
   # simplify project remote url
-  git remote set-url --push origin "${namespace}/${project_name}.git"
+  if [[ -d .git ]]; then
+    git remote set-url --push origin "${namespace}/${project_name}.git"
+   fi
   # set permissions
   declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
@@ -110,8 +133,6 @@ collect:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - exists:
       - "ACADEMY_ASSIGN"
       when: manual
@@ -141,8 +162,6 @@ distribute:
         --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
         <<< "${users}"
   rules:
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
     - exists:
@@ -188,8 +207,6 @@ measure:
       --namespace "${user_namespace}"
       <<< "${users}"
   rules:
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - exists:
       - "ACADEMY_ASSIGN"
       when: manual
@@ -223,7 +240,7 @@ execute:
     expire_in: 1 year
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - if: '$ACADEMY_EXECUTE == "always"'
       when: always
     - when: manual
@@ -241,11 +258,6 @@ evaluate:
       if [[ $(git rev-list --all --count) -le 1 ]]; then
         exit 0
       fi
-      # do not evaluate ACADEMY_ASSIGN changes only
-      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
-        echo "Project evaluation stoped due to changes in ACADEMY_ASSIGN only"
-        exit 1
-      fi
   script:
     - echo '%% job start evaluate %%'
     - ${ACADEMY} evaluate
@@ -255,9 +267,16 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
+    - if: $ACADEMY_FORCE_JOB == "true"
+      when: always
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
-    - if: '$ACADEMY_EVALUATE == "always"'
+      when: manual
+    - changes:
+      - ACADEMY_ASSIGN
+      when: manual
+    - if: $CI_PIPELINE_IID == "1"
+      when: manual
+    - if: $ACADEMY_EVALUATE == "always"
       when: always
     - when: manual
   allow_failure: true
@@ -273,10 +292,12 @@ meta:
     - *global_init
   script:
     - |
-      echo "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}"
-      # clear dashboard cache
-      curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
-        -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      # clear dashboards cache
+      while read dashboard; do
+        echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}"
+        curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
+          -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
       source "${ACADEMY_DIR}/badges"
@@ -294,7 +315,7 @@ meta:
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - when: always
   artifacts:
     paths:
