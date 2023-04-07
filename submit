@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-set -e
+set -x
 
 git remote set-url origin \
   "https://gitlab-ci-token:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
 
-git pull --all
+git fetch --all
 
 
 
