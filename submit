@@ -12,10 +12,9 @@ declare git_url
 git_url="https://project_${CI_PROJECT_ID}_bot:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
 git remote set-url origin "${git_url}"
 # update current repo
-git fetch --all
-git checkout --track origin/main
-git checkout --track origin/source
-git checkout --track origin/submit
+git fetch origin main:main
+git fetch origin source:source
+git fetch origin submit:submit
 git checkout submit
 # update from source
 git merge --strategy-option theirs source
