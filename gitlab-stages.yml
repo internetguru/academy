@@ -321,3 +321,19 @@ meta:
     paths:
       - .results/
     expire_in: 1 year
+
+submit:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: post-process
+  tags:
+    - docker
+  before_script:
+    - *global_init
+  script:
+    - "${ACADEMY_DIR}/submit"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "submit"
+      when: always
+    - when: never
