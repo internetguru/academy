@@ -62,10 +62,12 @@ init_user_repo() {
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Create assignment"'
   git_push "${user_cache_folder}" '--all'
   git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}"
+  git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}"
   git_push "${user_cache_folder}" '--all'
   remove_protected_branch
   set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  set_protected_branch "${SUBMIT_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
   set_public_pages "${project_id}" >/dev/null
 }
 status_empty () {
@@ -191,6 +193,7 @@ distribute() {
 # global constants
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'
+declare -r SUBMIT_BRANCH='submit'
 declare -r ALWAYS='always'
 declare -r NEVER='never'
 declare -r AUTO='auto'
