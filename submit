@@ -2,5 +2,12 @@
 
 set -e
 
+git remote set-url origin \
+  "https://gitlab-ci-token:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+
+git pull --all
+
+
+
 echo "submitting"...
 
