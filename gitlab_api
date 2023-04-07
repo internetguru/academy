@@ -351,6 +351,10 @@ fork_project() {
   jq . <<< "${output}"
 }
 create_project_submit_token() {
-  set -x
-  gitlab_api "api/v4/projects/${project_id}/access_tokens" "{ \"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40 }"
+  local token
+  local output
+  output="$(gitlab_api "api/v4/projects/${project_id}/access_tokens" "{ \"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40 }")" \
+    || return 1
+  token="$(jq .token <<< "${output}")"
+  gitlab_api "api/v4/projects/${project_id}/variables" "{ \"id\":\"${project_id}\", \"key\":\"ACADEMY_SUBMIT_TOKEN\", \"value\":\"${token}\" }"
 }
