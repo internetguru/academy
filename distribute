@@ -26,6 +26,7 @@ get_cache() {
   [[ "${actual_remote_ns}" != "${user_project_ns}" ]] \
     && exception 'Invalid user project remote origin url'
   git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
+  git_pull "${user_cache_folder}" 'origin' "${SUBMIT_BRANCH}:${SUBMIT_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
 update_links() {
@@ -62,14 +63,19 @@ init_user_repo() {
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Create assignment"'
   git_push "${user_cache_folder}" '--all'
   git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}"
+  git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}"
   git_push "${user_cache_folder}" '--all'
   remove_protected_branch
   set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  set_protected_branch "${SUBMIT_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
   set_public_pages "${project_id}" >/dev/null
+  create_project_submit_token
 }
 status_empty () {
   get_cache
+  validate \
+    || return 1
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
@@ -134,6 +140,26 @@ read_project_info() {
     && issues_src="${ISSUES}" issues_count_src="${ISSUES_COUNT}"
   msg_end
 }
+validate_ci() {
+  local branch="${1}"
+  cmp -s "${WORKING_DIR}/.gitlab-ci.yml" <(git_show "origin/${branch}:.gitlab-ci.yml" "${user_cache_folder}") \
+    || exception "CI validation failed on ${branch}. Use ACADEMY_VALIDATE_CI = false to bypass."
+}
+validate() {
+  # conform branches
+  ! git_remote_branch_exists "${SOURCE_BRANCH}" "${user_cache_folder}" \
+    && git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}" \
+    && git_push "${user_cache_folder}" origin "${SOURCE_BRANCH}"
+  ! git_remote_branch_exists "${SUBMIT_BRANCH}" "${user_cache_folder}" \
+    && git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}" \
+    && git_push "${user_cache_folder}" origin "${SUBMIT_BRANCH}"
+  # check hack
+  [[ "${ACADEMY_VALIDATE_CI}" == 'true' ]] \
+    && validate_ci "${user_default_branch}" \
+    && validate_ci "${SOURCE_BRANCH}" \
+    && validate_ci "${SUBMIT_BRANCH}"
+  return 0
+}
 process_users() {
   declare user_name
   declare user_project_name
@@ -191,6 +217,7 @@ distribute() {
 # global constants
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'
+declare -r SUBMIT_BRANCH='submit'
 declare -r ALWAYS='always'
 declare -r NEVER='never'
 declare -r AUTO='auto'
