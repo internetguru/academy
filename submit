@@ -16,6 +16,7 @@ git fetch --all
 git checkout --track origin/main
 git checkout --track origin/source
 git checkout --track origin/submit
+git checkout submit
 # update from source
 git merge --strategy-option theirs source
 # copy editable files
