@@ -6,9 +6,11 @@ if [[ -z "${ACADEMY_EDITABLE}" ]]; then
 fi
 
 set -x
+
 # set url with token
-git remote set-url origin \
-  "https://ACADEMY_SUBMIT_TOKEN:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+declare git_url
+git_url="https://project_${CI_PROJECT_ID}_bot:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+git remote set-url origin "${git_url}"
 # update current repo
 git fetch --all
 git checkout --track origin/main
@@ -22,4 +24,4 @@ git checkout main -- ${ACADEMY_EDITABLE}
 # push to submit
 git add .
 git commit -am "Sync with source and main"
-git push origin submit
+git push "${git_url}" submit
