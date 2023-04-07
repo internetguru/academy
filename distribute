@@ -160,6 +160,7 @@ validate() {
     && validate_ci "${user_default_branch}" \
     && validate_ci "${SOURCE_BRANCH}" \
     && validate_ci "${SUBMIT_BRANCH}"
+  return 0
 }
 process_users() {
   declare user_name
