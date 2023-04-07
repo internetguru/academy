@@ -77,7 +77,7 @@ init_user_repo() {
 status_empty () {
   get_cache
   validate \
-    || exit 1
+    || return 1
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
