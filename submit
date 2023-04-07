@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 
 set -x
-
+# set url with token
 git remote set-url origin \
   "https://gitlab-ci-token:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-
+# update current repo
 git fetch --all
-
-
-
-echo "submitting"...
-
+git checkout --track origin/master
+git checkout --track origin/source
+git checkout --track origin/submit
+# update from source
+git git merge --strategy-option theirs source
+# copy editable files
+rm ${ACADEMY_EDITABLE}
+git checkout master -- ${ACADEMY_EDITABLE}
+# push to submit
+git add .
+git commit -am "Sync with source and master"
+git push origin submit
