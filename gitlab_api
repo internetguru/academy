@@ -12,6 +12,7 @@ gitlab_api() {
   declare method
   declare req
   declare form=""
+  declare content_type="application/json"
   case "${data}" in
     '-')
       method='DELETE'
@@ -22,7 +23,12 @@ gitlab_api() {
       ;;
     'PUT-FILE:'*)
       method='PUT'
-      declare form="${data#PUT-FILE:}"
+      form="${data#PUT-FILE:}"
+      ;;
+    'POST-FORM:'*)
+      method='POST'
+      content_type="application/x-www-form-urlencoded"
+      data="${data#POST-FORM:}"
       ;;
     '')
       method='GET'
@@ -43,7 +49,7 @@ gitlab_api() {
       if [[ -z "${form}" ]]; then
         declare response="$(curl --silent --write-out '\n%{http_code}\n' \
           --header "Authorization: Bearer ${ACADEMY_GITLAB_ACCESS_TOKEN}" \
-          --header 'Content-Type: application/json' \
+          --header "Content-Type: $content_type" \
           --request "${method}" \
           --data "${data:-{\}}" \
           "https://${GITLAB_URL}/${url}"
@@ -355,6 +361,7 @@ create_project_submit_token() {
   local output
   output="$(gitlab_api "api/v4/projects/${project_id}/access_tokens" "{ \"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40 }")" \
     || return 1
+  set -x
   token="$(jq .token <<< "${output}")"
-  gitlab_api "api/v4/projects/${project_id}/variables" "{ \"id\":\"${project_id}\", \"key\":\"ACADEMY_SUBMIT_TOKEN\", \"value\":\"${token}\" }"
+  gitlab_api "api/v4/projects/${project_id}/variables" "POST-FORM:key=ACADEMY_SUBMIT_TOKEN&value=${token}"
 }
