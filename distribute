@@ -26,6 +26,7 @@ get_cache() {
   [[ "${actual_remote_ns}" != "${user_project_ns}" ]] \
     && exception 'Invalid user project remote origin url'
   git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
+  git_pull "${user_cache_folder}" 'origin' "${SUBMIT_BRANCH}:${SUBMIT_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
 update_links() {
@@ -73,6 +74,8 @@ init_user_repo() {
 }
 status_empty () {
   get_cache
+  validate \
+    || exit 1
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
   git_status_empty "${user_cache_folder}"
@@ -136,6 +139,25 @@ read_project_info() {
   read_issues "${PROJECT_ID}" "${ISSUES_LABEL}" \
     && issues_src="${ISSUES}" issues_count_src="${ISSUES_COUNT}"
   msg_end
+}
+validate_ci() {
+  local branch="${1}"
+  cmp -s "${WORKING_DIR}/.gitlab-ci.yml" <(git_show "${branch}:.gitlab-ci.yml" "${user_cache_folder}") \
+    || exception "CI validation failed on ${branch}. Use ACADEMY_VALIDATE_CI = false to bypass."
+}
+validate() {
+  # conform branches
+  ! git_remote_branch_exists "${SOURCE_BRANCH}" "${user_cache_folder}" \
+    && git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}" \
+    && git_push "${user_cache_folder}" origin "${SOURCE_BRANCH}"
+  ! git_remote_branch_exists "${SUBMIT_BRANCH}" "${user_cache_folder}" \
+    && git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}" \
+    && git_push "${user_cache_folder}" origin "${SUBMIT_BRANCH}"
+  # check hack
+  [[ "${ACADEMY_VALIDATE_CI}" == 'true' ]] \
+    && validate_ci "${user_default_branch}" \
+    && validate_ci "${SOURCE_BRANCH}" \
+    && validate_ci "${SUBMIT_BRANCH}"
 }
 process_users() {
   declare user_name
