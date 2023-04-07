@@ -144,7 +144,7 @@ read_project_info() {
 }
 validate_ci() {
   local branch="${1}"
-  cmp -s "${WORKING_DIR}/.gitlab-ci.yml" <(git_show "${branch}:.gitlab-ci.yml" "${user_cache_folder}") \
+  cmp -s "${WORKING_DIR}/.gitlab-ci.yml" <(git_show "origin/${branch}:.gitlab-ci.yml" "${user_cache_folder}") \
     || exception "CI validation failed on ${branch}. Use ACADEMY_VALIDATE_CI = false to bypass."
 }
 validate() {
