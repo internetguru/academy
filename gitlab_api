@@ -351,5 +351,5 @@ fork_project() {
   jq . <<< "${output}"
 }
 create_project_submit_token() {
-  gitlab_api "api/v4/projects/${project_id}" "POST:\"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40"
+  gitlab_api "api/v4/projects/${project_id}" "\"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40"
 }
