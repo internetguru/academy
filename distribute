@@ -69,6 +69,7 @@ init_user_repo() {
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
   set_protected_branch "${SUBMIT_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
   set_public_pages "${project_id}" >/dev/null
+  create_project_submit_token
 }
 status_empty () {
   get_cache
