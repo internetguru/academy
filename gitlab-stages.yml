@@ -334,6 +334,6 @@ submit:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
-    - if: $CI_COMMIT_BRANCH == "submit"
+    - if: $CI_COMMIT_BRANCH == "source"
       when: always
     - when: never
