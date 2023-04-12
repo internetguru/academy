@@ -17,7 +17,6 @@ variables:
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
-  ACADEMY_VALIDATE_CI: "true"
 
 cache:
   - key: academy-cache
@@ -172,6 +171,7 @@ distribute:
             # checkout to starting branch
             git checkout ${CI_COMMIT_REF_NAME}
             # distribute changes from ref starting branch to users from $group submit-repository@source
+            # TODO update main branch of each distributted repository from standard repository (iff exists?)
             ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
               --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
               <<< "${users}"

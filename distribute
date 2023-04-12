@@ -143,7 +143,7 @@ read_project_info() {
 validate_ci() {
   local branch="${1}"
   cmp -s "${WORKING_DIR}/.gitlab-ci.yml" <(git_show "origin/${branch}:.gitlab-ci.yml" "${user_cache_folder}") \
-    || exception "CI validation failed on ${branch}. Use ACADEMY_VALIDATE_CI = false to bypass."
+    || echo "[WARNING] CI validation failed on ${branch}." >&2
 }
 validate() {
   # conform branches
@@ -153,12 +153,10 @@ validate() {
   ! git_remote_branch_exists "${SUBMIT_BRANCH}" "${user_cache_folder}" \
     && git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}" \
     && git_push "${user_cache_folder}" origin "${SUBMIT_BRANCH}"
-  # check hack
-  [[ "${ACADEMY_VALIDATE_CI}" == 'true' ]] \
-    && validate_ci "${user_default_branch}" \
-    && validate_ci "${SOURCE_BRANCH}" \
-    && validate_ci "${SUBMIT_BRANCH}"
-  return 0
+  # check ci hack
+  validate_ci "${user_default_branch}"
+  validate_ci "${SOURCE_BRANCH}"
+  validate_ci "${SUBMIT_BRANCH}"
 }
 process_users() {
   declare user_name
