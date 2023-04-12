@@ -94,7 +94,7 @@ cache:
     else
       users="${GITLAB_USER_NAME}"
     fi
-    return "$(tr ',' ' ' <<< "${users}")"
+    tr ',' ' ' <<< "${users}"
   }
 
 collect:
