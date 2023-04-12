@@ -164,14 +164,13 @@ distribute:
     - |
         declare users
         if [[ -n ${ACADEMY_GROUP} ]]; then
-          git fetch --all
           while read group; do
             # get users from $group
-            git checkout origin/${group}
+            git fetch origin ${group}:${group}
             users="$(get_users)"
             git reset --hard
             # checkout to starting branch
-            git checkout origin/${CI_COMMIT_REF_NAME}
+            git checkout ${CI_COMMIT_REF_NAME}
             # distribute changes from ref starting branch to users from $group submit-repository@source
             ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
               --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
