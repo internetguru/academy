@@ -164,6 +164,7 @@ distribute:
     - |
         declare users
         if [[ -n ${ACADEMY_GROUP} ]]; then
+          git fetch --all
           while read group; do
             # get users from $group
             git checkout origin/${group}
