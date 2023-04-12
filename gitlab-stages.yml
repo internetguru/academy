@@ -186,10 +186,7 @@ distribute:
   rules:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
-    - exists:
-      - "ACADEMY_ASSIGN"
-      when: manual
-    - when: never
+    - when: manual
   allow_failure: true
 
 measure:
