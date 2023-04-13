@@ -162,19 +162,22 @@ distribute:
     # distribute current project among all users
     - |
         declare users
+        declare user_tmp
         if [[ -n ${ACADEMY_GROUP} ]]; then
           while read group; do
             # get users from $group
             git fetch origin ${group}:${group}
+            git checkout ${group}
             users="$(get_users)"
-            git reset --hard
             # checkout to starting branch
             git checkout ${CI_COMMIT_REF_NAME}
-            # distribute changes from ref starting branch to users from $group submit-repository@source
-            # TODO update main branch of each distributted repository from standard repository (iff exists?)
+            # TODO implement --default-branch-dir
             ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-              --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+              --default-branch-namespace "${namespace}/${group}" --member-role 0 --assign 'never'
               <<< "${users}"
+            # # clone user repo to user_tmp
+            # user_tmp=$(mktemp -d)
+            # git clone "$(get_remote_url "${namespace}/${group}/${user}")" "${user_tmp}"
           done <<< "${ACADEMY_GROUP}"
           # TODO remove other existing repositories
         else

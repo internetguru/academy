@@ -135,10 +135,10 @@ create_request() {
     \"remove_source_branch\":\"false\", \"title\":\"Update from ${SOURCE_BRANCH} branch\"}" >/dev/null
 }
 create_user_project() {
-  declare visibility='public'
+  declare visibility='private'
   # shellcheck disable=SC2154
-  [[ -n "${user_id}" ]] \
-    && visibility='private'
+  [[ -z "${user_id}" && MEMBER_ROLE > 0 ]] \
+    && visibility='public'
   # shellcheck disable=SC2154
   # shellcheck disable=SC2153
   gitlab_api 'api/v4/projects' \

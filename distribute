@@ -50,7 +50,8 @@ init_user_repo() {
     || exit 1
   project_id="$(create_user_project)" \
     || exit 1
-  add_developer
+  [[ $MEMBER_ROLE > 0 ]]
+    && add_member
   copy_issues
   init_cache
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Initial commit"'
@@ -233,6 +234,8 @@ declare PREFIX=''
 declare GROUP_ID=''
 declare PROJECT_LINK=''
 declare PROJECT_ID=''
+declare -i MEMBER_ROLE=$DEV_ACCESS_LEVEL
+declare DEFAULT_BRANCH_NAMESPACE=''
 # shellcheck disable=SC2034
 declare PROJECT_NAME=''
 declare PROJECT_BRANCH=''
@@ -245,8 +248,8 @@ declare ACADEMY_GITLAB_ACCESS_TOKEN
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:hi:lno:p:s:' \
-  --longoptions 'assign:,help,process-issues:,update-links,dry-run,output-dir:,prefix:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'a:d:hi:lno:p:s:r:' \
+  --longoptions 'assign:,help,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -258,6 +261,10 @@ while (( $# > 0 )); do
       ASSIGN="${2}"
       [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
         || exception 'Invalid option ASSIGN value'
+      shift 2
+      ;;
+    -d|--default-branch-namespace)
+      DEFAULT_BRANCH_NAMESPACE="${2}"
       shift 2
       ;;
     -h|--help)
@@ -284,6 +291,10 @@ while (( $# > 0 )); do
       PREFIX="${2}"
       [[ "${PREFIX}" =~ ^[a-z0-9]+([a-z0-9._-]+)*$ ]] \
         || exception 'Unsupported PREFIX value' 2
+      shift 2
+      ;;
+    -r|--member-role)
+      MEMBER_ROLE="${2}"
       shift 2
       ;;
     -s|--namespace)
