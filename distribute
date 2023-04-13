@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 ## functions
 get_cache_folder() {
   printf -- "%s/%s" "${CACHE_FOLDER}" "${user_project_ns}"
