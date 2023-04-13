@@ -50,7 +50,7 @@ init_user_repo() {
     || exit 1
   project_id="$(create_user_project)" \
     || exit 1
-  [[ $MEMBER_ROLE > 0 ]]
+  [[ $MEMBER_ROLE > 0 ]] \
     && add_member
   copy_issues
   init_cache
