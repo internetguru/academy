@@ -137,7 +137,7 @@ create_request() {
 create_user_project() {
   declare visibility='private'
   # shellcheck disable=SC2154
-  [[ -z "${user_id}" && MEMBER_ROLE > 0 ]] \
+  [[ -z "${user_id}" && ${MEMBER_ROLE} > 0 ]] \
     && visibility='public'
   # shellcheck disable=SC2154
   # shellcheck disable=SC2153
