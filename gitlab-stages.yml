@@ -167,14 +167,13 @@ distribute:
           git fetch --all
           while read group; do
             # get users from $group
-            set -x
             git checkout ${group}
             users="$(get_users)"
             # checkout to starting branch
             git checkout ${CI_COMMIT_REF_NAME}
             # TODO implement --default-branch-dir
             ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-              --default-branch-namespace "${namespace}/${group}" --member-role 0 --assign 'never'
+              --default-branch-namespace "${namespace}/${group}" --member-role 0 --assign 'never' \
               <<< "${users}"
             # # clone user repo to user_tmp
             # user_tmp=$(mktemp -d)
