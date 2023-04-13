@@ -164,9 +164,9 @@ distribute:
         declare users
         declare user_tmp
         if [[ -n ${ACADEMY_GROUP} ]]; then
+          git fetch --all
           while read group; do
             # get users from $group
-            git fetch origin ${group}:${group}
             git checkout ${group}
             users="$(get_users)"
             # checkout to starting branch
