@@ -167,6 +167,7 @@ distribute:
           git fetch --all
           while read group; do
             # get users from $group
+            set -x
             git checkout ${group}
             users="$(get_users)"
             # checkout to starting branch
