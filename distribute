@@ -158,6 +158,9 @@ validate() {
     && git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}" \
     && git_push "${user_cache_folder}" origin "${SUBMIT_BRANCH}"
   # check ci hack
+  # do not validate for DEFAULT_BRANCH_NAMESPACE
+  [[ -n "${DEFAULT_BRANCH_NAMESPACE}" ]] \
+    && return
   validate_ci "${user_default_branch}"
   validate_ci "${SOURCE_BRANCH}"
   validate_ci "${SUBMIT_BRANCH}"
