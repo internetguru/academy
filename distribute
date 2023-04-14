@@ -12,7 +12,7 @@ init_cache() {
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
-  rsync -a --delete --exclude .git/ "${WORKING_DIR}/" "${user_cache_folder}" \
+  rsync -a --delete --exclude .git/ "${1:-WORKING_DIR}/" "${user_cache_folder}" \
     || exception "Unable to rsync files"
   [[ "${UPDATE_LINKS}" == 'true' ]] \
     && update_links
@@ -31,6 +31,7 @@ get_cache() {
   git_pull "${user_cache_folder}" 'origin' "${SUBMIT_BRANCH}:${SUBMIT_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
+# TODO
 update_links() {
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
   sed -i "s~${PROJECT_LINK}~${user_project_ns}~g" "${user_readme_path}"
@@ -52,7 +53,7 @@ init_user_repo() {
     || exit 1
   project_id="$(create_user_project)" \
     || exit 1
-  [[ $MEMBER_ROLE > 0 ]] \
+  [[ $MEMBER_ROLE -gt 0 ]] \
     && add_member
   copy_issues
   init_cache
@@ -161,6 +162,27 @@ validate() {
   validate_ci "${SOURCE_BRANCH}"
   validate_ci "${SUBMIT_BRANCH}"
 }
+update_default_branch() {
+  [[ -z "${DEFAULT_BRANCH_NAMESPACE}" ]] \
+    && return
+  declare source_cache_folder
+  declare user_cache_folder
+  declare user_project_name
+  declare user_project_ns
+  declare user_default_branch
+  declare PROJECT_LINK
+  source_cache_folder="${1}"
+  user_project_name="${PREFIX}${user_name}"
+  user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
+  user_cache_folder="$(get_cache_folder)"
+  user_default_branch="$(get_default_branch)"
+  get_cache
+  git_checkout "${user_cache_folder}" "-B${user_default_branch}"
+  sync_cache "${source_cache_folder}"
+  git_add_all "${user_cache_folder}"
+  git_commit "${user_cache_folder}" '--allow-empty' '-m "Update from user repo"'
+  git_push "${user_cache_folder}" '--all'
+}
 process_users() {
   declare user_name
   declare user_project_name
@@ -187,8 +209,11 @@ process_users() {
     user_cache_folder="$(get_cache_folder)"
     ! project_exists \
       && init_user_repo \
+      && update_default_branch "${user_cache_folder}" \
       && msg_end CREATED \
       && continue
+    update_default_branch "${user_cache_folder}" \
+      || exit 1
     user_default_branch="$(get_default_branch)" \
       || exit 1
     status_empty \
