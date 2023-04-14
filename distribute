@@ -12,7 +12,7 @@ init_cache() {
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
-  rsync -a --delete --exclude .git/ "${1:-${WORKING_DIR}}/" "${user_cache_folder}" \
+  rsync -a --delete --exclude .git/ "${1:-${WORKING_DIR}}/" "${2:-${user_cache_folder}}" \
     || exception "Unable to rsync files"
   [[ "${UPDATE_LINKS}" == 'true' ]] \
     && update_links
@@ -168,13 +168,13 @@ validate() {
 update_default_branch() {
   [[ -z "${DEFAULT_BRANCH_NAMESPACE}" ]] \
     && return
-  declare source_cache_folder
+  declare dest_cache_folder
   declare user_cache_folder
   declare user_project_name
   declare user_project_ns
   declare user_default_branch
   declare PROJECT_LINK
-  source_cache_folder="${1}"
+  dest_cache_folder="${1}"
   user_project_name="${PREFIX}${user_name}"
   user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
   user_cache_folder="$(get_cache_folder)"
@@ -182,10 +182,10 @@ update_default_branch() {
   get_cache
   validate
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
-  sync_cache "${source_cache_folder}"
-  git_add_all "${user_cache_folder}"
-  git_commit "${user_cache_folder}" '--allow-empty' '-m "Update from user repo"'
-  git_push "${user_cache_folder}" '--all'
+  sync_cache "${user_cache_folder}" "${dest_cache_folder}"
+  git_add_all "${dest_cache_folder}"
+  git_commit "${dest_cache_folder}" '--allow-empty' '-m "Update from user repo"'
+  git_push "${dest_cache_folder}" '--all'
 }
 process_users() {
   declare user_name
