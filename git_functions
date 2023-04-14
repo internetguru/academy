@@ -15,7 +15,7 @@ git_show() {
   git -C "${git_dir}" show "${gitfile}"
 }
 git_remote_branch_exists() {
-  declare -r branch="${1}"
+  declare -r git_branch="${1}"
   declare -r git_dir="${2:-.}"
   git -C "${git_dir}" branch -r | grep -qF "origin/${git_branch}"
 }
