@@ -177,6 +177,7 @@ update_default_branch() {
   user_cache_folder="$(get_cache_folder)"
   user_default_branch="$(get_default_branch)"
   get_cache
+  validate
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
   sync_cache "${source_cache_folder}"
   git_add_all "${user_cache_folder}"
