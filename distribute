@@ -168,6 +168,7 @@ validate() {
 update_default_branch() {
   [[ -z "${DEFAULT_BRANCH_NAMESPACE}" ]] \
     && return
+  declare dest_default_branch="${user_default_branch}"
   declare dest_cache_folder
   declare user_cache_folder
   declare user_project_name
@@ -182,6 +183,7 @@ update_default_branch() {
   get_cache
   validate
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
+  git_checkout "${dest_cache_folder}" "-B${dest_default_branch}"
   sync_cache "${user_cache_folder}" "${dest_cache_folder}"
   git_add_all "${dest_cache_folder}"
   git_commit "${dest_cache_folder}" '--allow-empty' '-m "Update from user repo"'
