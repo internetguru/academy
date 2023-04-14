@@ -168,13 +168,14 @@ validate() {
 update_default_branch() {
   [[ -z "${DEFAULT_BRANCH_NAMESPACE}" ]] \
     && return
-  declare dest_default_branch="${user_default_branch}"
+  declare dest_default_branch
   declare dest_cache_folder
   declare user_cache_folder
   declare user_project_name
   declare user_project_ns
   declare user_default_branch
   declare PROJECT_LINK
+  dest_default_branch="$(get_default_branch)"
   dest_cache_folder="${1}"
   user_project_name="${PREFIX}${user_name}"
   user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
