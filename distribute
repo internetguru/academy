@@ -12,10 +12,8 @@ init_cache() {
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
-  rsync -a --delete --exclude .git/ "${1:-${WORKING_DIR}}/" "${2:-${user_cache_folder}}" \
+  rsync -a --delete --exclude .git/ "${3:-}" "${1:-${WORKING_DIR}}/" "${2:-${user_cache_folder}}" \
     || exception "Unable to rsync files"
-  [[ "${UPDATE_LINKS}" == 'true' ]] \
-    && update_links
 }
 get_cache() {
   [[ ! -d "${user_cache_folder}" ]] \
@@ -33,6 +31,13 @@ get_cache() {
 }
 # TODO
 update_links() {
+  local user_cache_folder="${1:-${user_cache_folder}}"
+  local PROJECT_LINK="${2:-${PROJECT_LINK}}"
+  local user_project_ns="${3:-${user_project_ns}}"
+  local PROJECT_BRANCH="${4:-${PROJECT_BRANCH}}"
+  local user_default_branch="${5:-${user_default_branch}}"
+  [[ "${UPDATE_LINKS}" != 'true' ]] \
+    && return
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
   sed -i "s~${PROJECT_LINK}~${user_project_ns}~g" "${user_readme_path}"
   sed -i "s~/${PROJECT_BRANCH}/\(pipeline\|raw\|file\)~/${user_default_branch}/\1~g" "${user_readme_path}"
@@ -63,6 +68,7 @@ init_user_repo() {
   user_default_branch="$(get_default_branch)" \
     || exit 1
   sync_cache
+  update_links
   git_add_all "${user_cache_folder}"
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Create assignment"'
   git_push "${user_cache_folder}" '--all'
@@ -82,6 +88,7 @@ status_empty () {
     || return 1
   git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
   sync_cache
+  update_links
   git_status_empty "${user_cache_folder}"
 }
 update_user_repo() {
@@ -158,9 +165,6 @@ validate() {
     && git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}" \
     && git_push "${user_cache_folder}" origin "${SUBMIT_BRANCH}"
   # check ci hack
-  # do not validate for DEFAULT_BRANCH_NAMESPACE
-  [[ -n "${DEFAULT_BRANCH_NAMESPACE}" ]] \
-    && return
   validate_ci "${user_default_branch}"
   validate_ci "${SOURCE_BRANCH}"
   validate_ci "${SUBMIT_BRANCH}"
@@ -175,17 +179,23 @@ update_default_branch() {
   declare user_project_name
   declare user_project_ns
   declare user_default_branch
-  declare PROJECT_LINK
   dest_cache_folder="${1}"
   user_project_name="${PREFIX}${user_name}"
   user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
   user_cache_folder="$(get_cache_folder)"
   user_default_branch="$(get_default_branch)"
   get_cache
-  validate
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
   git_checkout "${dest_cache_folder}" "-B${dest_default_branch}"
-  sync_cache "${user_cache_folder}" "${dest_cache_folder}"
+  sync_cache "${user_cache_folder}" "${dest_cache_folder}" --exclude=.gitlab-ci.yml
+  # TODO params
+  # TODO rewrite links on all branches
+  # user_cache_folder ~ dest
+  # PROJECT_LINK ~ src
+  # user_project_ns ~ dest
+  # PROJECT_BRANCH ~ src
+  # user_default_branch ~ dest
+  update_links
   git_add_all "${dest_cache_folder}"
   git_commit "${dest_cache_folder}" '--allow-empty' '-m "Update from user repo"'
   git_push "${dest_cache_folder}" '--all'
