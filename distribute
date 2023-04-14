@@ -191,6 +191,7 @@ process_users() {
   declare user_default_branch
   declare -i valid=0
   declare -i invalid=0
+  declare status_empty_code
   [[ -z "${CACHE_FOLDER}" ]] \
     && CACHE_FOLDER="$(mktemp -d)"
   # shellcheck disable=SC2013
@@ -212,11 +213,13 @@ process_users() {
       && update_default_branch "${user_cache_folder}" \
       && msg_end CREATED \
       && continue
-    update_default_branch "${user_cache_folder}" \
-      || exit 1
     user_default_branch="$(get_default_branch)" \
       || exit 1
-    status_empty \
+    status_empty
+    status_empty_code=$?
+    update_default_branch "${user_cache_folder}" \
+      || exit 1
+    [[ "$status_empty_code" == 0 ]] \
       && msg_end PASSED \
       && continue
     update_user_repo \
