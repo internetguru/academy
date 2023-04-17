@@ -17,7 +17,6 @@ variables:
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
-  ACADEMY_VALIDATE_CI: "true"
 
 cache:
   - key: academy-cache
@@ -58,7 +57,7 @@ cache:
   # simplify project remote url
   if [[ -d .git ]]; then
     git remote set-url --push origin "${namespace}/${project_name}.git"
-   fi
+  fi
   # set permissions
   declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
@@ -73,27 +72,29 @@ cache:
   fi
 
 .get_users: &get_users |
-  # do not distribute ACADEMY_ASSIGN file
-  if [[ -f "ACADEMY_ASSIGN" ]]; then
-    mv "ACADEMY_ASSIGN" ..
-    # commit move to keep git status empty (do not push)
-    git commit -m "move users file" -- "ACADEMY_ASSIGN"
-  fi
-  # do not distribute ACADEMY_ALLOW file
-  if [[ -f "ACADEMY_ALLOW" ]]; then
-    mv "ACADEMY_ALLOW" ..
-    # commit move to keep git status empty (do not push)
-    git commit -m "move allow file" -- "ACADEMY_ALLOW"
-  fi
-  declare users
-  if [[ -n "${ACADEMY_ASSIGN}" ]]; then
-    users="${ACADEMY_ASSIGN}"
-  elif [[ -f '../ACADEMY_ASSIGN' ]]; then
-    users="$(<../ACADEMY_ASSIGN)"
-  else
-    users="${GITLAB_USER_NAME}"
-  fi
-  users="$(tr ',' ' ' <<< "${users}")"
+  get_users() {
+    # do not distribute ACADEMY_ASSIGN file
+    if [[ -f "ACADEMY_ASSIGN" ]]; then
+      mv "ACADEMY_ASSIGN" ..
+      # commit move to keep git status empty (do not push)
+      git commit --quiet -m "move users file" -- "ACADEMY_ASSIGN"
+    fi
+    # do not distribute ACADEMY_ALLOW file
+    if [[ -f "ACADEMY_ALLOW" ]]; then
+      mv "ACADEMY_ALLOW" ..
+      # commit move to keep git status empty (do not push)
+      git commit --quiet -m "move allow file" -- "ACADEMY_ALLOW"
+    fi
+    declare users
+    if [[ -n "${ACADEMY_ASSIGN}" ]]; then
+      users="${ACADEMY_ASSIGN}"
+    elif [[ -f '../ACADEMY_ASSIGN' ]]; then
+      users="$(<../ACADEMY_ASSIGN)"
+    else
+      users="${GITLAB_USER_NAME}"
+    fi
+    tr ',' ' ' <<< "${users}"
+  }
 
 collect:
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
@@ -116,6 +117,7 @@ collect:
     # run collect for given or all branches
     - mkdir -p '.collect'
     - *get_users
+    - declare users="$(get_users)"
     - |
         ${ACADEMY} collect \
         --namespace "${user_namespace}" \
@@ -159,16 +161,32 @@ distribute:
     - *get_users
     # distribute current project among all users
     - |
-        ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-        <<< "${users}"
+        declare users
+        declare user_tmp
+        if [[ -n ${ACADEMY_GROUP} ]]; then
+          git fetch --all
+          while read group; do
+            # get users from $group
+            git checkout ${group}
+            users="$(get_users)"
+            # checkout to starting branch
+            git checkout ${CI_COMMIT_REF_NAME}
+            echo "Distributing for ${group}"
+            ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
+              --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
+              <<< "${users}"
+          done <<< "${ACADEMY_GROUP}"
+          # TODO remove other existing repositories
+        else
+          users="$(get_users)"
+          ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
+            --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+            <<< "${users}"
+        fi
   rules:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
-    - exists:
-      - "ACADEMY_ASSIGN"
-      when: manual
-    - when: never
+    - when: manual
   allow_failure: true
 
 measure:
@@ -203,6 +221,7 @@ measure:
         git --work-tree="${measure_output}" checkout -f "origin/${ACADEMY_SOLUTION}" -- .
     # run measure for given or all branches
     - *get_users
+    - declare users="$(get_users)"
     - |
       ${ACADEMY} measure --output-dir "${measure_output}" \
       --namespace "${user_namespace}"
