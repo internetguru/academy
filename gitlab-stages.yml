@@ -77,13 +77,13 @@ cache:
     if [[ -f "ACADEMY_ASSIGN" ]]; then
       mv "ACADEMY_ASSIGN" ..
       # commit move to keep git status empty (do not push)
-      git commit -m "move users file" -- "ACADEMY_ASSIGN"
+      git commit --quiet -m "move users file" -- "ACADEMY_ASSIGN"
     fi
     # do not distribute ACADEMY_ALLOW file
     if [[ -f "ACADEMY_ALLOW" ]]; then
       mv "ACADEMY_ALLOW" ..
       # commit move to keep git status empty (do not push)
-      git commit -m "move allow file" -- "ACADEMY_ALLOW"
+      git commit --quiet -m "move allow file" -- "ACADEMY_ALLOW"
     fi
     declare users
     if [[ -n "${ACADEMY_ASSIGN}" ]]; then
