@@ -173,7 +173,9 @@ update_default_branch() {
   [[ -z "${DEFAULT_BRANCH_NAMESPACE}" ]] \
     && return
   declare dest_default_branch
+  declare dest_project_ns
   dest_default_branch="$(get_default_branch)"
+  dest_project_ns="${user_project_ns}"
   declare dest_cache_folder
   declare user_cache_folder
   declare user_project_name
@@ -188,14 +190,13 @@ update_default_branch() {
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
   git_checkout "${dest_cache_folder}" "-B${dest_default_branch}"
   sync_cache "${user_cache_folder}" "${dest_cache_folder}" --exclude=.gitlab-ci.yml
-  # TODO params
-  # TODO rewrite links on all branches
   # user_cache_folder ~ dest
   # PROJECT_LINK ~ src
   # user_project_ns ~ dest
   # PROJECT_BRANCH ~ src
   # user_default_branch ~ dest
-  update_links
+  update_links "${dest_cache_folder}" "$(get_remote_namespace "${user_cache_folder}")" \
+    "${dest_project_ns}" "${user_default_branch}" "${dest_default_branch}"
   git_add_all "${dest_cache_folder}"
   git_commit "${dest_cache_folder}" '--allow-empty' '-m "Update from user repo"'
   git_push "${dest_cache_folder}" '--all'
