@@ -171,6 +171,7 @@ distribute:
             users="$(get_users)"
             # checkout to starting branch
             git checkout ${CI_COMMIT_REF_NAME}
+            echo "Distributing for ${group}"
             ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
               --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
               <<< "${users}"
