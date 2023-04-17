@@ -185,7 +185,8 @@ update_default_branch() {
   user_project_name="${PREFIX}${user_name}"
   user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
   user_cache_folder="$(get_cache_folder)"
-  user_default_branch="$(get_default_branch)"
+  user_default_branch="$(get_default_branch)" \
+    || return 1
   get_cache
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
   git_checkout "${dest_cache_folder}" "-B${dest_default_branch}"
@@ -226,17 +227,18 @@ process_users() {
       && msg_end SKIPPED \
       && continue
     user_cache_folder="$(get_cache_folder)"
-    ! project_exists \
-      && init_user_repo \
-      && update_default_branch "${user_cache_folder}" \
-      && msg_end CREATED \
-      && continue
+    if ! project_exists; then
+      init_user_repo \
+        && update_default_branch "${user_cache_folder}" \
+        && msg_end CREATED
+      continue
+    fi
     user_default_branch="$(get_default_branch)" \
       || exit 1
     status_empty
     status_empty_code=$?
     update_default_branch "${user_cache_folder}" \
-      || exit 1
+      || continue
     [[ "$status_empty_code" == 0 ]] \
       && msg_end PASSED \
       && continue
