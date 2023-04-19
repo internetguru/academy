@@ -42,8 +42,11 @@ url_encode() {
 # generate badge
 badge_generate() {
   # required
-  local label="${1}"
-  local value="${2}"
+  local label="${1:-}"
+  local value="${2:-}"
+  [[ -z "${label}" || -z "${value}" ]] \
+    && echo 'Missing badge label or value' >&2 \
+    && return 2
   # optional
   local color="${3:-}"
   local file_name="${4:-}"
@@ -51,17 +54,16 @@ badge_generate() {
   local title="${6:-}"
   # auto color
   [[ -z "${color}" ]] \
-    && case "${2}" in
+    && case "${value}" in
       n/a) color="${DEFAULT_COLOR}" ;;
-      */*) color="$(fraction_to_color "${2}")" ;;
-      *%) color="$(percent_to_color "${2%\%}")" ;;
+      */*) color="$(fraction_to_color "${value}")" ;;
+      *%) color="$(percent_to_color "${value%\%}")" ;;
       *) color="${DEFAULT_COLOR}"
     esac
   # default badge name is "badge-[ci job name]-[normalized label]"
   # normalized label: spaces to dashes, to lowercase
   [[ -z "${file_name}" ]] \
-    && file_name="${label}" \
-    && file_name="${file_name// /-}" \
+    && file_name="${label// /-}" \
     && file_name="badge-${CI_JOB_NAME:-local}-${file_name,,}"
   # generate shileds.io badge
   WORKING_DIR="${WORKING_DIR:-.}"
