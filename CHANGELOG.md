@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Extened badge_generate function adding file, link and title params
+
 ## [0.4.0] - 2023-03-05
 ### Added
  - Change default prefix to project_name+ instead of project_name-
