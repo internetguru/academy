@@ -56,8 +56,7 @@ init_user_repo() {
     || exit 1
   project_id="$(create_user_project)" \
     || exit 1
-  [[ $MEMBER_ROLE -gt 0 ]] \
-    && add_member
+  add_member
   copy_issues
   init_cache
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Initial commit"'

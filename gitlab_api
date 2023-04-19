@@ -148,15 +148,17 @@ create_user_project() {
 get_role() {
   gitlab_api "api/v4/projects/${project_id}/members/all/${user_id}" | jq -r '.access_level'
 }
-add_developer() {
+add_member() {
   [[ -z "${user_id}" ]] \
+    && return
+  (( MEMBER_ROLE == 0 )) \
     && return
   # shellcheck disable=SC2155
   declare -ir role="$(get_role 2>/dev/null)"
-  (( role >= DEV_ACCESS_LEVEL )) \
+  (( role >= MEMBER_ROLE )) \
     && return
   gitlab_api "api/v4/projects/${project_id}/members" \
-    "{\"access_level\":\"${DEV_ACCESS_LEVEL}\", \"user_id\":\"${user_id}\"}" >/dev/null
+    "{\"access_level\":\"${MEMBER_ROLE}\", \"user_id\":\"${user_id}\"}" >/dev/null
 }
 remove_protected_branch() {
   gitlab_api "api/v4/projects/${project_id}/protected_branches/${user_default_branch}" '-' >/dev/null
