@@ -41,21 +41,39 @@ url_encode() {
 
 # generate badge
 badge_generate() {
-  local badge_name="${1}"
-  local ci_job="${CI_JOB_NAME:-local}"
-  local badge_file="${badge_name// /-}"
-  badge_file="${RESULTS:-${WORKING_DIR}/.results}/badge-${ci_job}-${badge_file,,}.svg"
-  local badge_label
-  badge_label="$( url_encode "${badge_name}" )"
-  local badge_value
-  badge_value="$( url_encode "${2}" )"
-  local badge_color="${3}"
-  [[ -z "${badge_color}" ]] \
+  # required
+  local label="${1}"
+  local value="${2}"
+  # optional
+  local color="${3:-}"
+  local file_name="${4:-}"
+  local link="${5:-}"
+  local title="${6:-}"
+  # auto color
+  [[ -z "${color}" ]] \
     && case "${2}" in
-      n/a) badge_color="${DEFAULT_COLOR}";;
-      */*) badge_color="$( fraction_to_color "${2}" )";;
-      *%) badge_color="$( percent_to_color "${2%\%}" )";;
-      *) badge_color="${DEFAULT_COLOR}"
+      n/a) color="${DEFAULT_COLOR}" ;;
+      */*) color="$(fraction_to_color "${2}")" ;;
+      *%) color="$(percent_to_color "${2%\%}")" ;;
+      *) color="${DEFAULT_COLOR}"
     esac
-  curl -so "${badge_file}" "${SHIELDS}?label=${badge_label}&message=${badge_value}&color=${badge_color}"
+  # default badge name is "badge-[ci job name]-[normalized label]"
+  # normalized label: spaces to dashes, to lowercase
+  [[ -z "${file_name}" ]] \
+    && file_name="${label}" \
+    && file_name="${file_name// /-}" \
+    && file_name="badge-${CI_JOB_NAME:-local}-${file_name,,}"
+  # generate shileds.io badge
+  WORKING_DIR="${WORKING_DIR:-.}"
+  local dest="${RESULTS:-${WORKING_DIR}/.results}/${file_name}.svg"
+  curl -so "${dest}" "${SHIELDS}?label=$(url_encode "${label}")&message=$(url_encode "${value}")&color=${color}"
+  # always add link element with or without href
+  # always cause of title not working only in svg, it needs to be in some element like <a>
+  [[ -n "${link}" ]] \
+    && link="href=\"${link}\""
+  sed -Ei "s~(<svg[^>]+>)(.*)(</svg>)~\1<a ${link}>\2</a>\3~" "${dest}"
+  # update title
+  [[ -n "${title}" ]] \
+    && sed -Ei "s~<title>.*</title>~<title>${title}</title>~" "${dest}"
+  return
 }
