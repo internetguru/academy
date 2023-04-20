@@ -326,12 +326,11 @@ meta:
       badge_generate 'Updates' 'unknown'
       badge_generate 'Status' 'unknown'
     - |
-      for badge in .results/badge-*.svg; do
-        [[ "${badge}" =~ ".results/badge-"([^-]+)-(.*)".svg" ]]
-        job="${BASH_REMATCH[1]}"
-        badge_name="${BASH_REMATCH[2]}"
-        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=%s)\n' \
-          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}" "${job}"
+      for badge in .results/*.svg; do
+        [[ "${badge}" =~ ".results/(.*)".svg" ]]
+        badge_name="${BASH_REMATCH[1]}"
+        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
+          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
