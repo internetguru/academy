@@ -315,7 +315,7 @@ meta:
       # clear dashboards cache
       while read dashboard; do
         echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}"
-        curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
+        curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=CI_COMMIT_REF_NAME" \
           -I -H "Cache-Control: no-cache" -H "Accept: application/json"
       done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
