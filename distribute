@@ -97,6 +97,7 @@ update_user_repo() {
     || exit 1
   request_exists \
     || create_request
+  add_member
   copy_issues
   set_public_pages "${project_id}" >/dev/null
 }

@@ -148,6 +148,9 @@ create_user_project() {
 get_role() {
   gitlab_api "api/v4/projects/${project_id}/members/all/${user_id}" | jq -r '.access_level'
 }
+is_member() {
+  "$(gitlab_api "api/v4/projects/${project_id}/members/${user_id}")"
+}
 add_member() {
   [[ -z "${user_id}" ]] \
     && return
@@ -156,6 +159,8 @@ add_member() {
   # shellcheck disable=SC2155
   declare -ir role="$(get_role 2>/dev/null)"
   (( role >= MEMBER_ROLE )) \
+    && return
+  is_member \
     && return
   gitlab_api "api/v4/projects/${project_id}/members" \
     "{\"access_level\":\"${MEMBER_ROLE}\", \"user_id\":\"${user_id}\"}" >/dev/null
