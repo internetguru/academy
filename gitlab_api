@@ -149,7 +149,7 @@ get_role() {
   gitlab_api "api/v4/projects/${project_id}/members/all/${user_id}" | jq -r '.access_level'
 }
 is_member() {
-  "$(gitlab_api "api/v4/projects/${project_id}/members/${user_id}" 2>/dev/null >/dev/null)"
+  gitlab_api "api/v4/projects/${project_id}/members/${user_id}" 2>/dev/null >/dev/null
 }
 add_member() {
   [[ -z "${user_id}" ]] \
