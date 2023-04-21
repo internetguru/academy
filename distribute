@@ -93,12 +93,8 @@ update_user_repo() {
   git_commit "${user_cache_folder}" '-m "Update assignment"'
   git_push "${user_cache_folder}" '--all'
   declare project_id
-  project_id="$(get_project_id "${user_project_ns}")" \
-    || exit 1
   request_exists \
     || create_request
-  user_id="$(get_user_id)"
-  add_member
   copy_issues
   set_public_pages "${project_id}" >/dev/null
 }
@@ -238,6 +234,10 @@ process_users() {
     status_empty_code=$?
     update_default_branch "${user_cache_folder}" \
       || continue
+    project_id="$(get_project_id "${user_project_ns}")" \
+      || continue
+    user_id="$(get_user_id)"
+    add_member
     [[ "$status_empty_code" == 0 ]] \
       && msg_end PASSED \
       && continue
