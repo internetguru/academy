@@ -54,9 +54,7 @@ while (( $# > 0 )); do
       # shellcheck disable=SC1091
       source "${DIR}/gitlab_api"
       customize_academy
-      # shellcheck disable=SC1090
-      source "${DIR}/${CMD}" "$@"
-      exit $?
+      process_user_scripts "${CMD}"
       ;;
     *)
       exception "Invalid command '${1}', enter '${SCRIPT} help' to display usage" 2

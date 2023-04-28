@@ -26,10 +26,9 @@ percent_to_color() {
 }
 
 fraction_to_color() {
-  if [[ "${1}" == */0 ]]; then
-    printf '%s\n' "${DEFAULT_COLOR}"
-    return 1
-  fi
+  [[ "${1}" == */0 ]] \
+    && printf '%s\n' "${DEFAULT_COLOR}" \
+    && return 1
   percent_to_color "$(( 100 * $1 ))"
 }
 
