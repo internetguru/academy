@@ -7,7 +7,7 @@ declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
 declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
 
 # deafults for iotests
-curl -so "${IOTEST_SVG}" 'https://img.shields.io/badge/IO%20Tests-0/0-gray'
+badge_generate 'IO Tests' '0/0'
 
 printf -- 'n/a' > "${IOTEST_TXT}"
 printf -- '' > "${IOTEST_LOG}"
