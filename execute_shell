@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-info "Using default shell executor"
+warning "${0}: Using default shell executor"
 for file in "${CHANGED_FILES[@]}"; do
-  info "Running '${file}' ..."
+  warning "${0}: Running '${file}' ..."
   check_x "${file}"
   "$file"
 done
