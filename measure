@@ -26,6 +26,7 @@ measure() {
   # allow **/*
   shopt -s globstar
   declare -a basefiles
+  # TODO fix
   declare -r ext=${LANG_TO_EXTENSION[${ACADEMY_LANG}]}
   for file in "${WORKING_DIR}/${SRC_DIR}"/**/*."${ext}"; do
     basefiles+=(-b "${file}")

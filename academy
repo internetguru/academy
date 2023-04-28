@@ -5,8 +5,6 @@ declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 # shellcheck disable=SC2034
-declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
-# shellcheck disable=SC2034
 declare -r SRC_DIR='src'
 declare CUSTOMIZE=1
 # shellcheck disable=SC1091
@@ -14,9 +12,6 @@ declare CUSTOMIZE=1
 source "${DIR}/commons"
 # shellcheck disable=SC1091
 source "${DIR}/badges"
-
-# disabled by LB
-# check_lang "${ACADEMY_LANG}"
 
 customize_academy() {
   (( CUSTOMIZE )) || return
