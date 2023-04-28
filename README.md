@@ -40,7 +40,7 @@
 
 - To install `man` documentation, run the following script. (optional)
    ```sh
-   sudo ./install.sh
+   sudo ./install-man.sh
    ```
 
 ## GitLab CI Integration
