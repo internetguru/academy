@@ -1,18 +1,7 @@
-mapfile -t files < <(
-  git -C "${user_repo}" diff HEAD..HEAD~1 --name-only \
-  | grep -Ev '^(.academy|README.md)'
-  )
-
-info() {
-  printf '%s[info]: %s\n' "${0}" "$*" >&2
-}
-check_x() {
-  [[ -x "${1}" ]] \
-    || chmod +x "${1}"
-}
+#!/usr/bin/env bash
 
 info "Using default shell executor"
-for file in "${files[@]}"; do
+for file in "${CHANGED_FILES[@]}"; do
   info "Running '${file}' ..."
   check_x "${file}"
   "$file"

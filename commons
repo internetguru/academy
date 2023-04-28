@@ -59,6 +59,13 @@ warning() {
     || printf -- '%s [ #%d ]\n' "${message}" "${code}" >&2
   return "${code}"
 }
+info() {
+  printf '%s[info]: %s\n' "${0}" "$*" >&2
+}
+check_x() {
+  [[ -x "${1}" ]] \
+    || chmod +x "${1}"
+}
 print_usage() {
   declare out
   declare cmd="${CMD}"

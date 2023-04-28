@@ -18,7 +18,9 @@ assert() {
       && printf -- "Input file: %s\n" "${stdin_file#"${iotest_folder_path}/"}" \
       || printf -- "Input: %s\n" "${input}"
   fi
+  # shellcheck disable=SC2059
   printf -- "${3}\n" "${output}"
+  # shellcheck disable=SC2059
   printf -- "${4}\n" "${expected}"
   printf -- 'Status: '
   status=1
@@ -45,10 +47,8 @@ io_test() {
   declare -r test_name="${2}"
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${IOTEST_CMD}"
-  # TODO check unsupported test extensions (how?)
   echo "Test ${test_folder_name}/${test_name}"
   # create cmd from template
-  # TODO: add reference to README
   declare -A variables
   # script varaibles
   variables=( \

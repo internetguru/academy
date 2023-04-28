@@ -10,6 +10,7 @@ init_cache() {
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
+  # shellcheck disable=SC2086
   rsync -a --delete --exclude .git/ ${3:-} "${1:-${WORKING_DIR}}/" "${2:-${user_cache_folder}}" \
     || exception "Unable to rsync files"
 }
@@ -27,7 +28,6 @@ get_cache() {
   git_pull "${user_cache_folder}" 'origin' "${SUBMIT_BRANCH}:${SUBMIT_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
-# TODO
 update_links() {
   local user_cache_folder="${1:-${user_cache_folder}}"
   local PROJECT_LINK="${2:-${PROJECT_LINK}}"
@@ -343,6 +343,7 @@ while (( $# > 0 )); do
       shift 2
       ;;
     -r|--member-role)
+      # shellcheck disable=SC2034
       MEMBER_ROLE="${2}"
       shift 2
       ;;

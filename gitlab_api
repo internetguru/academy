@@ -89,8 +89,8 @@ get_project_id() {
   # shellcheck disable=SC2154
   project_id=$( gitlab_api "api/v4/projects/${ns//\//%2F}" | jq -r '.id' )
   [[ -n "${project_id}" ]] \
-  || warning "Project '${ns}' does not exist" 1 \
-  || return 1
+    || warning "Project '${ns}' does not exist" 1 \
+    || return 1
   printf -- '%s\n' "${project_id}"
 }
 get_project_name() {
@@ -115,8 +115,8 @@ get_group_id() {
   declare -r group_name="${1//\//%2F}"
   group_id="$( gitlab_api "api/v4/groups/${group_name}" | jq -r '.id' )"
   [[ -n "${group_id}" ]] \
-  || warning "Group '${1}' does not exist" 1 \
-  || return 1
+    || warning "Group '${1}' does not exist" 1 \
+    || return 1
   printf -- '%s\n' "${group_id}"
 }
 get_source_merge() {
@@ -242,8 +242,8 @@ get_project_avatar() {
   local avatar_url
   declare -r ns="${1}"
   project_id=$( get_project_id "$ns" ) \
-  || warning "Source project '${ns}' does not exist" 1 \
-  || return 1
+    || warning "Source project '${ns}' does not exist" 1 \
+    || return 1
   output_file=$( mktemp )
   avatar_url="$( gitlab_api "api/v4/projects/${project_id}" | jq -r .avatar_url )"
   curl "${avatar_url}" > "${output_file}.${avatar_url##*.}"
@@ -254,8 +254,8 @@ set_project_avatar() {
   declare -r ns="${1}"
   local input_file="${2}"
   project_id=$( get_project_id "${ns}" ) \
-  || warning "Destination project '${ns}' does not exist" 1 \
-  || return 1
+    || warning "Destination project '${ns}' does not exist" 1 \
+    || return 1
   gitlab_api "api/v4/projects/${project_id}" "PUT-FILE:avatar=@${input_file}"
 }
 set_group_avatar() {
@@ -263,8 +263,8 @@ set_group_avatar() {
   declare -r ns="${1}"
   local input_file="${2}"
   group_id=$( get_group_id "${ns}" ) \
-  || warning "Destination group '${ns}' does not exist" 1 \
-  || return 1
+    || warning "Destination group '${ns}' does not exist" 1 \
+    || return 1
   gitlab_api "api/v4/groups/${group_id}" "PUT-FILE:avatar=@${input_file}"
 }
 set_public_pages() {
@@ -287,11 +287,11 @@ copy_avatar() {
   local src="${1}"
   local dst="${2}"
   avatar_file="$( get_project_avatar "${src}" )" \
-  || warning "Could not get source project '${src}' avatar" 1 \
-  || return 1
+    || warning "Could not get source project '${src}' avatar" 1 \
+    || return 1
   "set_${type}_avatar" "${dst}" "${avatar_file}" \
-  || warning "Could not set target ${type} '${dst}' avatar" 1 \
-  || return 1
+    || warning "Could not set target ${type} '${dst}' avatar" 1 \
+    || return 1
   rm "${avatar_file}"
 }
 fork_project() {
@@ -338,29 +338,29 @@ fork_project() {
     esac
   done
   [[ -n "${attr[name]}" ]] \
-  || warning "Missing essential parameter 'name' (opt. -n)" 1 \
-  || return 1
+    || warning "Missing essential parameter 'name' (opt. -n)" 1 \
+    || return 1
   [[ -n "${attr[namespace_path]}" ]] \
-  || warning "Missing essential parameter 'namespace_path' (opt. -p)" 1 \
-  || return 1
+    || warning "Missing essential parameter 'namespace_path' (opt. -p)" 1 \
+    || return 1
   group_exists "${attr[namespace_path]}" \
-  || warning "Target group '${attr[namespace_path]}' does not exist" 1 \
-  || return 1
+    || warning "Target group '${attr[namespace_path]}' does not exist" 1 \
+    || return 1
   ! project_exists "${attr[namespace_path]}/${attr[path]}" \
-  || warning "Project '${attr[namespace_path]}/${attr[path]}' already exists" 1 \
-  || return 1
+    || warning "Project '${attr[namespace_path]}/${attr[path]}' already exists" 1 \
+    || return 1
   [[ -n "${1}" ]] \
-  || warning "Missing source repository to fork from" 1 \
-  || return 1
+    || warning "Missing source repository to fork from" 1 \
+    || return 1
   local src="${1}"
   src_id="$( get_project_id "${src}" )" \
-  || warning "Source repository '${src}' does not exist" \
-  || return 1
+    || warning "Source repository '${src}' does not exist" \
+    || return 1
   for key in "${!attr[@]}"; do
     printf -v data -- '%s,"%s":"%s"' "$data" "${key}" "${attr[$key]}"
   done
   output=$( gitlab_api "api/v4/projects/${src_id}/fork" "{${data#,}}" ) \
-  || return 1
+    || return 1
   jq . <<< "${output}"
 }
 create_project_submit_token() {

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 
@@ -17,6 +18,7 @@ if compgen -G "${WORKING_DIR}/*Test*.java" >/dev/null; then
 fi
 
 badge_generate 'Code Style' 'n/a'
+# shellcheck disable=SC2034
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r CHECKSTYLE_VERION="10.7.0"
 declare -r CHECKSTYLE_FILE="${ACADEMY_CACHE}/checkstyle.jar"

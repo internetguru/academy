@@ -17,7 +17,9 @@ git checkout submit
 # update from source
 git merge --no-ff --strategy-option theirs source
 # copy editable files
+# shellcheck disable=SC2086
 rm ${ACADEMY_EDITABLE}
+# shellcheck disable=SC2086
 git checkout main -- ${ACADEMY_EDITABLE} 2>/dev/null
 # push to submit
 git add .

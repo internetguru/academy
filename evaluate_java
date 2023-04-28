@@ -1,18 +1,22 @@
+#!/usr/bin/env bash
 
 if [[ -n "${IOTEST_LOG}" ]]; then
   run_io_tests "java ${WORKING_DIR}/@RELATIVE_PATH@"
 fi
 
 if [[ -n "${JUNIT_LOG}" ]]; then
+  declare -i found
+  declare -i successful
   javac -cp "${JUNIT_FILE}" "${WORKING_DIR}"/*.java > "${JUNIT_LOG}"
   java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=summary >> "${JUNIT_LOG}"
   cat "${JUNIT_LOG}"
-  declare -ri found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
-  declare -ri successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
+  found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
+  successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
   badge_generate 'JUnit Tests' "${successful}/${found}"
 fi
 
 if [[ -n "${ACADEMY_EDITABLE}" ]]; then
+  # shellcheck disable=SC2086
   java -jar "${CHECKSTYLE_FILE}" -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
   # shellcheck disable=SC2155
   declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)

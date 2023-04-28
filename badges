@@ -8,7 +8,6 @@ badge_init() {
   local badge_name="${1}"
   local badge_default="${2}" #opt
   badge_generate "${badge_name}" "${badge_default:--}"
-  # printf '' ... FIXME - Print badge URL
 }
 
 # % to colors
