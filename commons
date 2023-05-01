@@ -124,6 +124,7 @@ process_user_scripts() {
   # shellcheck disable=SC1090
   [[ -f "${DIR}/post-${type}_${ACADEMY_LANG}" ]] \
     && source "${DIR}/post-${type}_${ACADEMY_LANG}"
+  return 0
 }
 run_io_tests() {
   "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
