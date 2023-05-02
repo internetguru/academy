@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.5.0-rc.1] - 2023-05-02
 
 ### Added
 
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Set name of distributed project as `original_project_name user_name`
 
 
-[Unreleased]: https://github.com/internetguru/academy/compare/v0.4.0...dev
+[0.5.0-rc.1]: https://github.com/internetguru/academy/releases/tag/v0.4.0
 [0.4.0]: https://github.com/internetguru/academy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/internetguru/academy/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/internetguru/academy/compare/v0.1.0...v0.2.0
