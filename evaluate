@@ -12,15 +12,15 @@ run_io_tests() {
   badge_generate 'IO Tests' "${passed}/${count}" "${test_color}"
 }
 main() {
-  # deprecated
-  declare -r BADGES_TXT="${RESULTS}/badges.txt"
-  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
-  : > "${BADGES_TXT}"
-
   declare -r RESULTS="${WORKING_DIR}/.results"
   declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
   mkdir -p "${ACADEMY_CACHE}"
+
+  # deprecated
+  declare -r BADGES_TXT="${RESULTS}/badges.txt"
+  declare -r GENERATED_TXT="${RESULTS}/generated.txt"
+  : > "${BADGES_TXT}"
 
   # jenom pro CI a ten grep je spatne, ACADEMY_EDITABLE neni RE ale SP
   # shellcheck disable=SC2034

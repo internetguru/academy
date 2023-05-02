@@ -5,9 +5,19 @@ stages:
  - post-process
 
 variables:
+  # https://docs.gitlab.com/runner/configuration/feature-flags.html#enable-feature-flag-in-pipeline-configuration
+  FF_USE_FASTZIP: 1 # enable fast zip gitlab runner feature
+  # https://docs.gitlab.com/ee/ci/runners/configure_runners.html#artifact-and-cache-settings
+  TRANSFER_METER_FREQUENCY: "1s" # shows a progress meter for artifact and cache uploads and downloads
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+  # https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning
+  GIT_DEPTH: 10
+  # Academy variables
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
-  ACADEMY_CACHE: ".academy-cache"
+  ACADEMY_CACHE: "../.academy-cache"
+  ACADEMY_EDITABLE: "*.*"
 
 cache:
   - key: academy-cache
@@ -20,21 +30,35 @@ cache:
 .before_script_global: &global_init |
   # fix TERM
   export TERM=xterm
-  # checkout to current branch
-  git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
-  # set git user
-  git config --global user.email "${GITLAB_USER_EMAIL}"
-  git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  if [[ -d .git ]]; then
+    # checkout to current branch
+    git checkout -B "${CI_COMMIT_REF_NAME}" "${CI_COMMIT_SHA}"
+    # set git user
+    git config --global user.email "${GITLAB_USER_EMAIL}"
+    git config --global user.name "Runner = ${CI_RUNNER_DESCRIPTION}"
+  fi
   mkdir -p ${ACADEMY_CACHE}
-  export ACADEMY_DIR="$(mktemp -d)"
-  revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
-  git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  export ACADEMY_DIR="${ACADEMY_CACHE}/academy"
+  mkdir -p "${ACADEMY_DIR}"
+  if grep -s 'ACADEMY_INCLUDE' '.gitlab-ci.yml'; then
+    revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" <<< "$ACADEMY_INCLUDE")
+  else
+    revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
+  fi
+  if [[ -d "${ACADEMY_DIR}/.git" ]]; then
+    git -C "${ACADEMY_DIR}" reset --hard
+    git -C "${ACADEMY_DIR}" pull origin ${revision}
+  else
+    git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
+  fi
   # e.g. /umiami/george/csc220
   declare -r namespace="${CI_PROJECT_NAMESPACE}"
   declare -r project_name="$(basename "${PWD}")"
   declare -r user_namespace="${namespace}/${CI_COMMIT_REF_NAME}/${project_name}"
   # simplify project remote url
-  git remote set-url --push origin "${namespace}/${project_name}.git"
+  if [[ -d .git ]]; then
+    git remote set-url --push origin "${namespace}/${project_name}.git"
+  fi
   # set permissions
   declare ACADEMY=${ACADEMY_DIR}/academy
   chmod +x ${ACADEMY_DIR}/*
@@ -49,27 +73,29 @@ cache:
   fi
 
 .get_users: &get_users |
-  # do not distribute ACADEMY_ASSIGN file
-  if [[ -f "ACADEMY_ASSIGN" ]]; then
-    mv "ACADEMY_ASSIGN" ..
-    # commit move to keep git status empty (do not push)
-    git commit -m "move users file" -- "ACADEMY_ASSIGN"
-  fi
-  # do not distribute ACADEMY_ALLOW file
-  if [[ -f "ACADEMY_ALLOW" ]]; then
-    mv "ACADEMY_ALLOW" ..
-    # commit move to keep git status empty (do not push)
-    git commit -m "move allow file" -- "ACADEMY_ALLOW"
-  fi
-  declare users
-  if [[ -n "${ACADEMY_ASSIGN}" ]]; then
-    users="${ACADEMY_ASSIGN}"
-  elif [[ -f '../ACADEMY_ASSIGN' ]]; then
-    users="$(<../ACADEMY_ASSIGN)"
-  else
-    users="${GITLAB_USER_NAME}"
-  fi
-  users="$(tr ',' ' ' <<< "${users}")"
+  get_users() {
+    # do not distribute ACADEMY_ASSIGN file
+    if [[ -f "ACADEMY_ASSIGN" ]]; then
+      mv "ACADEMY_ASSIGN" ..
+      # commit move to keep git status empty (do not push)
+      git commit --quiet -m "move users file" -- "ACADEMY_ASSIGN"
+    fi
+    # do not distribute ACADEMY_ALLOW file
+    if [[ -f "ACADEMY_ALLOW" ]]; then
+      mv "ACADEMY_ALLOW" ..
+      # commit move to keep git status empty (do not push)
+      git commit --quiet -m "move allow file" -- "ACADEMY_ALLOW"
+    fi
+    declare users
+    if [[ -n "${ACADEMY_ASSIGN}" ]]; then
+      users="${ACADEMY_ASSIGN}"
+    elif [[ -f '../ACADEMY_ASSIGN' ]]; then
+      users="$(<../ACADEMY_ASSIGN)"
+    else
+      users="${GITLAB_USER_NAME}"
+    fi
+    tr ',' ' ' <<< "${users}"
+  }
 
 collect:
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
@@ -92,6 +118,7 @@ collect:
     # run collect for given or all branches
     - mkdir -p '.collect'
     - *get_users
+    - declare users="$(get_users)"
     - |
         ${ACADEMY} collect \
         --namespace "${user_namespace}" \
@@ -110,8 +137,6 @@ collect:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - exists:
       - "ACADEMY_ASSIGN"
       when: manual
@@ -137,18 +162,32 @@ distribute:
     - *get_users
     # distribute current project among all users
     - |
-        ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-        --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-        <<< "${users}"
+        declare users
+        declare user_tmp
+        if [[ -n ${ACADEMY_GROUP} ]]; then
+          git fetch --all
+          while read group; do
+            # get users from $group
+            git checkout ${group}
+            users="$(get_users)"
+            # checkout to starting branch
+            git checkout ${CI_COMMIT_REF_NAME}
+            echo "Distributing for ${group}"
+            ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
+              --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
+              <<< "${users}"
+          done <<< "${ACADEMY_GROUP}"
+          # TODO remove other existing repositories
+        else
+          users="$(get_users)"
+          ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
+            --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+            <<< "${users}"
+        fi
   rules:
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
-    - exists:
-      - "ACADEMY_ASSIGN"
-      when: manual
-    - when: never
+    - when: manual
   allow_failure: true
 
 measure:
@@ -183,13 +222,12 @@ measure:
         git --work-tree="${measure_output}" checkout -f "origin/${ACADEMY_SOLUTION}" -- .
     # run measure for given or all branches
     - *get_users
+    - declare users="$(get_users)"
     - |
       ${ACADEMY} measure --output-dir "${measure_output}" \
       --namespace "${user_namespace}"
       <<< "${users}"
   rules:
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: never
     - exists:
       - "ACADEMY_ASSIGN"
       when: manual
@@ -223,7 +261,7 @@ execute:
     expire_in: 1 year
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - if: '$ACADEMY_EXECUTE == "always"'
       when: always
     - when: manual
@@ -241,11 +279,6 @@ evaluate:
       if [[ $(git rev-list --all --count) -le 1 ]]; then
         exit 0
       fi
-      # do not evaluate ACADEMY_ASSIGN changes only
-      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
-        echo "Project evaluation stoped due to changes in ACADEMY_ASSIGN only"
-        exit 1
-      fi
   script:
     - echo '%% job start evaluate %%'
     - ${ACADEMY} evaluate
@@ -255,14 +288,23 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
+    - if: $ACADEMY_FORCE_JOB == "true"
+      when: always
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
-    - if: '$ACADEMY_EVALUATE == "always"'
+      when: manual
+    - changes:
+      - ACADEMY_ASSIGN
+      when: manual
+    - if: $CI_PIPELINE_IID == "1"
+      when: manual
+    - if: $ACADEMY_EVALUATE == "always"
       when: always
     - when: manual
   allow_failure: true
 
 meta:
+#  variables:
+#    GIT_STRATEGY: none
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: post-process
   tags:
@@ -271,10 +313,12 @@ meta:
     - *global_init
   script:
     - |
-      echo "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}"
-      # clear dashboard cache
-      curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
-        -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      # clear dashboards cache
+      while read dashboard; do
+        echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}"
+        curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}" \
+          -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
       source "${ACADEMY_DIR}/badges"
@@ -283,18 +327,37 @@ meta:
       badge_generate 'Updates' 'unknown'
       badge_generate 'Status' 'unknown'
     - |
-      for badge in .results/badge-*.svg; do
-        [[ "${badge}" =~ ".results/badge-"([^-]+)-(.*)".svg" ]]
-        job="${BASH_REMATCH[1]}"
-        badge_name="${BASH_REMATCH[2]}"
-        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=%s)\n' \
-          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}" "${job}"
+      for badge in .results/*.svg; do
+        [[ "${badge}" =~ ".results/"(.*).svg ]]
+        badge_name="${BASH_REMATCH[1]}"
+        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
+          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
-      when: never
+      when: manual
     - when: always
   artifacts:
     paths:
       - .results/
     expire_in: 1 year
+
+submit:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: post-process
+  cache:
+    - key: academy-cache
+      paths:
+        - $ACADEMY_CACHE
+  tags:
+    - docker
+  before_script:
+    - *global_init
+  script:
+    - "${ACADEMY_DIR}/submit"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "source"
+      when: always
+    - when: never
