@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- New feature 'consolidate'.
 - Extened badge_generate function adding file, link and title params
 
 ## [0.4.0] - 2023-03-05
