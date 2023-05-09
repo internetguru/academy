@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 if [[ -n "${IOTEST_LOG}" ]]; then
-  run_io_tests "java ${WORKING_DIR}/@RELATIVE_PATH@"
+  # shellcheck disable=SC2016
+  run_io_tests 'java ${WORKING_DIR}/${RELATIVE_PATH}'
 fi
 
 if [[ -n "${JUNIT_LOG}" ]]; then

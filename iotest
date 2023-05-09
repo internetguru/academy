@@ -48,23 +48,11 @@ io_test() {
   declare -r test_path="${test_folder}/${test_name}"
   declare cmd="${IOTEST_CMD}"
   echo "Test ${test_folder_name}/${test_name}"
-  # create cmd from template
-  declare -A variables
-  # script varaibles
-  variables=( \
-   ['FOLDER_NAME']="${test_folder_name%.*}"\
-   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"
-  )
-  # add filtered env variables
-  while read -r line; do
-    [[ -z "${line}" ]] \
-      && continue
-    variables["$(cut -d= -f1 <<< "${line}")"]="$(cut -d= -f2- <<< "${line}")"
-  done <<< "$(printenv | grep '^\(ACADEMY_\|CI_\)')"
-  # replace variables in cmd
-  for key in "${!variables[@]}"; do
-    cmd="${cmd/@${key}@/${variables[${key}]}}"
-  done
+  # add loop variables
+  # shellcheck disable=SC2034
+  declare -r FOLDER_NAME="${test_folder_name%.*}"
+  # shellcheck disable=SC2034
+  declare -r RELATIVE_PATH="${test_folder#"${IOTEST_FOLDER}/"}"
   # TODO use optarg file
   declare out_file err_file status_code stdin stdin_file
   out_file="$(mktemp)"
