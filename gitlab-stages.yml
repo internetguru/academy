@@ -18,9 +18,6 @@ variables:
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
   ACADEMY_EDITABLE: "*.*"
-  ACADEMY_DISTRIBUTE: manual
-  ACADEMY_EXECUTE: manual
-  ACADEMY_EVALUATE: manual
 
 cache:
   - key: academy-cache
@@ -138,7 +135,9 @@ distribute:
             <<< "${users}"
         fi
   rules:
-    - when: $ACADEMY_DISTRIBUTE
+    - if: '$ACADEMY_DISTRIBUTE == "always"'
+      when: always
+    - when: manual
   allow_failure: true
 
 execute:
@@ -169,7 +168,9 @@ execute:
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual
-    - when: $ACADEMY_EXECUTE
+    - if: '$ACADEMY_EXECUTE == "always"'
+      when: always
+    - when: manual
   allow_failure: true
 
 evaluate:
@@ -202,7 +203,9 @@ evaluate:
       when: manual
     - if: $CI_PIPELINE_IID == "1"
       when: manual
-    - when: $ACADEMY_EVALUATE
+    - if: $ACADEMY_EVALUATE == "always"
+      when: always
+    - when: manual
   allow_failure: true
 
 meta:
