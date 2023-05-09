@@ -41,7 +41,7 @@ while (( $# > 0 )); do
       print_usage
       exit
       ;;
-    collect|distribute|measure)
+    distribute)
       # shellcheck disable=SC1091
       source "${DIR}/git_functions"
       # shellcheck disable=SC1091
