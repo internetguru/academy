@@ -8,7 +8,7 @@ main() {
 SET HEADING OFF
 SET PAGESIZE 0
 spool on
-@${WORKING_DIR}/${RELATIVE_PATH}
+@${FILE_PATH}
 spool off
 exit
 EOM

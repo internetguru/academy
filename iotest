@@ -50,9 +50,7 @@ io_test() {
   echo "Test ${test_folder_name}/${test_name}"
   # add loop variables
   # shellcheck disable=SC2034
-  declare -r FOLDER_NAME="${test_folder_name%.*}"
-  # shellcheck disable=SC2034
-  declare -r RELATIVE_PATH="${test_folder#"${IOTEST_FOLDER}/"}"
+  declare -r FILE_PATH="${WORKING_DIR}/${test_folder#"${IOTEST_FOLDER}/"}"
   # TODO use optarg file
   declare out_file err_file status_code stdin stdin_file
   out_file="$(mktemp)"

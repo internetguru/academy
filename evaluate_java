@@ -2,7 +2,7 @@
 
 if [[ -n "${IOTEST_LOG}" ]]; then
   # shellcheck disable=SC2016
-  run_io_tests 'java ${WORKING_DIR}/${RELATIVE_PATH}'
+  run_io_tests "java \${FILE_PATH}"
 fi
 
 if [[ -n "${JUNIT_LOG}" ]]; then
