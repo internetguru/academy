@@ -46,7 +46,7 @@ cache:
     revision=$(grep -oP -m1 "[^/]+(?=/gitlab-stages)" .gitlab-ci.yml)
   fi
   if [[ -d "${ACADEMY_DIR}/.git" ]]; then
-    git -C "${ACADEMY_DIR}" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git -C "${ACADEMY_DIR}" config --replace-all remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     git -C "${ACADEMY_DIR}" fetch origin ${revision}
     git -C "${ACADEMY_DIR}" checkout origin/${revision}
   else
