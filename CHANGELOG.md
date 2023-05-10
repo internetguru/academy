@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2023-05-10
+
+### Fixed
+
+- Switching academy version in gitlab-ci include causes ci error.
+- Distribute not working due to invalid variable.
+
+### Added
+
+- Add --force-merge param to distribute.
+
 ## [0.5.0] - 2023-05-02
 
 _Stable release based on [0.5.0-rc.1]._
@@ -35,6 +46,7 @@ _Stable release based on [0.5.0-rc.1]._
 
 
 [Unreleased]: https://https://github.com/internetguru/academy/compare/staging...dev
+[0.5.1]: https://https://github.com/internetguru/academy/compare/v0.5.0...v0.5.1
 [0.5.0]: https://https://github.com/internetguru/academy/compare/v0.4.0...v0.5.0
 [0.5.0-rc.1]: https://github.com/internetguru/academy/releases/tag/v0.4.0
 [0.4.0]: https://github.com/internetguru/academy/compare/v0.3.0...v0.4.0
