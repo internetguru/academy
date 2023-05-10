@@ -67,28 +67,85 @@
 
 [GitLab CI variables](https://docs.gitlab.com/ee/ci/variables/#define-a-cicd-variable-in-the-ui) can be defined within the project's `.gitlab-ci.yml` file, in an arbitrary scope, or when running a specific job manually.
 
-- `ACADEMY_DASHBOARD: "URL"`
-   - Dashboard URL, e.g. https://academy.internetguru.io
-- `ACADEMY_DEADLINE: "DATE"`
-   - See `--deadline` option in `academy collect` documentation.
-- `ACADEMY_EDITABLE: "PATTERN"`
-   - See `--editable` option in `academy collect` documentation.
-- `ACADEMY_EVALUATE: "WHEN"`
-   - Integrate `academy evaluate` as `always` or `manual` (default) job.
-- `ACADEMY_GITLAB_ACCESS_TOKEN: "ACCESS_TOKEN"` (\*secret)
-   - See [how to generate your personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token).
-- `ACADEMY_ISSUES: "LABEL"`
-   - See `--process-issues` option in `academy distribute` documentation (default current branch).
-- `ACADEMY_MOSSURL: "URL"` (\*secret)
-   - CI accessible `URL` to download Moss script for `academy measure`.
-- `ACADEMY_PREFIX: "PREFIX"`
-   - Prepend PREFIX in front of each repository name. PREFIX is empty by default.
-- `ACADEMY_SOLUTION: "BRANCH"`
-   - Runs `academy collect` on the current project `BRANCH` and includes project from `BRANCH` among solutions to `academy measure` (default `master`).
-- `ACADEMY_ASSIGN: "USERS"`
-   - List of USERS, see stdin documentation of `academy collect`, `academy distribution`, and `academy measure` commands. If this variable is empty, reads USERS from `ACADEMY_ASSIGN` file if exists (which does not get distributed). Else current user is used by default. Values can be separated by white-spaces (e.g. space, tab, newline) or commas.
+`ACADEMY_DEFAULT_DOCKER_IMAGE`
+Docker image for academy jobs, e.g. the distribute job. Default value is `internetguru/academy:latest`.
 
-\* **Secret variables** should be defined as [masked environmental CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project). Consider defining them globally for the whole group, e.g. in `internetguru/academy`.
+`ACADEMY_DOCKER_IMAGE`
+Docker image for the evaluate and execute jobs. Default value is `ACADEMY_DEFAULT_DOCKER_IMAGE`.
+
+`ACADEMY_CACHE`
+Caching directory used to share data between individual jobs and pipelines within a project. Default value is `../.academy-cache`.
+
+`ACADEMY_EDITABLE`
+List of files intended to be edited by users in distributed repositories. Files are separated by spaces and support [pattern matching](https://www.linuxjournal.com/content/pattern-matching-bash), e.g. `image.png video.mp4 src/*.java`. Default value is `*.*`.
+
+`ACADEMY_GITLAB_ACCESS_TOKEN`
+[GitLab personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) required for the API communication with `api` scope. This **variable should be secret**, see [masked environmental CI variable](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project).
+
+`ACADEMY_ASSIGN`
+List of users for the [`academy distribute` command](documentation/academy-distribute.md). If this variable is empty, `ACADEMY_ASSIGN` file is used instead (which does not get distributed). Users can be separated by white-spaces or commas.
+
+`ACADEMY_DEADLINE` (not implemented)
+Create a summary towards a specific date and time.
+
+`ACADEMY_GROUP`
+List of space-separated branches for the [`academy distribute` command](documentation/academy-distribute.md) to collect solutions instead of distributing to students. In the collect mode, no permissions are assigned and the `ACADEMY_ASSIGN` list is taken from specified groups.
+
+`ACADEMY_EXECUTE`
+Run the execute job automatically if the value is "always".
+
+`ACADEMY_FORCE_JOB`
+If this variable is “true”, run the evaluate job automatically regardless of other conditions.
+
+`ACADEMY_EVALUATE`
+Run the evaluate job automatically if the value is "always".
+
+`ACADEMY_DASHBOARD`
+Dashboard URL, e.g. https://academy.internetguru.io, used by the meta job to clear cache. Multiple URLs are supported separated by newlines.
+
+`ACADEMY_ISSUES`
+See the `--process-issues` option in the [`academy distribute` documentation](documentation/academy-distribute.md). Default value is the current branch.
+
+`ACADEMY_LANG`
+Determines which files are executed by the `evaluate` and `execute` jobs. There are several files being executed per each job in the following format: `{pre-,post-,}{evaluate,execute}_$ACADEMY_LANG`. Each of them can be overridden by a file of the same name in the `.academy` folder.
+
+## Evaluate Functions
+
+`run_io_tests` function
+This function performs simple I/O tests. It accepts one parameter of a command run syntax.
+
+For each folder from `iotest//*` the function defines a `FILE_PATH` variable e.g. `src/SumClass.java`. To use the variable, make sure it is not expanded, e.g. `run_io_tests "java \${FILE_PATH}"` or `run_io_tests ‘java ${FILE_PATH}’`.
+
+For each `test_name.file_ext` in the folder, the function performs set of tests per `test_name` supporting the following extensions: `stdin`, `stdout`, `optarg` (not implemented), `sc`, `errout`.
+
+Example folder structure for `/src/SumClass.java` class IO tests:
+```
+/
+├── src
+|   └── SumClass.java
+└── iotest/src/SumClass.java
+    ├── foo.stdin
+    ├── foo.stdout
+    ├── foo.errout
+    ├── bar.stdout
+    ├── hello.optarg
+    ├── hello.sc
+    ├── world.errout
+    └── …
+```
+
+`generate_badge` function
+This function is an extension to shields.io to generate svg badges with link and title. The code to display badges (in README etc.) is available in the meta job output.
+
+The function accepts the following parameters:
+   - `label`, e.g. “Code quality” (required)
+   - `value`, e.g. “100%” (required)
+   - `color`, see defaults below, see [Shields.io Colors section](https://shields.io#colors)
+   - `file name`, e.g. “01-code-quality”
+   - `link`, e.g. an URL to logs
+   - `title`, e.g. “View logs”
+
+Default value for `color` (if empty) depend on `value` in the following way. Fractions and percentages (e.g. “3/6” or “50%”) result in corresponding color from green to red. Other values result in the “inactive” value (which is gray).
 
 ## Technical Documentation
 
