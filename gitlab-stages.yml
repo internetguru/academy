@@ -281,10 +281,12 @@ meta:
     - *global_init
   script:
     - |
-      echo "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}"
-      # clear dashboard cache
-      curl "${ACADEMY_DASHBOARD}/${namespace}/${DASHBOARD_PROJECT_NAME}" \
-        -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      # clear dashboards cache
+      while read dashboard; do
+        echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}"
+        curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}" \
+          -I -H "Cache-Control: no-cache" -H "Accept: application/json"
+      done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
       source "${ACADEMY_DIR}/badges"
