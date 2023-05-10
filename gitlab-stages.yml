@@ -18,6 +18,7 @@ variables:
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
   ACADEMY_EDITABLE: "*.*"
+  ACADEMY_FORCE_MERGE: ""
 
 cache:
   - key: academy-cache
@@ -180,7 +181,11 @@ distribute:
           # TODO remove other existing repositories
         else
           users="$(get_users)"
-          ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
+          declare merge=''
+          if [[ -n "${ACADEMY_FORCE_MERGE}" ]]; then
+            merge='--force-merge'
+          fi
+          ${ACADEMY} distribute ${merge} --update-links --namespace "${user_namespace}" \
             --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
             <<< "${users}"
         fi
