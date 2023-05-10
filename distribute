@@ -92,9 +92,15 @@ update_user_repo() {
   git_add_all "${user_cache_folder}"
   git_commit "${user_cache_folder}" '-m "Update assignment"'
   git_push "${user_cache_folder}" '--all'
-  declare project_id
-  request_exists \
-    || create_request
+  if [[ $FORCE_MERGE == 1 ]]; then
+    git_checkout "${user_cache_folder}" "${user_default_branch}"
+    git_merge "${user_cache_folder}" '--no-ff' "${SOURCE_BRANCH}"
+    git_push "${user_cache_folder}" origin "${user_default_branch}"
+    git_checkout "${user_cache_folder}" "${SOURCE_BRANCH}"
+  else
+    request_exists \
+      || create_request
+  fi
   copy_issues
   set_public_pages "${project_id}" >/dev/null
 }
@@ -294,11 +300,12 @@ declare -i ISSUES_COUNT=0
 declare -i issues_count_src="${ISSUES_COUNT}"
 # shellcheck disable=SC2034
 declare ACADEMY_GITLAB_ACCESS_TOKEN
+declare FORCE_MERGE=0
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:d:hi:lno:p:s:r:' \
-  --longoptions 'assign:,help,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:' \
+OPT="$(getopt --name "${0}" --options 'a:d:hi:lno:p:s:r:m' \
+  --longoptions 'assign:,help,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:,force-merge' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -330,6 +337,10 @@ while (( $# > 0 )); do
       UPDATE_LINKS='true'
       [[ -f "${WORKING_DIR}/${README_FILE}" ]] \
         || exception 'Readme file not found in WORKING_DIR'
+      shift
+      ;;
+    -m|--force-merge)
+      FORCE_MERGE=1
       shift
       ;;
     -n|--dry-run)

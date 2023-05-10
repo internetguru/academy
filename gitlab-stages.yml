@@ -18,6 +18,7 @@ variables:
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
   ACADEMY_EDITABLE: "*.*"
+  ACADEMY_FORCE_MERGE: ""
 
 cache:
   - key: academy-cache
@@ -47,7 +48,9 @@ cache:
   fi
   if [[ -d "${ACADEMY_DIR}/.git" ]]; then
     git -C "${ACADEMY_DIR}" reset --hard
-    git -C "${ACADEMY_DIR}" pull origin ${revision}
+    git -C "${ACADEMY_DIR}" config --replace-all remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git -C "${ACADEMY_DIR}" fetch origin ${revision}
+    git -C "${ACADEMY_DIR}" checkout origin/${revision}
   else
     git clone --single-branch --branch ${revision} https://github.com/InternetGuru/academy ${ACADEMY_DIR}
   fi
@@ -180,7 +183,11 @@ distribute:
           # TODO remove other existing repositories
         else
           users="$(get_users)"
-          ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
+          declare merge=''
+          if [[ -n "${ACADEMY_FORCE_MERGE}" ]]; then
+            merge='--force-merge'
+          fi
+          ${ACADEMY} distribute ${merge} --update-links --namespace "${user_namespace}" \
             --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
             <<< "${users}"
         fi
