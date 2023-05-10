@@ -10,7 +10,7 @@ Academy - coding assignment handling
 
 ## DESCRIPTION
 
-Provides commands to _distribute_ coding assignments to students, _evaluate_ individual solutions and _measure_ similarities between each other.
+Provides commands to _distribute_ coding assignments to students, _evaluate_ or _execute_ individual solutions.
 
 ## OPTIONS
 
@@ -20,9 +20,6 @@ Provides commands to _distribute_ coding assignments to students, _evaluate_ ind
 ## COMMANDS
 
 These are common academy commands used in various situations:
-
-collect
-       Download repositories and evaluate against source tests.
 
 distribute
        Create or update user repositories with files from source project.
@@ -35,9 +32,6 @@ evaluate
 
 help
        Display this usage.
-
-measure
-       Compute software similarities between projects using Moss script.
 
 ## EXIT STATUS
 
@@ -57,4 +51,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`academy-collect`(1), `academy-distribute`(1), `academy-evaluate`(1), `academy-measure`(1)
+`academy-distribute`(1), `academy-evaluate`(1), `academy-execute`(1)

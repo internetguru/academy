@@ -10,9 +10,61 @@ Academy-Evaluate - evaluate project and create status badges
 
 ## DESCRIPTION
 
-Evaluates current project on compilation, coding style, standard CI tests (Maven) and IO tests (see below). Generates status files and colored summary badges. Stores log files to be displayed and linked, e.g. from a README file.
+Once you have prepared the Docker image for your course, the next step is to create an evaluation script that will assess students' work.
 
-Note: IO tests for individual source files `${FILEPATH}` are applied from `iotest/${FILEPATH}/` folder. Name part is arbitrary and supported extensions are `stdin`, `stdout`, `errout`, `sc` and `optarg`. All extensions are optional. See IO test example below.
+TODO desc: syntax bash, automatically runned in CI job, generating badges for Dashboard, mark output of specific file for dashboard
+
+TODO structure
+
+ - predefined scripts in academy repo or specific in `.academy/[script]`
+ - `pre-evaluate_${ACADEMY_LANG}`
+   - define default badges (example)
+   - define folders, variables, ...
+ - `evaluate_${ACADEMY_LANG}`
+   - process evaluation, use run_io_tests function
+   - generate badges
+   - output marks for Dashboard
+   %% file start ${fileName} %%
+   %% file end ${fileName} %%
+ - `post-evaluate_${ACADEMY_LANG}`
+
+### `run_io_tests` function
+
+This function performs simple I/O tests. It accepts one parameter of a command run syntax.
+
+For each folder from `iotest//*` the function defines a `FILE_PATH` variable e.g. `src/SumClass.java`. To use the variable, make sure it is not expanded, e.g. `run_io_tests "java \${FILE_PATH}"` or `run_io_tests ‘java ${FILE_PATH}’`.
+
+For each `test_name.file_ext` in the folder, the function performs set of tests per `test_name` supporting the following extensions: `stdin`, `stdout`, `optarg` (not implemented), `sc`, `errout`.
+
+Example folder structure for `/src/SumClass.java` class IO tests:
+```
+/
+├── src
+|   └── SumClass.java
+└── iotest/src/SumClass.java
+    ├── foo.stdin
+    ├── foo.stdout
+    ├── foo.errout
+    ├── bar.stdout
+    ├── hello.optarg
+    ├── hello.sc
+    ├── world.errout
+    └── …
+```
+
+### `generate_badge` function
+
+This function is an extension to shields.io to generate svg badges with link and title. The code to display badges (in README etc.) is available in the meta job output.
+
+The function accepts the following parameters:
+   - `label`, e.g. “Code quality” (required)
+   - `value`, e.g. “100%” (required)
+   - `color`, see defaults below, see [Shields.io Colors section](https://shields.io#colors)
+   - `file name`, e.g. “01-code-quality”
+   - `link`, e.g. an URL to logs
+   - `title`, e.g. “View logs”
+
+Default value for `color` (if empty) depend on `value` in the following way. Fractions and percentages (e.g. “3/6” or “50%”) result in corresponding color from green to red. Other values result in the “inactive” value (which is gray).
 
 ## OPTIONS
 
@@ -24,22 +76,7 @@ n/a
 
 ## EXAMPLES
 
-### IO Test example
-
-Directory structure for `/src/main/SumClass.java` class IO tests:
-
-```
-/
-└── iotest/src/main/SumClass.java
-    ├── foo.stdin
-    ├── foo.stdout
-    ├── foo.errout
-    ├── bar.stdout
-    ├── hello.optarg
-    ├── hello.sc
-    ├── world.errout
-    └── …
-```
+TODO
 
 ## BUGS
 
@@ -51,7 +88,7 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`academy`(1), `academy-collect`(1), `academy-distribute`(1), `academy-measure`(1)
+`academy`(1), `academy-distribute`(1), `academy-execute`(1)
 
 
 [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)

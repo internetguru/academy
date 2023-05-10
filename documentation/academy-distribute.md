@@ -79,4 +79,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`academy`(1), `academy-collect`(1), `academy-evaluate`(1), `academy-measure`(1)
+`academy`(1), `academy-evaluate`(1), `academy-execute`(1)
