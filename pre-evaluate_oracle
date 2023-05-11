@@ -7,7 +7,7 @@ declare -r IOTEST_TXT="${RESULTS}/iotest.txt"
 declare -r IOTEST_SVG="${RESULTS}/iotest.svg"
 
 # deafults for iotests
-badge_generate 'IO Tests' '0/0'
+generate_badge 'IO Tests' '0/0'
 
 printf -- 'n/a' > "${IOTEST_TXT}"
 printf -- '' > "${IOTEST_LOG}"

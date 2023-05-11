@@ -13,7 +13,7 @@ if [[ -n "${JUNIT_LOG}" ]]; then
   cat "${JUNIT_LOG}"
   found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
   successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
-  badge_generate 'JUnit Tests' "${successful}/${found}"
+  generate_badge 'JUnit Tests' "${successful}/${found}"
 fi
 
 if [[ -n "${ACADEMY_EDITABLE}" ]]; then
@@ -26,5 +26,5 @@ if [[ -n "${ACADEMY_EDITABLE}" ]]; then
   declare -i perc=100
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
-  badge_generate 'Code Style' "${perc} %"
+  generate_badge 'Code Style' "${perc} %"
 fi

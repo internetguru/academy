@@ -135,5 +135,5 @@ run_io_tests() {
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
-  badge_generate 'IO Tests' "${passed}/${count}" "${test_color}"
+  generate_badge 'IO Tests' "${passed}/${count}" "${test_color}"
 }

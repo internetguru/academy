@@ -236,9 +236,9 @@ meta:
       mkdir -p .results
       source "${ACADEMY_DIR}/badges"
       WORKING_DIR='.'
-      badge_generate 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
-      badge_generate 'Updates' 'unknown'
-      badge_generate 'Status' 'unknown'
+      generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
+      generate_badge 'Updates' 'unknown'
+      generate_badge 'Status' 'unknown'
     - |
       for badge in .results/*.svg; do
         [[ "${badge}" =~ ".results/"(.*).svg ]]

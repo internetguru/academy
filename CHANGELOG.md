@@ -25,7 +25,7 @@ _Stable release based on [0.5.0-rc.1]._
 
 ### Added
 
-- Extened badge_generate function adding file, link and title params
+- Extened generate_badge function adding file, link and title params
 
 ## [0.4.0] - 2023-03-05
 ### Added

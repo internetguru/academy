@@ -4,20 +4,20 @@ declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
 
 if [[ -d "${IOTEST_FOLDER}" ]]; then
   declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-  badge_generate 'IO Tests' '0/0'
+  generate_badge 'IO Tests' '0/0'
   printf -- '' > "${IOTEST_LOG}"
 fi
 
 if compgen -G "${WORKING_DIR}/*Test*.java" >/dev/null; then
   declare -r JUNIT_LOG="${RESULTS}/junit.log"
-  badge_generate 'JUnit Tests' '0/0'
+  generate_badge 'JUnit Tests' '0/0'
   printf -- '' > "${JUNIT_LOG}"
   declare -r JUNIT_FILE="${ACADEMY_CACHE}/junit.jar"
   [[ -f "${JUNIT_FILE}" ]] \
     || curl -sL "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.2/junit-platform-console-standalone-1.9.2.jar" > "${JUNIT_FILE}"
 fi
 
-badge_generate 'Code Style' 'n/a'
+generate_badge 'Code Style' 'n/a'
 # shellcheck disable=SC2034
 declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
 declare -r CHECKSTYLE_VERION="10.7.0"

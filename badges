@@ -7,7 +7,7 @@ declare DEFAULT_COLOR='inactive'
 badge_init() {
   local badge_name="${1}"
   local badge_default="${2}" #opt
-  badge_generate "${badge_name}" "${badge_default:--}"
+  generate_badge "${badge_name}" "${badge_default:--}"
 }
 
 # % to colors
@@ -38,7 +38,7 @@ url_encode() {
 }
 
 # generate badge
-badge_generate() {
+generate_badge() {
   # required
   local label="${1:-}"
   local value="${2:-}"
