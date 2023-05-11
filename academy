@@ -7,6 +7,8 @@ declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 # shellcheck disable=SC2034
 declare -r SRC_DIR='src'
 declare CUSTOMIZE=1
+[[ -z "${ACADEMY_EDITABLE}" ]] \
+  && ACADEMY_EDITABLE='**/*'
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 source "${DIR}/commons"

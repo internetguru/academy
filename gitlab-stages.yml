@@ -17,7 +17,7 @@ variables:
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
-  ACADEMY_EDITABLE: "*.*"
+  ACADEMY_EDITABLE: "**/*"
   ACADEMY_FORCE_MERGE: ""
 
 cache:
