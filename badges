@@ -51,13 +51,15 @@ generate_badge() {
   local link="${5:-}"
   local title="${6:-}"
   # auto color
-  [[ -z "${color}" ]] \
-    && case "${value}" in
-      n/a) color="${DEFAULT_COLOR}" ;;
-      */*) color="$(fraction_to_color "${value}")" ;;
-      *%) color="$(percent_to_color "${value%\%}")" ;;
-      *) color="${DEFAULT_COLOR}"
-    esac
+  if [[ -z "${color}" ]]; then
+    if [[ $value =~ ^[0-9]+/[0-9]+$ ]]; then
+      color="$(fraction_to_color "${value}")"
+    elif [[ $value =~ ^[0-9]+%$ ]]; then
+      color="$(percent_to_color "${value%\%}")"
+    else
+      color="${DEFAULT_COLOR}"
+    fi
+  fi
   # default badge name is "badge-[ci job name]-[normalized label]"
   # normalized label: spaces to dashes, to lowercase
   [[ -z "${file_name}" ]] \
