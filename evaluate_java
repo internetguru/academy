@@ -1,25 +1,5 @@
+#!/usr/bin/env bash
 
-if [[ -n "${IOTEST_LOG}" ]]; then
-  run_io_tests "java ${WORKING_DIR}/@RELATIVE_PATH@"
-fi
-
-if [[ -n "${JUNIT_LOG}" ]]; then
-  javac -cp "${JUNIT_FILE}" "${WORKING_DIR}"/*.java > "${JUNIT_LOG}"
-  java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=summary >> "${JUNIT_LOG}"
-  cat "${JUNIT_LOG}"
-  declare -ri found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
-  declare -ri successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
-  badge_generate 'JUnit Tests' "${successful}/${found}"
-fi
-
-if [[ -n "${ACADEMY_EDITABLE}" ]]; then
-  java -jar "${CHECKSTYLE_FILE}" -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
-  # shellcheck disable=SC2155
-  declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
-  # shellcheck disable=SC2155
-  declare -ri lines=$(compgen -G "${WORKING_DIR}/${ACADEMY_EDITABLE}" | xargs cat | wc -l)
-  declare -i perc=100
-  (( errs > 0 )) \
-    && (( perc = 99 - errs * 100 / lines ))
-  badge_generate 'Code Style' "${perc} %"
-fi
+io_tests "java \${FILE_PATH}"
+java_juinit_tests
+java_code_style

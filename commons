@@ -30,15 +30,9 @@ confirm() {
 }
 prompt() {
   declare -r message="${1:-Enter value}"
-  declare -r silent="${2}"
   printf -- '%s: ' "${message}" >&2
   clear_stdin
-  # silent user input (e.g. for password)
-  if [[ "${silent}" == 'silent' ]]; then
-    read -rs
-  else
-    read -r
-  fi
+  read -r
   [[ -n "${REPLY}" ]] \
     && return 0
   prompt "${message}"
@@ -53,11 +47,11 @@ exception() {
 }
 warning() {
   declare -r message="${1:-Unknown warning}"
-  declare -ri code=${2:-1}
-  (( code == 1 )) \
-    && printf -- '%s in %s() [ #%d ]\n' "${message}" "${FUNCNAME[1]}" "${code}" >&2 \
-    || printf -- '%s [ #%d ]\n' "${message}" "${code}" >&2
-  return "${code}"
+  printf -- '%s\n' "${message}" >&2
+}
+check_x() {
+  [[ -x "${1}" ]] \
+    || chmod +x "${1}"
 }
 print_usage() {
   declare out
@@ -104,7 +98,87 @@ get_md_section() {
     }' \
     | sed 's/`//g'
 }
-check_lang() {
-  [[ " ${!LANG_TO_EXTENSION[*]} " == *" ${1} "* ]] \
-    || exception "Unsupported language ${1}"
+process_user_scripts() {
+  declare -r type="${1:-}"
+  [[ -z "${type}" ]] \
+    && exception "Missing type argument in process_user_scripts"
+  [[ -z "${ACADEMY_LANG}" ]] \
+    && warning "Undefined ACADEMY_LANG variable. Skipping.." \
+    && return 0
+  [[ ! -f "${DIR}/${type}_${ACADEMY_LANG}" ]] \
+    && exception "Missing ${type} script '${type}_${ACADEMY_LANG}' for selected language."
+  declare -r RESULTS="${WORKING_DIR}/.results"
+  declare -r ACADEMY_CACHE="${HOME}/.academy"
+  mkdir -p "${RESULTS}"
+  mkdir -p "${ACADEMY_CACHE}"
+  declare -A CHANGED_FILES
+  declare editable_files
+  # shellcheck disable=SC2086
+  # shellcheck disable=SC2164
+  editable_files="$(cd "${WORKING_DIR}"; ls -d -- ${ACADEMY_EDITABLE})"
+  # shellcheck disable=SC2034
+  [[ -n "$editable_files" ]] \
+    && mapfile -t CHANGED_FILES < <(
+      git -C "${WORKING_DIR}" diff HEAD..HEAD~1 --name-only 2>/dev/null \
+        | grep -Fx "${editable_files}"
+    )
+  # shellcheck disable=SC1090
+  source "${DIR}/${type}_${ACADEMY_LANG}"
+}
+io_tests() {
+  # defaults
+  declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
+  declare -r IOTEST_LOG="${RESULTS}/iotest.log"
+  generate_badge 'IO Tests' '0/0'
+  printf -- '' > "${IOTEST_LOG}"
+  [[ ! -d "${IOTEST_FOLDER}" ]] \
+    && return
+  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
+  declare summary passed count
+  summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
+  count="$(cut -d',' -f1 <<< "${summary}" | cut -d' ' -f2)"
+  passed="$(cut -d',' -f3 <<< "${summary}" | cut -d' ' -f3)"
+  declare test_color='success'
+  [[ ${passed} -lt ${count} ]] \
+    && test_color='critical'
+  generate_badge 'IO Tests' "${passed}/${count}" "${test_color}"
+}
+java_juinit_tests() {
+  # defaults
+  declare -r JUNIT_LOG="${RESULTS}/junit.log"
+  generate_badge 'JUnit Tests' '0/0'
+  printf -- '' > "${JUNIT_LOG}"
+  # process
+  declare -r JUNIT_FILE="${ACADEMY_CACHE}/junit.jar"
+  [[ -f "${JUNIT_FILE}" ]] \
+    || curl -sL "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.2/junit-platform-console-standalone-1.9.2.jar" > "${JUNIT_FILE}"
+  declare -i found
+  declare -i successful
+  javac -cp "${JUNIT_FILE}" "${WORKING_DIR}"/*.java > "${JUNIT_LOG}"
+  java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=summary >> "${JUNIT_LOG}"
+  cat "${JUNIT_LOG}"
+  found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
+  successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
+  generate_badge 'JUnit Tests' "${successful}/${found}"
+}
+java_code_style() {
+  # defaults
+  generate_badge 'Code Style' 'n/a'
+  # shellcheck disable=SC2034
+  declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
+  declare -r CHECKSTYLE_VERION="10.7.0"
+  declare -r CHECKSTYLE_FILE="${ACADEMY_CACHE}/checkstyle.jar"
+  [[ -f "${CHECKSTYLE_FILE}" ]] \
+    || curl -sL "https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${CHECKSTYLE_VERION}/checkstyle-10.7.0-all.jar" > "${CHECKSTYLE_FILE}"
+  # process
+  # shellcheck disable=SC2086
+  java -jar "${CHECKSTYLE_FILE}" -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
+  # shellcheck disable=SC2155
+  declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
+  # shellcheck disable=SC2155
+  declare -ri lines=$(compgen -G "${WORKING_DIR}/${ACADEMY_EDITABLE}" | xargs cat | wc -l)
+  declare -i perc=100
+  (( errs > 0 )) \
+    && (( perc = 99 - errs * 100 / lines ))
+  generate_badge 'Code Style' "${perc} %"
 }
