@@ -123,16 +123,16 @@ process_user_scripts() {
         | grep -Fx "${editable_files}"
     )
   # shellcheck disable=SC1090
-  [[ -f "${DIR}/pre-${type}_${ACADEMY_LANG}" ]] \
-    && source "${DIR}/pre-${type}_${ACADEMY_LANG}"
-  # shellcheck disable=SC1090
   source "${DIR}/${type}_${ACADEMY_LANG}"
-  # shellcheck disable=SC1090
-  [[ -f "${DIR}/post-${type}_${ACADEMY_LANG}" ]] \
-    && source "${DIR}/post-${type}_${ACADEMY_LANG}"
-  return 0
 }
-run_io_tests() {
+io_tests() {
+  # defaults
+  declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
+  declare -r IOTEST_LOG="${RESULTS}/iotest.log"
+  generate_badge 'IO Tests' '0/0'
+  printf -- '' > "${IOTEST_LOG}"
+  [[ ! -d "${IOTEST_FOLDER}" ]] \
+    && return
   "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
   declare summary passed count
   summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
@@ -142,4 +142,43 @@ run_io_tests() {
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
   generate_badge 'IO Tests' "${passed}/${count}" "${test_color}"
+}
+java_juinit_tests() {
+  # defaults
+  declare -r JUNIT_LOG="${RESULTS}/junit.log"
+  generate_badge 'JUnit Tests' '0/0'
+  printf -- '' > "${JUNIT_LOG}"
+  # process
+  declare -r JUNIT_FILE="${ACADEMY_CACHE}/junit.jar"
+  [[ -f "${JUNIT_FILE}" ]] \
+    || curl -sL "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.2/junit-platform-console-standalone-1.9.2.jar" > "${JUNIT_FILE}"
+  declare -i found
+  declare -i successful
+  javac -cp "${JUNIT_FILE}" "${WORKING_DIR}"/*.java > "${JUNIT_LOG}"
+  java -jar "${JUNIT_FILE}" -cp "${WORKING_DIR}" --scan-classpath --disable-banner --details=summary >> "${JUNIT_LOG}"
+  cat "${JUNIT_LOG}"
+  found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
+  successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
+  generate_badge 'JUnit Tests' "${successful}/${found}"
+}
+java_code_style() {
+  # defaults
+  generate_badge 'Code Style' 'n/a'
+  # shellcheck disable=SC2034
+  declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
+  declare -r CHECKSTYLE_VERION="10.7.0"
+  declare -r CHECKSTYLE_FILE="${ACADEMY_CACHE}/checkstyle.jar"
+  [[ -f "${CHECKSTYLE_FILE}" ]] \
+    || curl -sL "https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${CHECKSTYLE_VERION}/checkstyle-10.7.0-all.jar" > "${CHECKSTYLE_FILE}"
+  # process
+  # shellcheck disable=SC2086
+  java -jar "${CHECKSTYLE_FILE}" -c 'google_checks.xml' ${ACADEMY_EDITABLE} | grep '^\[\(WARN\|ERROR\)' > "${CHECKSTYLE_LOG}"
+  # shellcheck disable=SC2155
+  declare -ri errs=$(cut -d" " -f2 < "${CHECKSTYLE_LOG}" | sort -ut: -k1,2 | wc -l)
+  # shellcheck disable=SC2155
+  declare -ri lines=$(compgen -G "${WORKING_DIR}/${ACADEMY_EDITABLE}" | xargs cat | wc -l)
+  declare -i perc=100
+  (( errs > 0 )) \
+    && (( perc = 99 - errs * 100 / lines ))
+  generate_badge 'Code Style' "${perc} %"
 }

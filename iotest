@@ -91,8 +91,6 @@ io_test() {
   return ${retrun_code}
 }
 run_io_tests() {
-  [[ ! -d "${IOTEST_FOLDER}" ]] \
-    && return
   # run iotests
   declare -i passed=0 count=0 local_passed local_count
   # search deepest folders only by -links 2 (folder with 2 hardlinks)
