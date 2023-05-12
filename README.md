@@ -77,7 +77,7 @@ Docker image for the evaluate and execute jobs. Default value is `ACADEMY_DEFAUL
 Caching directory used to share data between individual jobs and pipelines within a project. Default value is `../.academy-cache`.
 
 `ACADEMY_EDITABLE`
-List of files intended to be edited by users in distributed repositories. Files are separated by spaces and support [globbing](https://tldp.org/LDP/abs/html/globbingref.html), e.g. `image.png video.mp4 src/*.java`. Default value is `*.*`.
+List of files intended to be edited by users in distributed repositories. Files are separated by spaces and support [globbing](https://tldp.org/LDP/abs/html/globbingref.html), e.g. `image.png video.mp4 src/*.java`. Default value is `**/*`.
 
 `ACADEMY_GITLAB_ACCESS_TOKEN`
 [GitLab personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) required for the API communication with `api` scope. This **variable should be secret**, see [masked environmental CI variable](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project).
