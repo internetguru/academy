@@ -226,7 +226,19 @@ meta:
     - *global_init
   script:
     - |
+      # output badges
+      for badge in .results/*.svg; do
+        [[ "${badge}" =~ ".results/"(.*).svg ]]
+        badge_name="${BASH_REMATCH[1]}"
+        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
+          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
+      done
+    - |
       # clear dashboards cache
+      if [[ -z "${ACADEMY_DASHBOARD}" ]]; then
+        echo "Missing or empty ACADEMY_DASHBOARD variable."
+        exit 1
+      fi
       while read dashboard; do
         echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}"
         curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}" \
@@ -239,13 +251,6 @@ meta:
       generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
       generate_badge 'Updates' 'unknown'
       generate_badge 'Status' 'unknown'
-    - |
-      for badge in .results/*.svg; do
-        [[ "${badge}" =~ ".results/"(.*).svg ]]
-        badge_name="${BASH_REMATCH[1]}"
-        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
-          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
-      done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual
