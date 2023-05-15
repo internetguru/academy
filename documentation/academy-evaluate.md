@@ -10,13 +10,10 @@ Academy-Evaluate - evaluate project and create status badges
 
 ## DESCRIPTION
 
-Once you have prepared the Docker image for your course, the next step is to create an evaluation script that will assess students' work.
+With each evaluation, the following scripts are run when found in the `.academy` folder. Filenames are ... For some languages, there are predefined scripts to be run by default.
 
 TODO desc: syntax bash, automatically runned in CI job, generating badges for Dashboard, mark output of specific file for dashboard
 
-TODO structure
-
- - predefined scripts in academy repo or specific in `.academy/[script]`
  - `pre-evaluate_${ACADEMY_LANG}`
    - define default badges (example)
    - define folders, variables, ...
