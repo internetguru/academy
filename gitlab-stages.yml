@@ -272,12 +272,11 @@ meta:
       generate_badge 'Updates' 'unknown' '' '20-badge-updates' "${link}" "${title}"
       generate_badge 'Status' 'unknown' '' '30-badge-status'
     - |
-      set -x
       # output badges
       for badge in $(ls -1v .results/*.svg); do
         [[ "${badge}" =~ ".results/"(.*).svg ]]
         badge_name="${BASH_REMATCH[1]}"
-        badge_link="$(grep -Po '(?<=href=")([^"]+)' "${badge}")"
+        badge_link="$(grep -Po '(?<=href=")([^"]+)' "${badge}" || true)"
         if [[ -z "${badge_link}" ]]; then
           printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
             "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
