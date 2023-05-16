@@ -161,7 +161,7 @@ clear-cache:
   script:
     - |
       for file in "${ACADEMY_CACHE}"/*; do
-        fm -rf "${file}"
+        rm -rf "${file}"
       done
   rules:
     - when: manual
