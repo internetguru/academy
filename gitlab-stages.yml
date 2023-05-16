@@ -147,6 +147,26 @@ distribute:
     - when: manual
   allow_failure: true
 
+clear-cache:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: manage
+  cache:
+    - key: academy-cache
+      paths:
+        - $ACADEMY_CACHE
+  tags:
+    - docker
+  before_script:
+    - *global_init
+  script:
+    - |
+      for file in "${ACADEMY_CACHE}"/*; do
+        fm -rf "${file}"
+      done
+  rules:
+    - when: manual
+  allow_failure: true
+
 execute:
   image: ${ACADEMY_DOCKER_IMAGE}
   stage: run
@@ -284,22 +304,3 @@ submit:
     - if: $CI_COMMIT_BRANCH == "source"
       when: always
     - when: never
-
-clear-cache:
-  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
-  stage: manage
-  cache:
-    - key: academy-cache
-      paths:
-        - $ACADEMY_CACHE
-  tags:
-    - docker
-  before_script:
-    - *global_init
-  script:
-    - |
-      for file in "${ACADEMY_CACHE}"/*; do
-        fm -rf "${file}"
-      done
-  rules:
-    - when: manual
