@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-io_tests "java \${FILE_PATH}"
+io_tests "java '\${FILE_PATH}'"
 java_juinit_tests
 java_code_style

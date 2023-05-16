@@ -111,7 +111,7 @@ process_user_scripts() {
   declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
   mkdir -p "${ACADEMY_CACHE}"
-  declare -A CHANGED_FILES
+  declare -a CHANGED_FILES
   declare editable_files
   # shellcheck disable=SC2086
   # shellcheck disable=SC2164
