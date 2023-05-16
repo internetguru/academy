@@ -51,6 +51,7 @@ io_test() {
   # add loop variables
   # shellcheck disable=SC2034
   declare -r FILE_PATH="${WORKING_DIR}/${test_folder#"${IOTEST_FOLDER}/"}"
+  echo "[${FILE_PATH}]"
   # TODO use optarg file
   declare out_file err_file status_code stdin stdin_file
   out_file="$(mktemp)"
