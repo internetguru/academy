@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x
 set -o pipefail
 declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
