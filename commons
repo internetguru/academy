@@ -207,5 +207,5 @@ java_code_style() {
   [[ -n "${CI}" ]] \
     && title='View Code Style log' \
     && link="$(get_artifact_url "${CI_PROJECT_ID}" "${CI_COMMIT_BRANCH}" "${CHECKSTYLE_LOG#"${WORKING_DIR}/"}" "${CI_JOB_NAME}")"
-  generate_badge 'Code Style' "${perc} %" '' "${badge_name}" "${link}" "${title}"
+  generate_badge 'Code Style' "${perc}%" '' "${badge_name}" "${link}" "${title}"
 }
