@@ -246,11 +246,16 @@ meta:
       done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
+      source "${ACADEMY_DIR}/commons"
       source "${ACADEMY_DIR}/badges"
       WORKING_DIR='.'
-      generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
-      generate_badge 'Updates' 'unknown'
-      generate_badge 'Status' 'unknown'
+      title='View activity'
+      link="${CI_PROJECT_URL}/activity"
+      generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue' '10-badge-age' "${link}" "${title}"
+      title='View all merge requests'
+      link="${CI_PROJECT_URL}/-/merge_requests"
+      generate_badge 'Updates' 'unknown' '20-badge-updates' "${link}" "${title}"
+      generate_badge 'Status' 'unknown' '30-badge-status'
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual

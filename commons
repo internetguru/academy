@@ -132,11 +132,11 @@ get_artifact_url() {
   declare job="${4:-}"
   [[ -z "${project_id}" || -z "${branch}" || -z "${artifact_path}" || -z "${job}" ]] \
     && exception "Missing or empty get_artifact_url arguments"
-  echo "https://gitlab.com/api/v4/projects/${project_id}/jobs/artifacts/${branch}/raw/${artifact_path}?job=${job}"
+  echo "${CI_API_V4_URL}/projects/${project_id}/jobs/artifacts/${branch}/raw/${artifact_path}?job=${job}"
 }
 io_tests() {
   # defaults
-  declare -r badge_name='10-badge-iotest'
+  declare -r badge_name='100-badge-iotest'
   declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
   declare -r IOTEST_LOG="${RESULTS}/iotest.log"
   generate_badge 'IO Tests' '0/0' '' "${badge_name}"
@@ -160,7 +160,7 @@ io_tests() {
 }
 java_juinit_tests() {
   # defaults
-  declare -r badge_name='20-badge-java-junit'
+  declare -r badge_name='200-badge-java-junit'
   declare -r JUNIT_LOG="${RESULTS}/junit.log"
   generate_badge 'JUnit Tests' '0/0' '' "${badge_name}"
   printf -- '' > "${JUNIT_LOG}"
@@ -184,7 +184,7 @@ java_juinit_tests() {
 }
 java_code_style() {
   # defaults
-  declare -r badge_name='30-badge-java-code-style'
+  declare -r badge_name='300-badge-java-code-style'
   generate_badge 'Code Style' 'n/a' '' "${badge_name}"
   # shellcheck disable=SC2034
   declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
