@@ -2,7 +2,7 @@
 
 ## NAME
 
-Academy-Execute - TODO
+Academy-Execute - Execute files
 
 ## SYNOPSIS
 
@@ -10,7 +10,7 @@ Academy-Execute - TODO
 
 ## DESCRIPTION
 
-
+With each execute, a default `execute_${ACADEMY_LANG}` file is executed which can be overriden by a file of the same name in the .academy folder.
 
 ## OPTIONS
 
