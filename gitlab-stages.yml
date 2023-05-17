@@ -147,6 +147,29 @@ distribute:
     - when: manual
   allow_failure: true
 
+clear-cache:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: manage
+  tags:
+    - docker
+  before_script:
+    - *global_init
+  script:
+    - |
+      for file in "${ACADEMY_CACHE}/"*; do
+        rm -rf "${file}"
+      done
+      for file in ".results/"*; do
+        rm -rf "${file}"
+      done
+  rules:
+    - when: manual
+  artifacts:
+    paths:
+      - .results/
+    expire_in: 1 year
+  allow_failure: true
+
 execute:
   image: ${ACADEMY_DOCKER_IMAGE}
   stage: run
@@ -227,6 +250,10 @@ meta:
   script:
     - |
       # clear dashboards cache
+      if [[ -z "${ACADEMY_DASHBOARD}" ]]; then
+        echo "Missing or empty ACADEMY_DASHBOARD variable."
+        exit 1
+      fi
       while read dashboard; do
         echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}"
         curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}" \
@@ -234,17 +261,29 @@ meta:
       done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
+      source "${ACADEMY_DIR}/commons"
       source "${ACADEMY_DIR}/badges"
       WORKING_DIR='.'
-      generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
-      generate_badge 'Updates' 'unknown'
-      generate_badge 'Status' 'unknown'
+      title='View activity'
+      link="${CI_PROJECT_URL}/activity"
+      generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue' '10-badge-age' "${link}" "${title}"
+      title='View all merge requests'
+      link="${CI_PROJECT_URL}/-/merge_requests"
+      generate_badge 'Updates' 'unknown' '' '20-badge-updates' "${link}" "${title}"
+      generate_badge 'Status' 'unknown' '' '30-badge-status'
     - |
-      for badge in .results/*.svg; do
+      # output badges
+      for badge in $(ls -1v .results/*.svg); do
         [[ "${badge}" =~ ".results/"(.*).svg ]]
         badge_name="${BASH_REMATCH[1]}"
-        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
-          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
+        badge_link="$(grep -Po '(?<=href=")([^"]+)' "${badge}" || true)"
+        if [[ -z "${badge_link}" ]]; then
+          printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
+            "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
+        else
+          printf -- '[![%s](%s/builds/artifacts/%s/raw/%s?job=meta)](%s)\n' \
+            "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}" "${badge_link}"
+        fi
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"

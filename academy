@@ -58,6 +58,7 @@ while (( $# > 0 )); do
     evaluate|execute)
       declare -r CMD="${1}"
       shift
+      export WORKING_DIR
       # shellcheck disable=SC1091
       source "${DIR}/gitlab_api"
       customize_academy

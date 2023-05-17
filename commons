@@ -111,7 +111,7 @@ process_user_scripts() {
   declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
   mkdir -p "${ACADEMY_CACHE}"
-  declare -A CHANGED_FILES
+  declare -a CHANGED_FILES
   declare editable_files
   # shellcheck disable=SC2086
   # shellcheck disable=SC2164
@@ -125,11 +125,21 @@ process_user_scripts() {
   # shellcheck disable=SC1090
   source "${DIR}/${type}_${ACADEMY_LANG}"
 }
+get_artifact_url() {
+  declare project_id="${1:-}"
+  declare branch="${2:-}"
+  declare artifact_path="${3:-}"
+  declare job="${4:-}"
+  [[ -z "${project_id}" || -z "${branch}" || -z "${artifact_path}" || -z "${job}" ]] \
+    && exception "Missing or empty get_artifact_url arguments"
+  echo "${CI_API_V4_URL}/projects/${project_id}/jobs/artifacts/${branch}/raw/${artifact_path}?job=${job}"
+}
 io_tests() {
   # defaults
+  declare -r badge_name='100-badge-iotest'
   declare -r IOTEST_FOLDER="${WORKING_DIR}/iotest"
   declare -r IOTEST_LOG="${RESULTS}/iotest.log"
-  generate_badge 'IO Tests' '0/0'
+  generate_badge 'IO Tests' '0/0' '' "${badge_name}"
   printf -- '' > "${IOTEST_LOG}"
   [[ ! -d "${IOTEST_FOLDER}" ]] \
     && return
@@ -141,12 +151,18 @@ io_tests() {
   declare test_color='success'
   [[ ${passed} -lt ${count} ]] \
     && test_color='critical'
-  generate_badge 'IO Tests' "${passed}/${count}" "${test_color}"
+  declare link=''
+  declare title=''
+  [[ -n "${CI}" ]] \
+    && title='View IO tests log' \
+    && link="$(get_artifact_url "${CI_PROJECT_ID}" "${CI_COMMIT_BRANCH}" "${IOTEST_LOG#"${WORKING_DIR}/"}" "${CI_JOB_NAME}")"
+  generate_badge 'IO Tests' "${passed}/${count}" "${test_color}" "${badge_name}" "${link}" "${title}"
 }
 java_juinit_tests() {
   # defaults
+  declare -r badge_name='200-badge-java-junit'
   declare -r JUNIT_LOG="${RESULTS}/junit.log"
-  generate_badge 'JUnit Tests' '0/0'
+  generate_badge 'JUnit Tests' '0/0' '' "${badge_name}"
   printf -- '' > "${JUNIT_LOG}"
   # process
   declare -r JUNIT_FILE="${ACADEMY_CACHE}/junit.jar"
@@ -159,11 +175,17 @@ java_juinit_tests() {
   cat "${JUNIT_LOG}"
   found=$(grep -oP '\d(?= tests found)' "${JUNIT_LOG}")
   successful=$(grep -oP '\d(?= tests successful)' "${JUNIT_LOG}")
-  generate_badge 'JUnit Tests' "${successful}/${found}"
+  declare link=''
+  declare title=''
+  [[ -n "${CI}" ]] \
+    && title='View JUnit tests log' \
+    && link="$(get_artifact_url "${CI_PROJECT_ID}" "${CI_COMMIT_BRANCH}" "${JUNIT_LOG#"${WORKING_DIR}/"}" "${CI_JOB_NAME}")"
+  generate_badge 'JUnit Tests' "${successful}/${found}" '' "${badge_name}" "${link}" "${title}"
 }
 java_code_style() {
   # defaults
-  generate_badge 'Code Style' 'n/a'
+  declare -r badge_name='300-badge-java-code-style'
+  generate_badge 'Code Style' 'n/a' '' "${badge_name}"
   # shellcheck disable=SC2034
   declare -r CHECKSTYLE_LOG="${RESULTS}/checkstyle.log"
   declare -r CHECKSTYLE_VERION="10.7.0"
@@ -180,5 +202,10 @@ java_code_style() {
   declare -i perc=100
   (( errs > 0 )) \
     && (( perc = 99 - errs * 100 / lines ))
-  generate_badge 'Code Style' "${perc} %"
+  declare link=''
+  declare title=''
+  [[ -n "${CI}" ]] \
+    && title='View Code Style log' \
+    && link="$(get_artifact_url "${CI_PROJECT_ID}" "${CI_COMMIT_BRANCH}" "${CHECKSTYLE_LOG#"${WORKING_DIR}/"}" "${CI_JOB_NAME}")"
+  generate_badge 'Code Style' "${perc}%" '' "${badge_name}" "${link}" "${title}"
 }
