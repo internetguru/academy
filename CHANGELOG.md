@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- New feature 'consolidate'.
+
 ## [0.5.1] - 2023-05-10
 
 ### Fixed
