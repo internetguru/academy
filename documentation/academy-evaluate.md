@@ -10,26 +10,13 @@ Academy-Evaluate - evaluate project and create status badges
 
 ## DESCRIPTION
 
-With each evaluation, the following scripts are run when found in the `.academy` folder. Filenames are ... For some languages, there are predefined scripts to be run by default.
-
-TODO desc: syntax bash, automatically runned in CI job, generating badges for Dashboard, mark output of specific file for dashboard
-
- - `pre-evaluate_${ACADEMY_LANG}`
-   - define default badges (example)
-   - define folders, variables, ...
- - `evaluate_${ACADEMY_LANG}`
-   - process evaluation, use run_io_tests function
-   - generate badges
-   - output marks for Dashboard
-   %% file start ${fileName} %%
-   %% file end ${fileName} %%
- - `post-evaluate_${ACADEMY_LANG}`
+With each evaluate, a default `evaluate_${ACADEMY_LANG}` file is executed which can be overriden by a file of the same name in the .academy folder.
 
 ### `run_io_tests` function
 
 This function performs simple I/O tests. It accepts one parameter of a command run syntax.
 
-For each folder from `iotest//*` the function defines a `FILE_PATH` variable e.g. `src/SumClass.java`. To use the variable, make sure it is not expanded, e.g. `run_io_tests "java \${FILE_PATH}"` or `run_io_tests ‘java ${FILE_PATH}’`.
+For each folder from `iotest/*` the function defines a `FILE_PATH` variable e.g. `src/SumClass.java`. To use the variable, make sure it is not expanded, e.g. `run_io_tests "java \${FILE_PATH}"` or `run_io_tests ‘java ${FILE_PATH}’`.
 
 For each `test_name.file_ext` in the folder, the function performs set of tests per `test_name` supporting the following extensions: `stdin`, `stdout`, `optarg` (not implemented), `sc`, `errout`.
 
@@ -92,21 +79,6 @@ George J. Pavelka <george@internetguru.io>
 
 [How to write doc comments for the javadoc tool](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html)
 
-[Apache Maven](https://maven.apache.org/)
-
 [checkstyle](https://checkstyle.sourceforge.io/)
 
-[Maven checkstyle plugin](https://maven.apache.org/plugins/maven-checkstyle-plugin/)
-
-[GitLab job artifacts](https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html)
-
 [Shields.io](https://shields.io/)
-
-
-[Checkstyle for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
-
-[Checkstyle for Eclipse](https://checkstyle.org/eclipse-cs/#!/)
-
-[Checkstyle for NetBeans](https://checkstyle.org/netbeans.html)
-
-[Checkstyle for Intellij IDEA](https://checkstyle.org/idea.html)
