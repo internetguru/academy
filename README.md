@@ -80,7 +80,7 @@ Caching directory used to share data between individual jobs and pipelines withi
 List of files intended to be edited by users in distributed repositories. Files are separated by spaces and support [globbing](https://tldp.org/LDP/abs/html/globbingref.html), e.g. `image.png video.mp4 src/*.java`. Default value is `**/*`.
 
 `ACADEMY_GITLAB_ACCESS_TOKEN`
-[GitLab personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) required for the API communication with `api` scope. This **variable should be secret**, see [masked environmental CI variable](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project).
+[GitLab personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token) required for the API communication with `api` scope. It's recommended to use [Group Access Tokens](https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html). This **variable should be secret**, see [masked environmental CI variable](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project).
 
 `ACADEMY_ASSIGN`
 List of users for the [`academy distribute` command](documentation/academy-distribute.md). If this variable is empty, `ACADEMY_ASSIGN` file is used instead (which does not get distributed). Users can be separated by white-spaces or commas.
