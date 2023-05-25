@@ -119,6 +119,12 @@ The following documentation files are available after installation using `man` c
 - [academy collect](documentation/academy-collect.md)
 - [academy measure](documentation/academy-measure.md)
 
-## Licensing
+## Copyright
 
-All rights reserved.
+Copyright © 2016--2023 [Internet Guru](https://www.internetguru.io)
+
+This software is licensed under the CC BY-NC-SA license. There is NO WARRANTY, to the extent permitted by law. See the [LICENSE](LICENSE) file.
+
+For commercial use, a nominal fee may be applicable based on the company size and the nature of their product. In many instances, this could result in no fees being charged at all. Please contact us at info@internetguru.io for further information.
+
+Please do not hesitate to reach out to us for inquiries related to seminars, workshops, training, integration, support, custom development, and additional services. We are more than happy to assist you.
