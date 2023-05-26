@@ -115,7 +115,7 @@ run_io_tests() {
     done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
     printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
   else
-    declare -r folder="${IOTEST_FOLDER#"${WORKING_DIR}/"}/${IOTEST_SINGLE_NAME}"
+    declare -r folder="${IOTEST_FOLDER}/${IOTEST_SINGLE_NAME}"
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       io_test "${folder}" "${name}" \
@@ -128,7 +128,7 @@ main() {
     || io_test_exit "Missing iotest folder"
   [[ -n "${2}" ]] \
     || io_test_exit "Missing iotest cmd"
-  declare -r IOTEST_FOLDER="${1}"
+  declare -r IOTEST_FOLDER="${1#"${WORKING_DIR}/"}"
   declare -r IOTEST_CMD="${2}"
   declare -r IOTEST_SINGLE_NAME="${3:-}"
   run_io_tests
