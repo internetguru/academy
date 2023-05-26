@@ -143,7 +143,7 @@ io_tests() {
   printf -- '' > "${IOTEST_LOG}"
   [[ ! -d "${IOTEST_FOLDER}" ]] \
     && return
-  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" | tee "${IOTEST_LOG}"
+  "${DIR}/iotest" "${IOTEST_FOLDER}" "${1}" "${2:-}" | tee "${IOTEST_LOG}"
   declare summary passed count
   summary="$(grep 'Summary:' < "${IOTEST_LOG}" | cut -d ' ' -f2-)"
   count="$(cut -d',' -f1 <<< "${summary}" | cut -d' ' -f2)"
