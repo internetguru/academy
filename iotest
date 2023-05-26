@@ -115,6 +115,7 @@ run_io_tests() {
     done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
     printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
   else
+    set -x
     declare -r folder="${IOTEST_FOLDER}/${IOTEST_SINGLE_NAME}"
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
