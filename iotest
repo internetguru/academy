@@ -99,14 +99,23 @@ run_io_tests() {
     local_count=0
     echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%"
     # shellcheck disable=SC2012
-    for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
+    if [[ -z "${IOTEST_SINGLE_NAME}" ]]; then
+      for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
+        count+=1
+        local_count+=1
+        io_test "${folder}" "${name}" \
+          && passed+=1 \
+          && local_passed+=1
+        printf -- "\n"
+      done
+    else
       count+=1
       local_count+=1
-      io_test "${folder}" "${name}" \
+      io_test "${folder}" "${IOTEST_SINGLE_NAME}" \
         && passed+=1 \
         && local_passed+=1
       printf -- "\n"
-    done
+    fi
     printf -- "%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
       "${local_count}" "${local_passed}"
     echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
@@ -121,6 +130,7 @@ main() {
     || io_test_exit "Missing iotest cmd"
   declare -r IOTEST_FOLDER="${1}"
   declare -r IOTEST_CMD="${2}"
+  declare -r IOTEST_SINGLE_NAME="${3:-}"
   run_io_tests
 }
 
