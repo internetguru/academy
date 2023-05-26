@@ -48,6 +48,7 @@ cache:
   fi
   if [[ -d "${ACADEMY_DIR}/.git" ]]; then
     git -C "${ACADEMY_DIR}" reset --hard
+    git -C "${ACADEMY_DIR}" clean -fd
     git -C "${ACADEMY_DIR}" config --replace-all remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     git -C "${ACADEMY_DIR}" fetch origin ${revision}
     git -C "${ACADEMY_DIR}" checkout origin/${revision}
