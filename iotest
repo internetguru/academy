@@ -119,7 +119,7 @@ run_io_tests() {
     declare -r folder="${IOTEST_FOLDER#"${WORKING_DIR}/"}/${IOTEST_SINGLE_NAME}"
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
-      io_test " ${folder}" "${name}" \
+      io_test "${folder}" "${name}" \
         || true
     done
   fi
