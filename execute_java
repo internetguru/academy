@@ -3,3 +3,9 @@
 for file in "${CHANGED_FILES[@]}"; do
   io_tests "java \${FILE_PATH}" "${file}"
 done
+
+
+for file in "${CHANGED_FILES[@]}"; do
+  grep -q "static void main" "${WORKING_DIR}/${file}" \
+    && java "${WORKING_DIR}/${file}"
+done
