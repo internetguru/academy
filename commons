@@ -111,17 +111,21 @@ process_user_scripts() {
   declare -r ACADEMY_CACHE="${HOME}/.academy"
   mkdir -p "${RESULTS}"
   mkdir -p "${ACADEMY_CACHE}"
-  declare -a CHANGED_FILES
   declare editable_files
-  # shellcheck disable=SC2086
-  # shellcheck disable=SC2164
-  editable_files="$(cd "${WORKING_DIR}"; ls -d -- ${ACADEMY_EDITABLE})"
-  # shellcheck disable=SC2034
-  [[ -n "$editable_files" ]] \
-    && mapfile -t CHANGED_FILES < <(
-      git -C "${WORKING_DIR}" diff HEAD..HEAD~1 --name-only 2>/dev/null \
-        | grep -Fx "${editable_files}"
-    )
+  declare -a CHANGED_FILES
+  if [[ -n "${ACADEMY_CHANGED_FILES}" ]]; then
+    mapfile -t CHANGED_FILES <<< "${ACADEMY_CHANGED_FILES// /$'\n'}"
+  else
+    # shellcheck disable=SC2086
+    # shellcheck disable=SC2164
+    editable_files="$(cd "${WORKING_DIR}"; ls -d -- ${ACADEMY_EDITABLE})"
+    # shellcheck disable=SC2034
+    [[ -n "$editable_files" ]] \
+      && mapfile -t CHANGED_FILES < <(
+        git -C "${WORKING_DIR}" diff HEAD..HEAD~1 --name-only 2>/dev/null \
+          | grep -Fx "${editable_files}"
+      )
+  fi
   # shellcheck disable=SC1090
   source "${DIR}/${type}_${ACADEMY_LANG}"
 }
