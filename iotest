@@ -103,11 +103,11 @@ run_io_tests() {
       for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
         count+=1
         local_count+=1
-        io_test "${folder}" "${name}" \
+        io_test "${folder}" "${name}" > /dev/null \
           && passed+=1 \
-          && local_passed+=1 > /dev/null
+          && local_passed+=1
       done
-      printf -- "%s: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
+      printf -- "%s IO tests: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
         "${local_count}" "${local_passed}"
       echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
     done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
