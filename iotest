@@ -105,11 +105,9 @@ run_io_tests() {
         local_count+=1
         io_test "${folder}" "${name}" \
           && passed+=1 \
-          && local_passed+=1
-        printf -- "\n"
+          && local_passed+=1 > /dev/null
       done
-      printf -- "\n"
-      printf -- "%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
+      printf -- "%s: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
         "${local_count}" "${local_passed}"
       echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
     done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
