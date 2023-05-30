@@ -2,6 +2,7 @@
 
 for file in "${CHANGED_FILES[@]}"; do
   io_tests "java \${FILE_PATH}" "${file}"
-  grep -q "static void main" "${WORKING_DIR}/${file}" \
-    && java "${WORKING_DIR}/${file}"
+  if grep -q "static void main" "${WORKING_DIR}/${file}"; then
+    java "${WORKING_DIR}/${file}"
+  fi
 done
