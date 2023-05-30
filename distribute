@@ -34,6 +34,8 @@ update_links() {
   local user_project_ns="${3:-${user_project_ns}}"
   local PROJECT_BRANCH="${4:-${PROJECT_BRANCH}}"
   local user_default_branch="${5:-${user_default_branch}}"
+  local PROJECT_ID="${6:-${PROJECT_ID}}"
+  local project_id="${7:-${project_id}}"
   [[ "${UPDATE_LINKS}" != 'true' ]] \
     && return
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
@@ -42,6 +44,7 @@ update_links() {
   sed -i "s~/\(pipeline\|raw\|file\)/${PROJECT_BRANCH}~/\1/${user_default_branch}~g" "${user_readme_path}"
   sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_default_branch}~g" "${user_readme_path}"
   sed -i "s~\(https://[^/]*\)/${PROJECT_LINK#*/}~\1/${user_project_ns#*/}~g" "${user_readme_path}"
+  sed -i "s~/projects/${PROJECT_ID}/jobs/~/projects/${project_id}/jobs/~g" "${user_readme_path}"
 }
 init_user_repo() {
   declare user_id=''
@@ -174,16 +177,20 @@ update_default_branch() {
     && return
   declare dest_default_branch
   declare dest_project_ns
+  declare dest_project_id
   dest_default_branch="$(get_default_branch)"
   dest_project_ns="${user_project_ns}"
+  dest_project_id="${project_id}"
   declare dest_cache_folder
   declare user_cache_folder
   declare user_project_name
   declare user_project_ns
+  declare user_project_id
   declare user_default_branch
   dest_cache_folder="${1}"
   user_project_name="${PREFIX}${user_name}"
   user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
+  user_project_id="$(get_project_id "${user_project_ns}")"
   user_cache_folder="$(get_cache_folder)"
   user_default_branch="$(get_default_branch)" \
     || return 1
@@ -191,13 +198,8 @@ update_default_branch() {
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
   git_checkout "${dest_cache_folder}" "-B${dest_default_branch}"
   sync_cache "${user_cache_folder}" "${dest_cache_folder}" --exclude=.gitlab-ci.yml
-  # user_cache_folder ~ dest
-  # PROJECT_LINK ~ src
-  # user_project_ns ~ dest
-  # PROJECT_BRANCH ~ src
-  # user_default_branch ~ dest
   update_links "${dest_cache_folder}" "$(get_remote_namespace "${user_cache_folder}")" \
-    "${dest_project_ns}" "${user_default_branch}" "${dest_default_branch}"
+    "${dest_project_ns}" "${user_default_branch}" "${dest_default_branch}" "${user_project_id}" "${dest_project_id}"
   git_add_all "${dest_cache_folder}"
   git_commit "${dest_cache_folder}" '--allow-empty' '-m "Update from user repo"'
   git_push "${dest_cache_folder}" '--all'
@@ -229,6 +231,7 @@ process_users() {
     user_cache_folder="$(get_cache_folder)"
     if ! project_exists; then
       init_user_repo \
+        && project_id="$(get_project_id "${user_project_ns}")" \
         && update_default_branch "${user_cache_folder}" \
         && msg_end CREATED
       continue
@@ -237,9 +240,9 @@ process_users() {
       || exit 1
     status_empty
     status_empty_code=$?
-    update_default_branch "${user_cache_folder}" \
-      || continue
     project_id="$(get_project_id "${user_project_ns}")" \
+      || continue
+    update_default_branch "${user_cache_folder}" \
       || continue
     user_id="$(get_user_id)"
     add_member
