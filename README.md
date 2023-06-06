@@ -121,7 +121,7 @@ The following documentation files are available after installation using `man` c
 
 ## Copyright
 
-Copyright © 2016--2023 [Internet Guru](https://www.internetguru.io)
+Copyright © [Internet Guru](https://www.internetguru.io)
 
 This software is licensed under the CC BY-NC-SA license. There is NO WARRANTY, to the extent permitted by law. See the [LICENSE](LICENSE) file.
 
