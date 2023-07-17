@@ -111,15 +111,17 @@ run_io_tests() {
         "${local_count}" "${local_passed}"
       echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
     done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
-    printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
   else
     declare -r folder="${IOTEST_FOLDER}/${IOTEST_SINGLE_NAME}"
+    count=1
     # shellcheck disable=SC2012
     for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
       io_test "${folder}" "${name}" \
-        || true
+        && passed=1 \
+        || passed=0
     done
   fi
+  printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
 }
 main() {
   [[ -n "${1}" ]] \
