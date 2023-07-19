@@ -360,7 +360,7 @@ fork_project() {
 create_project_submit_token() {
   local token
   local output
-  output="$(gitlab_api "api/v4/projects/${project_id}/access_tokens" "{ \"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40 }")" \
+  output="$(gitlab_api "api/v4/projects/${project_id}/access_tokens" "{ \"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40, \"expire_at\": \"$(date +%Y-%m-%d -d "+ 356 day")\" }")" \
     || return 1
   token="$(jq -r .token <<< "${output}")"
   gitlab_api "api/v4/projects/${project_id}/variables" "POST-FORM:key=ACADEMY_SUBMIT_TOKEN&value=${token}&protected=true&masked=true" > /dev/null
