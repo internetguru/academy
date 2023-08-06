@@ -178,16 +178,6 @@ execute:
     - docker
   before_script:
     - *global_init
-    - |
-      # skip initial commits
-      if [[ $(git rev-list --all --count) -le 1 ]]; then
-        exit 0
-      fi
-      # do not evaluate ACADEMY_ASSIGN changes only
-      if [[ "$(git diff HEAD..HEAD~1 --name-only)" == "ACADEMY_ASSIGN" ]]; then
-        echo "Project execution stoped due to changes in ACADEMY_ASSIGN only"
-        exit 1
-      fi
   script:
     - echo '%% job start execute %%'
     - ${ACADEMY} execute
@@ -197,9 +187,16 @@ execute:
       - .results/
     expire_in: 1 year
   rules:
+    - if: $ACADEMY_FORCE_JOB == "true"
+      when: always
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual
-    - if: '$ACADEMY_EXECUTE == "always"'
+    - changes:
+      - ACADEMY_ASSIGN
+      when: manual
+    - if: $CI_PIPELINE_IID == "1"
+      when: manual
+    - if: $ACADEMY_EXECUTE == "always"
       when: always
     - when: manual
   allow_failure: true
@@ -211,11 +208,6 @@ evaluate:
     - docker
   before_script:
     - *global_init
-    - |
-      # skip initial commits
-      if [[ $(git rev-list --all --count) -le 1 ]]; then
-        exit 0
-      fi
   script:
     - echo '%% job start evaluate %%'
     - ${ACADEMY} evaluate
