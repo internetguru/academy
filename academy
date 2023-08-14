@@ -49,6 +49,7 @@ while (( $# > 0 )); do
       # shellcheck disable=SC1091
       source "${DIR}/gitlab_api"
       # check requirements
+      customize_academy
       check_command git jq
       declare -r CMD="${1}"
       # shellcheck disable=SC1090

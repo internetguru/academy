@@ -213,8 +213,6 @@ process_users() {
   declare -i valid=0
   declare -i invalid=0
   declare status_empty_code
-  [[ -z "${CACHE_FOLDER}" ]] \
-    && CACHE_FOLDER="$(mktemp -d)"
   # shellcheck disable=SC2013
   for user_name in $(cat <&3); do
     user_project_name="${PREFIX}${user_name}"
@@ -267,7 +265,16 @@ distribute() {
   [[ -d "${WORKING_DIR}/.git" ]] \
     && ! git_status_empty "${WORKING_DIR}" \
     && exception 'Git status is not empty'
+  [[ -z "${CACHE_FOLDER}" ]] \
+    && CACHE_FOLDER="$(mktemp -d)"
+  # shellcheck disable=SC1091
+  [[ "${COLLECT}" == 1 && -f "${DIR}/pre-distribute" ]] \
+    && source "${DIR}/pre-distribute" "${CACHE_FOLDER}"
   process_users
+  # shellcheck disable=SC1091
+  [[ "${COLLECT}" == 1 && -f "${DIR}/post-distribute" ]] \
+    && source "${DIR}/post-distribute" "${CACHE_FOLDER}"
+  return 0
 }
 
 # global constants
@@ -281,6 +288,7 @@ declare -ri DEV_ACCESS_LEVEL=30
 declare -ri MAINTAINER_ACCESS_LEVEL=40
 
 # default variables
+declare COLLECT=0
 declare CACHE_FOLDER=''
 declare DRY_RUN='false'
 declare UPDATE_LINKS='false'
@@ -306,8 +314,8 @@ declare FORCE_MERGE=0
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:d:hi:lno:p:s:r:m' \
-  --longoptions 'assign:,help,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:,force-merge' \
+OPT="$(getopt --name "${0}" --options 'a:cd:hi:lno:p:s:r:m' \
+  --longoptions 'assign:,help,collect,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:,force-merge' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -320,6 +328,10 @@ while (( $# > 0 )); do
       [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
         || exception 'Invalid option ASSIGN value'
       shift 2
+      ;;
+    -c|--collect)
+      COLLECT="1"
+      shift
       ;;
     -d|--default-branch-namespace)
       DEFAULT_BRANCH_NAMESPACE="${2}"

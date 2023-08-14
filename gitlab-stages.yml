@@ -117,33 +117,53 @@ distribute:
     # distribute current project among all users
     - |
         declare users
-        declare user_tmp
-        if [[ -n ${ACADEMY_GROUP} ]]; then
-          git fetch --all
-          while read group; do
-            # get users from $group
-            git checkout ${group}
-            users="$(get_users)"
-            # checkout to starting branch
-            git checkout ${CI_COMMIT_REF_NAME}
-            echo "Distributing for ${group}"
-            ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-              --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
-              <<< "${users}"
-          done <<< "${ACADEMY_GROUP}"
-          # TODO remove other existing repositories
-        else
-          users="$(get_users)"
-          declare merge=''
-          if [[ -n "${ACADEMY_FORCE_MERGE}" ]]; then
-            merge='--force-merge'
-          fi
-          ${ACADEMY} distribute ${merge} --update-links --namespace "${user_namespace}" \
-            --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-            <<< "${users}"
+        users="$(get_users)"
+        declare merge=''
+        if [[ -n "${ACADEMY_FORCE_MERGE}" ]]; then
+          merge='--force-merge'
         fi
+        ${ACADEMY} distribute ${merge} --update-links --namespace "${user_namespace}" \
+          --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+          <<< "${users}"
   rules:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
+      when: always
+    - when: manual
+  allow_failure: true
+
+collect:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: manage
+  tags:
+    - docker
+  cache: []
+  before_script:
+    - *validate_token
+    - *global_init
+  script:
+    # set token file (will be deprecated)
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
+    - *get_users
+    - |
+        if [[ -z "${ACADEMY_GROUP}" ]]; then
+          echo "Missing ACADEMY_GROUP variable (groups to collect)."
+          exit 1;
+        fi
+        declare users
+        git fetch --all
+        while read group; do
+          # get users from $group
+          git checkout ${group}
+          users="$(get_users)"
+          # checkout to starting branch
+          git checkout ${CI_COMMIT_REF_NAME}
+          echo "Collecting for ${group}"
+          ${ACADEMY} distribute --collect --update-links --namespace "${user_namespace}" \
+            --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
+            <<< "${users}"
+        done <<< "${ACADEMY_GROUP}"
+        # TODO remove other existing repositories  rules:
+    - if: '$ACADEMY_COLLECT == "always"'
       when: always
     - when: manual
   allow_failure: true
