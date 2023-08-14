@@ -103,7 +103,8 @@ run_io_tests() {
       for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
         count+=1
         local_count+=1
-        io_test "${folder}" "${name}" > /dev/null \
+        # io_test "${folder}" "${name}" > /dev/null \
+        io_test "${folder}" "${name}" \
           && passed+=1 \
           && local_passed+=1
       done
