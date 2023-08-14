@@ -163,6 +163,7 @@ collect:
             <<< "${users}"
         done <<< "${ACADEMY_GROUP}"
         # TODO remove other existing repositories  rules:
+  rules:
     - if: '$ACADEMY_COLLECT == "always"'
       when: always
     - when: manual
