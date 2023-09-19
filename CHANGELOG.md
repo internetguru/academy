@@ -8,8 +8,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.0.0-rc.1] - 2023-09-19
 
-## [0.6.0-rc.1] - 2023-09-19
-
 ### Added
 
 - Function `check_x` to check and set executable flag.
