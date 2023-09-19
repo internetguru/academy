@@ -107,7 +107,7 @@ Dashboard URL, e.g. https://academy.internetguru.io, used by the meta job to cle
 See the `--process-issues` option in the [`academy distribute` documentation](documentation/academy-distribute.md). Default value is the current branch.
 
 `ACADEMY_LANG`
-Determines which files are executed by the `evaluate` and `execute` jobs. There are several files being executed per each job in the following format: `{pre-,post-,}{evaluate,execute}_$ACADEMY_LANG`. Each of them can be overridden by a file of the same name in the `.academy` folder.
+Determines which files are executed by the `evaluate` and `execute` jobs. There are several files being executed per each job in the following format: `{evaluate,execute}_$ACADEMY_LANG`. Each of them can be overridden by a file of the same name in the `.academy` folder.
 
 ## Technical Documentation
 
