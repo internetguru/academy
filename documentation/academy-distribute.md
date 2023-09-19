@@ -17,6 +17,9 @@ This script distributes files from WORKING_DIR into NAMESPACE/[PREFIX]USERNAME f
 `-a`, `--assign WHEN`
        Assign developer role to users for newly created projects and assign users to issues `always`, `never`, or according to account existence `auto` (default).
 
+`-d`, `--default-branch-namespace BRANCH`
+       Collect editable files from `BRANCH` solutions instead of distributing to students.
+
 `-h`, `--help`
        Display usage.
 
@@ -79,4 +82,4 @@ George J. Pavelka <george@internetguru.io>
 
 ## SEE ALSO
 
-`academy`(1), `academy-collect`(1), `academy-evaluate`(1), `academy-measure`(1)
+`academy`(1), `academy-evaluate`(1), `academy-execute`(1)

@@ -1,143 +1,138 @@
 #!/usr/bin/env bash
-
-io_test_exit() {
-  printf -- '%s' "${1}" >&2
-  exit 1
-}
-is_long() {
-  [[ $(wc -l < "${1}") -gt 1 || $(head -1 "${1}" | wc -m) -gt 15 ]]
-}
-assert() {
-  declare input output expected status
-  input="${stdin}"
-  output="${1}"
-  expected="${2}"
-  if [[ -n "${stdin_file}" ]]; then
-    iotest_folder_path="$(dirname "${IOTEST_FOLDER}")"
-    is_long "${stdin_file}" \
-      && printf -- "Input file: %s\n" "${stdin_file#"${iotest_folder_path}/"}" \
-      || printf -- "Input: %s\n" "${input}"
-  fi
-  printf -- "${3}\n" "${output}"
-  printf -- "${4}\n" "${expected}"
-  printf -- 'Status: '
-  status=1
-  [[ "${output}" == "${expected}" ]] \
-    && printf -- 'success' \
-    && status=0 \
-    || printf -- 'failed'
-  printf -- "\n"
-  return $status
-}
-assert_status() {
-  assert "${1}" "$(< "${2}")" 'Status code: %s' 'Expected status code: %s'
-}
-assert_stdout() {
-  assert "$(< "${1}")" "$(< "${2}")" 'Output: %s' 'Expected output: %s'
-}
-assert_stderr() {
-  assert "$(< "${1}")" "$(< "${2}")" 'Error output: %s' 'Expected error output: %s'
-}
-io_test() {
-  declare -r test_folder="${1}"
-  # shellcheck disable=SC2155
-  declare -r test_folder_name="$(basename "${test_folder}")"
-  declare -r test_name="${2}"
-  declare -r test_path="${test_folder}/${test_name}"
-  declare cmd="${IOTEST_CMD}"
-  # TODO check unsupported test extensions (how?)
-  echo "Test ${test_folder_name}/${test_name}"
-  # create cmd from template
-  # TODO: add reference to README
-  declare -A variables
-  # script varaibles
-  variables=( \
-   ['FOLDER_NAME']="${test_folder_name%.*}"\
-   ['RELATIVE_PATH']="${test_folder#"${IOTEST_FOLDER}/"}"
-  )
-  # add filtered env variables
-  while read -r line; do
-    [[ -z "${line}" ]] \
-      && continue
-    variables["$(cut -d= -f1 <<< "${line}")"]="$(cut -d= -f2- <<< "${line}")"
-  done <<< "$(printenv | grep '^\(ACADEMY_\|CI_\)')"
-  # replace variables in cmd
-  for key in "${!variables[@]}"; do
-    cmd="${cmd/@${key}@/${variables[${key}]}}"
-  done
-  # TODO use optarg file
-  declare out_file err_file status_code stdin stdin_file
-  out_file="$(mktemp)"
-  err_file="$(mktemp)"
-  # run cmd once
-  if [[ -f "${test_path}.stdin" ]]; then
-    stdin="$(< "${test_path}.stdin")"
-    stdin_file="${test_path}.stdin"
-    eval "cat '${test_path}.stdin' | ${cmd} >'${out_file}' 2>'${err_file}'"
-    status_code=$?
-  else
-    stdin=''
-    stdin_file=''
-    eval "${cmd} >'${out_file}' 2>'${err_file}'"
-    status_code=$?
-  fi
-  declare retrun_code=0
-  # test status code
-  if [[ -f "${test_path}.sc" ]]; then
-    assert_status "${status_code}" "${test_path}.sc" \
-      || retrun_code=1
-  fi
-  # test stdout
-  if [[ -f "${test_path}.stdout" ]]; then
-    assert_stdout "${out_file}" "${test_path}.stdout" \
-      || retrun_code=1
-  fi
-  # test stderr
-  if [[ -f "${test_path}.stderr" ]]; then
-    echo "Stderr diff"
-    assert_stderr "${err_file}" "${test_path}.stderr" \
-      || retrun_code=1
-  fi
-  [[ "${status_code}" == 0 ]] \
-    || cat "${err_file}" >&2
-  rm "${out_file}"
-  rm "${err_file}"
-  return ${retrun_code}
-}
-run_io_tests() {
-  [[ ! -d "${IOTEST_FOLDER}" ]] \
-    && return
-  # run iotests
-  declare -i passed=0 count=0 local_passed local_count
-  # search deepest folders only by -links 2 (folder with 2 hardlinks)
-  while read -r -d '' folder; do
-    local_passed=0
-    local_count=0
-    echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%"
-    # shellcheck disable=SC2012
-    for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
-      count+=1
-      local_count+=1
-      io_test "${folder}" "${name}" \
-        && passed+=1 \
-        && local_passed+=1
-      printf -- "\n"
-    done
-    printf -- "%s summary: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
-      "${local_count}" "${local_passed}"
-    echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
-  done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
-  # generate summary and badge
-  printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
-}
 main() {
+  io_test_exit() {
+    printf -- '%s' "${1}" >&2
+    exit 1
+  }
+  is_long() {
+    [[ $(wc -l < "${1}") -gt 1 || $(head -1 "${1}" | wc -m) -gt 15 ]]
+  }
+  assert() {
+    declare input output expected status
+    input="${stdin}"
+    output="${1}"
+    expected="${2}"
+    if [[ -n "${stdin_file}" ]]; then
+      iotest_folder_path="$(dirname "${IOTEST_FOLDER}")"
+      is_long "${stdin_file}" \
+        && printf -- "Input file: %s\n" "${stdin_file#"${iotest_folder_path}/"}" \
+        || printf -- "Input: %s\n" "${input}"
+    fi
+    # shellcheck disable=SC2059
+    printf -- "${3}\n" "${output}"
+    # shellcheck disable=SC2059
+    printf -- "${4}\n" "${expected}"
+    printf -- 'Status: '
+    status=1
+    [[ "${output}" == "${expected}" ]] \
+      && printf -- 'success' \
+      && status=0 \
+      || printf -- 'failed'
+    printf -- "\n"
+    return $status
+  }
+  assert_status() {
+    assert "${1}" "$(< "${2}")" 'Status code: %s' 'Expected status code: %s'
+  }
+  assert_stdout() {
+    assert "$(< "${1}")" "$(< "${2}")" 'Output: %s' 'Expected output: %s'
+  }
+  assert_stderr() {
+    assert "$(< "${1}")" "$(< "${2}")" 'Error output: %s' 'Expected error output: %s'
+  }
+  io_test() {
+    declare -r test_folder="${1}"
+    # shellcheck disable=SC2155
+    declare -r test_folder_name="$(basename "${test_folder}")"
+    declare -r test_name="${2}"
+    declare -r test_path="${test_folder}/${test_name}"
+    declare cmd="${IOTEST_CMD}"
+    echo "Test ${test_folder_name}/${test_name}"
+    # add loop variables
+    # shellcheck disable=SC2034
+    declare -r FILE_PATH="${WORKING_DIR}/${test_folder#"${IOTEST_FOLDER}/"}"
+    # TODO use optarg file
+    declare out_file err_file status_code stdin stdin_file
+    out_file="$(mktemp)"
+    err_file="$(mktemp)"
+    # run cmd once
+    if [[ -f "${test_path}.stdin" ]]; then
+      stdin="$(< "${test_path}.stdin")"
+      stdin_file="${test_path}.stdin"
+      eval "cat '${test_path}.stdin' | ${cmd} >'${out_file}' 2>'${err_file}'"
+      status_code=$?
+    else
+      stdin=''
+      stdin_file=''
+      eval "${cmd} >'${out_file}' 2>'${err_file}'"
+      status_code=$?
+    fi
+    declare retrun_code=0
+    # test status code
+    if [[ -f "${test_path}.sc" ]]; then
+      assert_status "${status_code}" "${test_path}.sc" \
+        || retrun_code=1
+    fi
+    # test stdout
+    if [[ -f "${test_path}.stdout" ]]; then
+      assert_stdout "${out_file}" "${test_path}.stdout" \
+        || retrun_code=1
+    fi
+    # test stderr
+    if [[ -f "${test_path}.stderr" ]]; then
+      echo "Stderr diff"
+      assert_stderr "${err_file}" "${test_path}.stderr" \
+        || retrun_code=1
+    fi
+    [[ "${status_code}" == 0 ]] \
+      || cat "${err_file}" >&2
+    rm "${out_file}"
+    rm "${err_file}"
+    return ${retrun_code}
+  }
+  run() {
+    # run iotests
+    declare -i passed=0 count=0 local_passed local_count
+    # search deepest folders only by -links 2 (folder with 2 hardlinks)
+    if [[ -z "${IOTEST_SINGLE_NAME}" ]]; then
+      while read -r -d '' folder; do
+        local_passed=0
+        local_count=0
+        echo -e "%% file start ${folder#"${IOTEST_FOLDER}/"} %%"
+        # shellcheck disable=SC2012
+        for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
+          count+=1
+          local_count+=1
+          # io_test "${folder}" "${name}" > /dev/null \
+          io_test "${folder}" "${name}" \
+            && passed+=1 \
+            && local_passed+=1
+        done
+        printf -- "%s IO tests: run %s, skipped 0, passed %s\n" "$(basename "${folder}")" \
+          "${local_count}" "${local_passed}"
+        echo -e "%% file end ${folder#"${IOTEST_FOLDER}/"} %%\n"
+      done < <(find "${IOTEST_FOLDER}" -type d -links 2 -print0)
+    else
+      declare -r folder="${IOTEST_FOLDER}/${IOTEST_SINGLE_NAME}"
+      count=1
+      # shellcheck disable=SC2012
+      for name in $(ls "${folder}/" | rev | cut -d. -f2- | rev | sort -u); do
+        io_test "${folder}" "${name}" \
+          && passed=1 \
+          || passed=0
+      done
+    fi
+    printf -- "Summary: run %s, skipped 0, passed %s\n" "${count}" "${passed}"
+  }
+
   [[ -n "${1}" ]] \
     || io_test_exit "Missing iotest folder"
   [[ -n "${2}" ]] \
     || io_test_exit "Missing iotest cmd"
-  declare -r IOTEST_FOLDER="${1}"
+  declare -r IOTEST_FOLDER="${1#"${WORKING_DIR}/"}"
   declare -r IOTEST_CMD="${2}"
-  run_io_tests
+  declare -r IOTEST_SINGLE_NAME="${3:-}"
+  run
 }
 
 main "$@"

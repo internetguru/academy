@@ -17,7 +17,7 @@ variables:
   ACADEMY_DEFAULT_DOCKER_IMAGE: "internetguru/academy:latest"
   ACADEMY_DOCKER_IMAGE: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   ACADEMY_CACHE: "../.academy-cache"
-  ACADEMY_EDITABLE: "*.*"
+  ACADEMY_EDITABLE: "**/*"
   ACADEMY_FORCE_MERGE: ""
 
 cache:
@@ -48,6 +48,7 @@ cache:
   fi
   if [[ -d "${ACADEMY_DIR}/.git" ]]; then
     git -C "${ACADEMY_DIR}" reset --hard
+    git -C "${ACADEMY_DIR}" clean -fd
     git -C "${ACADEMY_DIR}" config --replace-all remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     git -C "${ACADEMY_DIR}" fetch origin ${revision}
     git -C "${ACADEMY_DIR}" checkout origin/${revision}
@@ -100,56 +101,6 @@ cache:
     tr ',' ' ' <<< "${users}"
   }
 
-collect:
-  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
-  stage: manage
-  tags:
-    - docker
-  before_script:
-    - *validate_token
-    - *global_init
-  script:
-    # set token file (will be deprecated)
-    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
-    # checkout to ACADEMY_SOLUTION branch
-    - |
-        if [[ -z "${ACADEMY_SOLUTION}" ]]; then
-          ACADEMY_SOLUTION="${CI_DEFAULT_BRANCH}"
-        fi
-        git fetch --all
-        git checkout "${ACADEMY_SOLUTION}"
-    # run collect for given or all branches
-    - mkdir -p '.collect'
-    - *get_users
-    - declare users="$(get_users)"
-    - |
-        ${ACADEMY} collect \
-        --namespace "${user_namespace}" \
-        --output-dir '.collect' \
-        <<< "${users}" \
-        | tee 'summary.txt'
-    # output variables and summary
-    #- mv 'summary.txt' '.collect/'
-    - |
-      echo '#######################'
-      echo "ACADEMY_DEADLINE: '${ACADEMY_DEADLINE}'"
-      echo "ACADEMY_EDITABLE: '${ACADEMY_EDITABLE}'"
-      echo "ACADEMY_SOLUTION: '${ACADEMY_SOLUTION}'"
-      echo "summary.txt: ${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/.collect/summary.txt"
-      echo '#######################'
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-    - exists:
-      - "ACADEMY_ASSIGN"
-      when: manual
-    - when: never
-  artifacts:
-    paths:
-      - .collect/
-    expire_in: 1 year
-  allow_failure: true
-
 distribute:
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
@@ -166,79 +117,79 @@ distribute:
     # distribute current project among all users
     - |
         declare users
-        declare user_tmp
-        if [[ -n ${ACADEMY_GROUP} ]]; then
-          git fetch --all
-          while read group; do
-            # get users from $group
-            git checkout ${group}
-            users="$(get_users)"
-            # checkout to starting branch
-            git checkout ${CI_COMMIT_REF_NAME}
-            echo "Distributing for ${group}"
-            ${ACADEMY} distribute --update-links --namespace "${user_namespace}" \
-              --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
-              <<< "${users}"
-          done <<< "${ACADEMY_GROUP}"
-          # TODO remove other existing repositories
-        else
-          users="$(get_users)"
-          declare merge=''
-          if [[ -n "${ACADEMY_FORCE_MERGE}" ]]; then
-            merge='--force-merge'
-          fi
-          ${ACADEMY} distribute ${merge} --update-links --namespace "${user_namespace}" \
-            --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
-            <<< "${users}"
+        users="$(get_users)"
+        declare merge=''
+        if [[ -n "${ACADEMY_FORCE_MERGE}" ]]; then
+          merge='--force-merge'
         fi
+        ${ACADEMY} distribute ${merge} --update-links --namespace "${user_namespace}" \
+          --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
+          <<< "${users}"
   rules:
     - if: '$ACADEMY_DISTRIBUTE == "always"'
       when: always
     - when: manual
   allow_failure: true
 
-measure:
+collect:
+  image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
+  stage: manage
+  tags:
+    - docker
+  cache: []
+  before_script:
+    - *validate_token
+    - *global_init
+  script:
+    # set token file (will be deprecated)
+    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
+    - *get_users
+    - |
+        if [[ -z "${ACADEMY_GROUP}" ]]; then
+          echo "Missing ACADEMY_GROUP variable (groups to collect)."
+          exit 1;
+        fi
+        declare users
+        git fetch --all
+        while read group; do
+          # get users from $group
+          git checkout ${group}
+          users="$(get_users)"
+          # checkout to starting branch
+          git checkout ${CI_COMMIT_REF_NAME}
+          echo "Collecting for ${group}"
+          ${ACADEMY} distribute --collect --update-links --namespace "${user_namespace}" \
+            --default-branch-namespace "${namespace}/${group}/${project_name}" --member-role 0 --assign 'never' \
+            <<< "${users}"
+        done <<< "${ACADEMY_GROUP}"
+        # TODO remove other existing repositories  rules:
+  rules:
+    - if: '$ACADEMY_COLLECT == "always"'
+      when: always
+    - when: manual
+  allow_failure: true
+
+clear-cache:
   image: ${ACADEMY_DEFAULT_DOCKER_IMAGE}
   stage: manage
   tags:
     - docker
   before_script:
-    - *validate_token
     - *global_init
   script:
     - |
-        if [[ -z "${ACADEMY_MOSSURL}" ]]; then
-          echo "Missing ACADEMY_MOSSURL"
-          exit 1
-        fi
-    # set token file (will be deprecated)
-    - echo "${ACADEMY_GITLAB_ACCESS_TOKEN}" > ${HOME}/.ACADEMY_GITLAB_ACCESS_TOKEN
-    # download moss script
-    - curl -o /usr/local/bin/moss "${ACADEMY_MOSSURL}"
-    - chmod +x /usr/local/bin/moss
-    - export PATH="${PATH}:/usr/local/bin/"
-    # create output directory
-    - declare -r measure_output=".measure/${project_name}"
-    - mkdir -p "${measure_output}"
-    # copy files from ACADEMY_SOLUTION branch to measure
-    - |
-        if [[ -z "${ACADEMY_SOLUTION}" ]]; then
-          ACADEMY_SOLUTION="${CI_DEFAULT_BRANCH}"
-        fi
-        git fetch --all
-        git --work-tree="${measure_output}" checkout -f "origin/${ACADEMY_SOLUTION}" -- .
-    # run measure for given or all branches
-    - *get_users
-    - declare users="$(get_users)"
-    - |
-      ${ACADEMY} measure --output-dir "${measure_output}" \
-      --namespace "${user_namespace}"
-      <<< "${users}"
+      for file in "${ACADEMY_CACHE}/"*; do
+        rm -rf "${file}"
+      done
+      for file in ".results/"*; do
+        rm -rf "${file}"
+      done
   rules:
-    - exists:
-      - "ACADEMY_ASSIGN"
-      when: manual
-    - when: never
+    - when: manual
+  artifacts:
+    paths:
+      - .results/
+    expire_in: 1 year
   allow_failure: true
 
 execute:
@@ -313,6 +264,10 @@ meta:
   script:
     - |
       # clear dashboards cache
+      if [[ -z "${ACADEMY_DASHBOARD}" ]]; then
+        echo "Missing or empty ACADEMY_DASHBOARD variable."
+        exit 1
+      fi
       while read dashboard; do
         echo "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}"
         curl "${dashboard}/${namespace}/${DASHBOARD_PROJECT_NAME}?group=${CI_COMMIT_REF_NAME}" \
@@ -320,17 +275,29 @@ meta:
       done <<< "${ACADEMY_DASHBOARD}"
       # create age badge
       mkdir -p .results
+      source "${ACADEMY_DIR}/commons"
       source "${ACADEMY_DIR}/badges"
       WORKING_DIR='.'
-      badge_generate 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue'
-      badge_generate 'Updates' 'unknown'
-      badge_generate 'Status' 'unknown'
+      title='View activity'
+      link="${CI_PROJECT_URL}/activity"
+      generate_badge 'Age' "$(date +"%Y-%m-%dT%H:%M:%S%z")" 'blue' '10-badge-age' "${link}" "${title}"
+      title='View all merge requests'
+      link="${CI_PROJECT_URL}/-/merge_requests"
+      generate_badge 'Updates' 'unknown' '' '20-badge-updates' "${link}" "${title}"
+      generate_badge 'Status' 'unknown' '' '30-badge-status'
     - |
-      for badge in .results/*.svg; do
+      # output badges
+      for badge in $(ls -1v .results/*.svg); do
         [[ "${badge}" =~ ".results/"(.*).svg ]]
         badge_name="${BASH_REMATCH[1]}"
-        printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
-          "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
+        badge_link="$(grep -Po '(?<=href=")([^"]+)' "${badge}" || true)"
+        if [[ -z "${badge_link}" ]]; then
+          printf -- '![%s](%s/builds/artifacts/%s/raw/%s?job=meta)\n' \
+            "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}"
+        else
+          printf -- '[![%s](%s/builds/artifacts/%s/raw/%s?job=meta)](%s)\n' \
+            "${badge_name}" "${CI_PROJECT_URL}" "${CI_COMMIT_REF_NAME}" "${badge}" "${badge_link}"
+        fi
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"

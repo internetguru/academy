@@ -10,6 +10,7 @@ init_cache() {
   git_clone "$(get_remote_url "${user_project_ns}")" "${user_cache_folder}"
 }
 sync_cache() {
+  # shellcheck disable=SC2086
   rsync -a --delete --exclude .git/ ${3:-} "${1:-${WORKING_DIR}}/" "${2:-${user_cache_folder}}" \
     || exception "Unable to rsync files"
 }
@@ -27,13 +28,14 @@ get_cache() {
   git_pull "${user_cache_folder}" 'origin' "${SUBMIT_BRANCH}:${SUBMIT_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
-# TODO
 update_links() {
   local user_cache_folder="${1:-${user_cache_folder}}"
   local PROJECT_LINK="${2:-${PROJECT_LINK}}"
   local user_project_ns="${3:-${user_project_ns}}"
   local PROJECT_BRANCH="${4:-${PROJECT_BRANCH}}"
   local user_default_branch="${5:-${user_default_branch}}"
+  local PROJECT_ID="${6:-${PROJECT_ID}}"
+  local project_id="${7:-${project_id}}"
   [[ "${UPDATE_LINKS}" != 'true' ]] \
     && return
   declare -r user_readme_path="${user_cache_folder}/${README_FILE}"
@@ -42,6 +44,7 @@ update_links() {
   sed -i "s~/\(pipeline\|raw\|file\)/${PROJECT_BRANCH}~/\1/${user_default_branch}~g" "${user_readme_path}"
   sed -i "s~ref=${PROJECT_BRANCH}~ref=${user_default_branch}~g" "${user_readme_path}"
   sed -i "s~\(https://[^/]*\)/${PROJECT_LINK#*/}~\1/${user_project_ns#*/}~g" "${user_readme_path}"
+  sed -i "s~/projects/${PROJECT_ID}/jobs/~/projects/${project_id}/jobs/~g" "${user_readme_path}"
 }
 init_user_repo() {
   declare user_id=''
@@ -121,10 +124,9 @@ copy_issues() {
   done
   for (( i=0; i < issues_count_src; i++ )); do
     issue_src="$(jq ".[${i}] | {title, description, due_date}" <<< "${issues_src}")"
-    if [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]]; then
+    [[ "${description["$(jq -r ".title" <<< "${issue_src}")"]}" == "$(jq -r ".description" <<< "${issue_src}")" ]] \
+      && continue
       #printf -- "[issues] skipping '%s'\n" "$(jq -r ".title" <<< "${issue_src}")'" >&2
-      continue
-    fi
     # Update existing issue
     # ToDo
     # Add new issue
@@ -175,16 +177,20 @@ update_default_branch() {
     && return
   declare dest_default_branch
   declare dest_project_ns
+  declare dest_project_id
   dest_default_branch="$(get_default_branch)"
   dest_project_ns="${user_project_ns}"
+  dest_project_id="${project_id}"
   declare dest_cache_folder
   declare user_cache_folder
   declare user_project_name
   declare user_project_ns
+  declare user_project_id
   declare user_default_branch
   dest_cache_folder="${1}"
   user_project_name="${PREFIX}${user_name}"
   user_project_ns="${DEFAULT_BRANCH_NAMESPACE}/${user_project_name}"
+  user_project_id="$(get_project_id "${user_project_ns}")"
   user_cache_folder="$(get_cache_folder)"
   user_default_branch="$(get_default_branch)" \
     || return 1
@@ -192,13 +198,8 @@ update_default_branch() {
   git_checkout "${user_cache_folder}" "-B${user_default_branch}"
   git_checkout "${dest_cache_folder}" "-B${dest_default_branch}"
   sync_cache "${user_cache_folder}" "${dest_cache_folder}" --exclude=.gitlab-ci.yml
-  # user_cache_folder ~ dest
-  # PROJECT_LINK ~ src
-  # user_project_ns ~ dest
-  # PROJECT_BRANCH ~ src
-  # user_default_branch ~ dest
   update_links "${dest_cache_folder}" "$(get_remote_namespace "${user_cache_folder}")" \
-    "${dest_project_ns}" "${user_default_branch}" "${dest_default_branch}"
+    "${dest_project_ns}" "${user_default_branch}" "${dest_default_branch}" "${user_project_id}" "${dest_project_id}"
   git_add_all "${dest_cache_folder}"
   git_commit "${dest_cache_folder}" '--allow-empty' '-m "Update from user repo"'
   git_push "${dest_cache_folder}" '--all'
@@ -212,8 +213,6 @@ process_users() {
   declare -i valid=0
   declare -i invalid=0
   declare status_empty_code
-  [[ -z "${CACHE_FOLDER}" ]] \
-    && CACHE_FOLDER="$(mktemp -d)"
   # shellcheck disable=SC2013
   for user_name in $(cat <&3); do
     user_project_name="${PREFIX}${user_name}"
@@ -230,6 +229,7 @@ process_users() {
     user_cache_folder="$(get_cache_folder)"
     if ! project_exists; then
       init_user_repo \
+        && project_id="$(get_project_id "${user_project_ns}")" \
         && update_default_branch "${user_cache_folder}" \
         && msg_end CREATED
       continue
@@ -238,9 +238,9 @@ process_users() {
       || exit 1
     status_empty
     status_empty_code=$?
-    update_default_branch "${user_cache_folder}" \
-      || continue
     project_id="$(get_project_id "${user_project_ns}")" \
+      || continue
+    update_default_branch "${user_cache_folder}" \
       || continue
     user_id="$(get_user_id)"
     add_member
@@ -265,7 +265,19 @@ distribute() {
   [[ -d "${WORKING_DIR}/.git" ]] \
     && ! git_status_empty "${WORKING_DIR}" \
     && exception 'Git status is not empty'
+  [[ -z "${CACHE_FOLDER}" ]] \
+    && CACHE_FOLDER="$(mktemp -d)"
+  decalre action='distribute'
+  [[ "${COLLECT}" == 1 ]] \
+    && action='collect'
+  # shellcheck disable=SC1090
+  [[ "${COLLECT}" == 1 && -f "${DIR}/pre-${action}" ]] \
+    && source "${DIR}/pre-${action}" "${CACHE_FOLDER}"
   process_users
+  # shellcheck disable=SC1090
+  [[ "${COLLECT}" == 1 && -f "${DIR}/post-${action}" ]] \
+    && source "${DIR}/post-${action}" "${CACHE_FOLDER}"
+  return 0
 }
 
 # global constants
@@ -279,6 +291,7 @@ declare -ri DEV_ACCESS_LEVEL=30
 declare -ri MAINTAINER_ACCESS_LEVEL=40
 
 # default variables
+declare COLLECT=0
 declare CACHE_FOLDER=''
 declare DRY_RUN='false'
 declare UPDATE_LINKS='false'
@@ -304,8 +317,8 @@ declare FORCE_MERGE=0
 
 # get options
 declare OPT
-OPT="$(getopt --name "${0}" --options 'a:d:hi:lno:p:s:r:m' \
-  --longoptions 'assign:,help,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:,force-merge' \
+OPT="$(getopt --name "${0}" --options 'a:cd:hi:lno:p:s:r:m' \
+  --longoptions 'assign:,help,collect,process-issues:,update-links,default-branch-namespace:,dry-run,output-dir:,prefix:,member-role:,namespace:,force-merge' \
   -- "$@")" \
   && eval set -- "${OPT}" \
   || exit 1
@@ -318,6 +331,10 @@ while (( $# > 0 )); do
       [[ "${ASSIGN}" =~ ^(${ALWAYS}|${NEVER}|${AUTO})$ ]] \
         || exception 'Invalid option ASSIGN value'
       shift 2
+      ;;
+    -c|--collect)
+      COLLECT="1"
+      shift
       ;;
     -d|--default-branch-namespace)
       DEFAULT_BRANCH_NAMESPACE="${2}"
@@ -354,6 +371,7 @@ while (( $# > 0 )); do
       shift 2
       ;;
     -r|--member-role)
+      # shellcheck disable=SC2034
       MEMBER_ROLE="${2}"
       shift 2
       ;;

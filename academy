@@ -5,18 +5,15 @@ declare -r SCRIPT='academy'
 # shellcheck disable=SC2155
 declare -r DIR="$(dirname "${BASH_SOURCE[0]}")"
 # shellcheck disable=SC2034
-declare -rA LANG_TO_EXTENSION=( [java]=java [oracle]=sql )
-# shellcheck disable=SC2034
 declare -r SRC_DIR='src'
 declare CUSTOMIZE=1
+[[ -z "${ACADEMY_EDITABLE}" ]] \
+  && ACADEMY_EDITABLE='**/*'
 # shellcheck disable=SC1091
 # shellcheck disable=SC1090
 source "${DIR}/commons"
 # shellcheck disable=SC1091
 source "${DIR}/badges"
-
-# disabled by LB
-# check_lang "${ACADEMY_LANG}"
 
 customize_academy() {
   (( CUSTOMIZE )) || return
@@ -46,22 +43,27 @@ while (( $# > 0 )); do
       print_usage
       exit
       ;;
-    collect|distribute|measure)
+    distribute)
       # shellcheck disable=SC1091
-      # shellcheck disable=SC1090
       source "${DIR}/git_functions"
+      # shellcheck disable=SC1091
+      source "${DIR}/gitlab_api"
       # check requirements
+      customize_academy
       check_command git jq
-      ;&
+      declare -r CMD="${1}"
+      # shellcheck disable=SC1090
+      source "${DIR}/${CMD}"
+      shift
+      ;;
     evaluate|execute)
       declare -r CMD="${1}"
       shift
+      export WORKING_DIR
       # shellcheck disable=SC1091
       source "${DIR}/gitlab_api"
       customize_academy
-      # shellcheck disable=SC1090
-      source "${DIR}/${CMD}" "$@"
-      exit $?
+      process_user_scripts "${CMD}"
       ;;
     *)
       exception "Invalid command '${1}', enter '${SCRIPT} help' to display usage" 2
