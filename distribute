@@ -267,13 +267,16 @@ distribute() {
     && exception 'Git status is not empty'
   [[ -z "${CACHE_FOLDER}" ]] \
     && CACHE_FOLDER="$(mktemp -d)"
-  # shellcheck disable=SC1091
-  [[ "${COLLECT}" == 1 && -f "${DIR}/pre-distribute" ]] \
-    && source "${DIR}/pre-distribute" "${CACHE_FOLDER}"
+  decalre action='distribute'
+  [[ "${COLLECT}" == 1 ]] \
+    && action='collect'
+  # shellcheck disable=SC1090
+  [[ "${COLLECT}" == 1 && -f "${DIR}/pre-${action}" ]] \
+    && source "${DIR}/pre-${action}" "${CACHE_FOLDER}"
   process_users
-  # shellcheck disable=SC1091
-  [[ "${COLLECT}" == 1 && -f "${DIR}/post-distribute" ]] \
-    && source "${DIR}/post-distribute" "${CACHE_FOLDER}"
+  # shellcheck disable=SC1090
+  [[ "${COLLECT}" == 1 && -f "${DIR}/post-${action}" ]] \
+    && source "${DIR}/post-${action}" "${CACHE_FOLDER}"
   return 0
 }
 

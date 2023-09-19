@@ -12,11 +12,11 @@ Academy-Evaluate - evaluate project and create status badges
 
 With each evaluate, a default `evaluate_${ACADEMY_LANG}` file is executed which can be overriden by a file of the same name in the .academy folder.
 
-### `run_io_tests` function
+### `io_tests` function
 
 This function performs simple I/O tests. It accepts one parameter of a command run syntax.
 
-For each folder from `iotest/*` the function defines a `FILE_PATH` variable e.g. `src/SumClass.java`. To use the variable, make sure it is not expanded, e.g. `run_io_tests "java \${FILE_PATH}"` or `run_io_tests ‘java ${FILE_PATH}’`.
+For each folder from `iotest/*` the function defines a `FILE_PATH` variable e.g. `src/SumClass.java`. To use the variable, make sure it is not expanded, e.g. `io_tests "java \${FILE_PATH}"` or `io_tests ‘java ${FILE_PATH}’`.
 
 For each `test_name.file_ext` in the folder, the function performs set of tests per `test_name` supporting the following extensions: `stdin`, `stdout`, `optarg` (not implemented), `sc`, `errout`.
 

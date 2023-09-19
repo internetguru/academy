@@ -8,7 +8,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- New feature 'consolidate'.
+- Function `check_x` to check and set executable flag.
+- New function `get_artifacts_url` to generate links to logs.
+- Update links with project ID during distribution in README files.
+- User script support `{pre,post}-{collect,distribute}`.
+- New variable `CHANGED_FILES` available for `evaluate` and `execute` scripts.
+- New default execute file for Java `execute_java`.
+
+### Changed
+
+- Rename `badge_generate` function to `generate_badge`.
+- Function `warning` simplified, returns zero status code.
+- User script execution moved to a separate `function process_user_scripts`.
+- Run IO tests and generate badges simplified and moved to a separate function `io_tests`.
+- Run Java JUnit tests and generate badges simplified and moved to a separate function  `java_junit_tests`.
+- Run Java code style and generate badges simplified and moved to a separate function  `java_code_style`.
+- Execute file for shell `execute_shell` simplified.
+
+### Removed
+
+- Remove commands `academy collect` and `academy measure`.
+- Function `check_lang` was removed.
 
 ## [0.5.2] - 2023-08-06
 

@@ -12,4 +12,4 @@ spool on
 spool off
 exit
 EOM
-run_io_tests "sql -S ${ORACLE_LOGON} <<< \"${sql_cmd}\""
+io_tests "sql -S ${ORACLE_LOGON} <<< \"${sql_cmd}\""

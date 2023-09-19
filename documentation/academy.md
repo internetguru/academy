@@ -33,6 +33,17 @@ evaluate
 help
        Display this usage.
 
+## VARIABLES
+
+DIR
+       Academy directory path.
+
+WORKING_DIR
+       Wokrking directory path.
+
+CHANGED_FILES
+       List of changed files. Available for `execute` and `evaluate` scripts.
+
 ## EXIT STATUS
 
 1      Other error.

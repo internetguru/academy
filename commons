@@ -162,7 +162,7 @@ io_tests() {
     && link="$(get_artifact_url "${CI_PROJECT_ID}" "${CI_COMMIT_BRANCH}" "${IOTEST_LOG#"${WORKING_DIR}/"}" "${CI_JOB_NAME}")"
   generate_badge 'IO Tests' "${passed}/${count}" "${test_color}" "${badge_name}" "${link}" "${title}"
 }
-java_juinit_tests() {
+java_junit_tests() {
   # defaults
   declare -r badge_name='200-badge-java-junit'
   declare -r JUNIT_LOG="${RESULTS}/junit.log"
