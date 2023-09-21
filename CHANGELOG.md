@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.3] - 2023-09-21
+
+### Fixed
+
+- Submit job is failing.
+
 ## [0.5.2] - 2023-08-06
 
 ### Fixed
@@ -49,6 +55,7 @@ _Stable release based on [0.5.0-rc.1]._
  - Set name of distributed project as `original_project_name user_name`
 
 
+[0.5.3]: https://https://github.com/internetguru/academy/compare/v0.5.2...v0.5.3
 [0.5.2]: https://https://github.com/internetguru/academy/compare/v0.5.1...v0.5.2
 [0.5.1]: https://https://github.com/internetguru/academy/compare/v0.5.0...v0.5.1
 [0.5.0]: https://https://github.com/internetguru/academy/compare/v0.4.0...v0.5.0
