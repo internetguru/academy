@@ -19,11 +19,7 @@ git clean -fd
 # update from source
 git checkout submit
 git merge --no-ff --strategy-option theirs source
-<<<<<<< HEAD
-# copy editable files
-=======
 # copy editable files from main
->>>>>>> prod
 # shellcheck disable=SC2086
 rm ${ACADEMY_EDITABLE}
 # shellcheck disable=SC2086
