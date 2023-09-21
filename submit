@@ -28,6 +28,8 @@ git merge --no-ff --strategy-option theirs source
 rm ${ACADEMY_EDITABLE}
 # shellcheck disable=SC2086
 git checkout main -- ${ACADEMY_EDITABLE} 2>/dev/null
+# rm .results (clean mess)
+rm -rf .results/
 # push to submit
 git add .
 git commit -am "Sync with source and main"
