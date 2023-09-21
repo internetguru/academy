@@ -10,13 +10,20 @@ declare git_url
 git_url="https://project_${CI_PROJECT_ID}_bot:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
 git remote set-url origin "${git_url}"
 # update current repo
-git fetch origin main:main
+git pull origin main:main
 git fetch origin source:source
 git fetch origin submit:submit
-git checkout submit
+# reset possible mess
+git reset --hard
+git clean -fd
 # update from source
+git checkout submit
 git merge --no-ff --strategy-option theirs source
+<<<<<<< HEAD
 # copy editable files
+=======
+# copy editable files from main
+>>>>>>> prod
 # shellcheck disable=SC2086
 rm ${ACADEMY_EDITABLE}
 # shellcheck disable=SC2086
