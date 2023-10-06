@@ -359,8 +359,6 @@ while (( $# > 0 )); do
       ;;
     -s|--namespace)
       NAMESPACE="${2}"
-      [[ "${NAMESPACE}" =~ ^[a-z][a-z0-9_-]+(/[a-z][a-z0-9_-]+)*$ ]] \
-        || exception "Unsupported REMOTE_NAMESPACE '$NAMESPACE' dirname" 2
       shift 2
       ;;
     -o|--output-dir)
