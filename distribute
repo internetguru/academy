@@ -240,12 +240,9 @@ process_users() {
     status_empty_code=$?
     project_id="$(get_project_id "${user_project_ns}")" \
       || continue
-<<<<<<< HEAD
+    create_project_submit_token
     update_default_branch "${user_cache_folder}" \
       || continue
-=======
-    create_project_submit_token
->>>>>>> prod
     user_id="$(get_user_id)"
     add_member
     [[ "$status_empty_code" == 0 ]] \
