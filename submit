@@ -5,6 +5,11 @@ if [[ -z "${ACADEMY_EDITABLE}" ]]; then
   exit 1
 fi
 
+if [[ -z "${ACADEMY_SUBMIT_TOKEN}" ]]; then
+  echo "Missing ACADEMY_SUBMIT_TOKEN variable or token"
+  exit 1
+fi
+
 # set url with token
 declare git_url
 git_url="https://project_${CI_PROJECT_ID}_bot:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
