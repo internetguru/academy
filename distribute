@@ -242,6 +242,7 @@ process_users() {
       || continue
     project_id="$(get_project_id "${user_project_ns}")" \
       || continue
+    create_project_submit_token
     user_id="$(get_user_id)"
     add_member
     [[ "$status_empty_code" == 0 ]] \
