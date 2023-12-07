@@ -32,6 +32,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Remove commands `academy collect` and `academy measure`.
 - Function `check_lang` was removed.
 
+## [0.5.7] - 2023-12-07
+
+### Fixed
+
+- Always create submit token.
+
 ## [0.5.6] - 2023-12-07
 
 ### Fixed
@@ -104,6 +110,7 @@ _Stable release based on [0.5.0-rc.1]._
 [Unreleased]: https://https://github.com/internetguru/academy/compare/staging...dev
 [1.0.0-rc.1]: https://github.com/internetguru/academy/releases/tag/v0.5.2
 [0.6.0-rc.1]: https://github.com/internetguru/academy/releases/tag/v0.5.2
+[0.5.7]: https://https://github.com/internetguru/academy/compare/v0.5.6...v0.5.7
 [0.5.6]: https://https://github.com/internetguru/academy/compare/v0.5.5...v0.5.6
 [0.5.5]: https://https://github.com/internetguru/academy/compare/v0.5.4...v0.5.5
 [0.5.4]: https://https://github.com/internetguru/academy/compare/v0.5.3...v0.5.4
