@@ -360,6 +360,13 @@ fork_project() {
 create_project_submit_token() {
   local token
   local output
+<<<<<<< HEAD
+=======
+  # remove current access token and variable regardless of existence
+  gitlab_api "api/v4/projects/${project_id}/access_tokens/ACADEMY_SUBMIT_TOKEN" '-' > /dev/null 2>&1
+  gitlab_api "api/v4/projects/${project_id}/variables/ACADEMY_SUBMIT_TOKEN" '-' > /dev/null 2>&1
+  # create new access token and variable
+>>>>>>> prod
   output="$(gitlab_api "api/v4/projects/${project_id}/access_tokens" "{ \"name\":\"ACADEMY_SUBMIT_TOKEN\", \"scopes\":[\"write_repository\"], \"access_level\": 40, \"expires_at\": \"$(date +%Y-%m-%d -d "+ 356 day")\" }")" \
     || return 1
   token="$(jq -r .token <<< "${output}")"
