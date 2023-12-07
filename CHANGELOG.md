@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.6] - 2023-12-07
+
+### Fixed
+
+- Explain access denied error message in submit job.
+
 ## [0.5.5] - 2023-10-06
 
 ### Changed
@@ -67,6 +73,7 @@ _Stable release based on [0.5.0-rc.1]._
  - Set name of distributed project as `original_project_name user_name`
 
 
+[0.5.6]: https://https://github.com/internetguru/academy/compare/v0.5.5...v0.5.6
 [0.5.5]: https://https://github.com/internetguru/academy/compare/v0.5.4...v0.5.5
 [0.5.4]: https://https://github.com/internetguru/academy/compare/v0.5.3...v0.5.4
 [0.5.3]: https://https://github.com/internetguru/academy/compare/v0.5.2...v0.5.3
