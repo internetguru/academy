@@ -98,6 +98,9 @@ Run the execute job automatically if the value is "always".
 `ACADEMY_FORCE_JOB`
 If this variable is “true”, run the evaluate job automatically regardless of other conditions.
 
+`ACADEMY_FORCE_MERGE`
+If this variable is “true”, merge source branch to main branch directly instead of creating a pull request.
+
 `ACADEMY_EVALUATE`
 Run the evaluate job automatically if the value is "always".
 
