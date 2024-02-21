@@ -303,7 +303,7 @@ meta:
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: manual
+      when: never
     - when: always
   artifacts:
     paths:
