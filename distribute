@@ -26,6 +26,7 @@ get_cache() {
     && exception 'Invalid user project remote origin url'
   git_pull "${user_cache_folder}" 'origin' "${SOURCE_BRANCH}:${SOURCE_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${SUBMIT_BRANCH}:${SUBMIT_BRANCH}"
+  git_pull "${user_cache_folder}" 'origin' "${DRAFT_BRANCH}:${DRAFT_BRANCH}"
   git_pull "${user_cache_folder}" 'origin' "${user_default_branch}:${user_default_branch}"
 }
 update_links() {
@@ -73,11 +74,13 @@ init_user_repo() {
   git_commit "${user_cache_folder}" '--allow-empty' '-m "Create assignment"'
   git_push "${user_cache_folder}" '--all'
   git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}"
+  git_checkout "${user_cache_folder}" "-B${DRAFT_BRANCH}"
   git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}"
   git_push "${user_cache_folder}" '--all'
   remove_protected_branch
   set_protected_branch "${user_default_branch}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SOURCE_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
+  set_protected_branch "${DRAFT_BRANCH}" "${DEV_ACCESS_LEVEL}"
   set_protected_branch "${SUBMIT_BRANCH}" "${MAINTAINER_ACCESS_LEVEL}"
   set_public_pages "${project_id}" >/dev/null
   create_project_submit_token
@@ -164,12 +167,16 @@ validate() {
   ! git_remote_branch_exists "${SOURCE_BRANCH}" "${user_cache_folder}" \
     && git_checkout "${user_cache_folder}" "-B${SOURCE_BRANCH}" \
     && git_push "${user_cache_folder}" origin "${SOURCE_BRANCH}"
+  ! git_remote_branch_exists "${DRAFT_BRANCH}" "${user_cache_folder}" \
+    && git_checkout "${user_cache_folder}" "-B${DRAFT_BRANCH}" \
+    && git_push "${user_cache_folder}" origin "${DRAFT_BRANCH}"
   ! git_remote_branch_exists "${SUBMIT_BRANCH}" "${user_cache_folder}" \
     && git_checkout "${user_cache_folder}" "-B${SUBMIT_BRANCH}" \
     && git_push "${user_cache_folder}" origin "${SUBMIT_BRANCH}"
   # check ci hack
   validate_ci "${user_default_branch}"
   validate_ci "${SOURCE_BRANCH}"
+  validate_ci "${DRAFT_BRANCH}"
   validate_ci "${SUBMIT_BRANCH}"
 }
 update_default_branch() {
@@ -284,6 +291,7 @@ distribute() {
 # global constants
 declare -r README_FILE='README.md'
 declare -r SOURCE_BRANCH='source'
+declare -r DRAFT_BRANCH='draft'
 declare -r SUBMIT_BRANCH='submit'
 declare -r ALWAYS='always'
 declare -r NEVER='never'
