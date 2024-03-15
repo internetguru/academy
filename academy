@@ -56,7 +56,7 @@ while (( $# > 0 )); do
       source "${DIR}/${CMD}"
       shift
       ;;
-    evaluate|execute)
+    evaluate|execute|test)
       declare -r CMD="${1}"
       shift
       export WORKING_DIR
