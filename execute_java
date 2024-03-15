@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
 for file in "${CHANGED_FILES[@]}"; do
-  declare out
-  out="$(io_tests "java \${FILE_PATH}" "${file}")"
-  echo "${out}"
-  # run main class only iff no iotests (for now)
-  if [[ -z "${out}" ]] && grep -q "static void main" "${WORKING_DIR}/${file}"; then
-    java "${WORKING_DIR}/${file}"
-  fi
+  java "${WORKING_DIR}/${file}"
 done
