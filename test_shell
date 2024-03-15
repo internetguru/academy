@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+warning "${0}: Using default shell executor"
+for file in "${CHANGED_FILES[@]}"; do
+  warning "${0}: Running '${file}' ..."
+  check_x "${file}"
+  "$file"
+done
