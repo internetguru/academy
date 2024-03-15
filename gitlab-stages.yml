@@ -208,7 +208,7 @@ execute:
       - .results/
     expire_in: 1 year
   rules:
-    - if: $ACADEMY_FORCE_JOB == "true"
+    - if: $ACADEMY_FORCE_JOB == "execute"
       when: always
     - if: $CI_COMMIT_BRANCH == "source"
       when: manual
@@ -218,6 +218,36 @@ execute:
     - if: $CI_PIPELINE_IID == "1"
       when: manual
     - if: $ACADEMY_EXECUTE == "always"
+      when: always
+    - when: manual
+  allow_failure: true
+
+test:
+  image: ${ACADEMY_DOCKER_IMAGE}
+  stage: run
+  tags:
+    - docker
+  before_script:
+    - *global_init
+  script:
+    - echo '%% job start test %%'
+    - ${ACADEMY} test
+    - echo '%% job end test %%'
+  artifacts:
+    paths:
+      - .results/
+    expire_in: 1 year
+  rules:
+    - if: $ACADEMY_FORCE_JOB == "test"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "source"
+      when: manual
+    - changes:
+      - ACADEMY_ASSIGN
+      when: manual
+    - if: $CI_PIPELINE_IID == "1"
+      when: manual
+    - if: $ACADEMY_TEST == "always"
       when: always
     - when: manual
   allow_failure: true
@@ -238,9 +268,11 @@ evaluate:
       - .results/
     expire_in: 1 year
   rules:
-    - if: $ACADEMY_FORCE_JOB == "true"
+    - if: $ACADEMY_FORCE_JOB == "evaluate"
       when: always
     - if: $CI_COMMIT_BRANCH == "source"
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "draft"
       when: manual
     - changes:
       - ACADEMY_ASSIGN
@@ -301,6 +333,8 @@ meta:
       done
   rules:
     - if: $CI_COMMIT_BRANCH == "source"
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "draft"
       when: manual
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
