@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+for file in "${CHANGED_FILES[@]}"; do
+  io_tests "java \${FILE_PATH}" "${file}"
+  #TODO run unit tests?
+done
