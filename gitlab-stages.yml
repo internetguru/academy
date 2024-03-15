@@ -126,7 +126,7 @@ distribute:
           --process-issues "${ACADEMY_ISSUES:-${CI_COMMIT_REF_NAME}}" \
           <<< "${users}"
   rules:
-    - if: '$ACADEMY_DISTRIBUTE == "always"'
+    - if: $ACADEMY_FORCE_JOB == "distribute"
       when: always
     - when: manual
   allow_failure: true
@@ -164,7 +164,7 @@ collect:
         done <<< "${ACADEMY_GROUP}"
         # TODO remove other existing repositories  rules:
   rules:
-    - if: '$ACADEMY_COLLECT == "always"'
+    - if: $ACADEMY_FORCE_JOB == "collect"
       when: always
     - when: manual
   allow_failure: true
@@ -210,15 +210,6 @@ execute:
   rules:
     - if: $ACADEMY_FORCE_JOB == "execute"
       when: always
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: manual
-    - changes:
-      - ACADEMY_ASSIGN
-      when: manual
-    - if: $CI_PIPELINE_IID == "1"
-      when: manual
-    - if: $ACADEMY_EXECUTE == "always"
-      when: always
     - when: manual
   allow_failure: true
 
@@ -239,15 +230,6 @@ test:
     expire_in: 1 year
   rules:
     - if: $ACADEMY_FORCE_JOB == "test"
-      when: always
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: manual
-    - changes:
-      - ACADEMY_ASSIGN
-      when: manual
-    - if: $CI_PIPELINE_IID == "1"
-      when: manual
-    - if: $ACADEMY_TEST == "always"
       when: always
     - when: manual
   allow_failure: true
@@ -270,16 +252,9 @@ evaluate:
   rules:
     - if: $ACADEMY_FORCE_JOB == "evaluate"
       when: always
-    - if: $CI_COMMIT_BRANCH == "source"
-      when: manual
-    - if: $CI_COMMIT_BRANCH == "draft"
-      when: manual
-    - changes:
-      - ACADEMY_ASSIGN
-      when: manual
-    - if: $CI_PIPELINE_IID == "1"
-      when: manual
-    - if: $ACADEMY_EVALUATE == "always"
+    - if: $CI_COMMIT_BRANCH == "submit"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "main"
       when: always
     - when: manual
   allow_failure: true
