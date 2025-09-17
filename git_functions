@@ -9,6 +9,16 @@ git_local_branch_exists() {
   declare -r branch="${branch}"
   git -C "${git_dir}" rev-parse --verify "${branch}" >/dev/null 2>&1
 }
+git_show() {
+  declare -r gitfile="${1}"
+  declare -r git_dir="${2:-.}"
+  git -C "${git_dir}" show "${gitfile}"
+}
+git_remote_branch_exists() {
+  declare -r git_branch="${1}"
+  declare -r git_dir="${2:-.}"
+  git -C "${git_dir}" branch -r | grep -qF "origin/${git_branch}"
+}
 git_current_branch() {
   declare -r git_dir="${1:-.}"
   declare out

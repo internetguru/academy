@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+if [[ -z "${ACADEMY_EDITABLE}" ]]; then
+  echo "Missing ACADEMY_EDITABLE variable"
+  exit 1
+fi
+
+if [[ -z "${ACADEMY_SUBMIT_TOKEN}" ]]; then
+  echo "Missing ACADEMY_SUBMIT_TOKEN variable or token"
+  exit 1
+fi
+
+# set url with token
+declare git_url
+git_url="https://project_${CI_PROJECT_ID}_bot:${ACADEMY_SUBMIT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+git remote set-url origin "${git_url}"
+# update current repo
+git pull origin main:main
+git fetch origin source:source
+git fetch origin submit:submit
+# reset possible mess
+git reset --hard
+git clean -fd
+# update from source
+git checkout submit
+git merge --no-ff --strategy-option theirs source
+# copy editable files from main
+# shellcheck disable=SC2086
+rm ${ACADEMY_EDITABLE}
+# shellcheck disable=SC2086
+git checkout main -- ${ACADEMY_EDITABLE} 2>/dev/null
+# rm .results (clean mess)
+rm -rf .results/
+# push to submit
+git add .
+git commit -am "Sync with source and main"
+git push "${git_url}" submit

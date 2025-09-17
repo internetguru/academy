@@ -52,7 +52,7 @@ exception() {
   exit "${code}"
 }
 warning() {
-  declare -r message="${1:-Unknown exception}"
+  declare -r message="${1:-Unknown warning}"
   declare -ri code=${2:-1}
   (( code == 1 )) \
     && printf -- '%s in %s() [ #%d ]\n' "${message}" "${FUNCNAME[1]}" "${code}" >&2 \

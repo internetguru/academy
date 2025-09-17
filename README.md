@@ -96,6 +96,8 @@ Note: To execute individual commands, [trigger their pipeline](https://docs.gitl
 
 ## GitLab CI Variables
 
+- `ACADEMY_DASHBOARD: "URL"`
+   - Dashboard URL, e.g. https://academy.internetguru.io
 - `ACADEMY_DEADLINE: "DATE"`
    - See `--deadline` option in `academy collect` documentation.
 - `ACADEMY_EDITABLE: "PATTERN"`
