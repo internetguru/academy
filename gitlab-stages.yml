@@ -89,6 +89,12 @@ cache:
       # commit move to keep git status empty (do not push)
       git commit --quiet -m "move allow file" -- "ACADEMY_ALLOW"
     fi
+    # do not distribute AI review instructions
+    if [[ -f ".ai-review.md" ]]; then
+      mv ".ai-review.md" ..
+      # commit move to keep git status empty (do not push)
+      git commit --quiet -m "move ai review instructions" -- ".ai-review.md"
+    fi
     declare users
     if [[ -n "${ACADEMY_ASSIGN}" ]]; then
       users="${ACADEMY_ASSIGN}"
